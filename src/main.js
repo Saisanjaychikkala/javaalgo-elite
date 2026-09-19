@@ -70,8 +70,10 @@ class App {
 
   applyMainStyles() {
     const isFullHeight = FULL_HEIGHT_TABS.includes(this.activeTab);
-    if (isFullHeight) {
-      // Full-height tabs: sidebar + content layout, no padding, no footer
+    const isMobile = window.innerWidth <= 768;
+
+    if (isFullHeight && !isMobile) {
+      // Full-height tabs: sidebar + content layout, no padding, no footer on desktop
       this.mainContentEl.style.cssText = `
         min-height: calc(100vh - var(--nav-height, 64px));
         padding: 0;
@@ -79,8 +81,8 @@ class App {
       `;
     } else {
       this.mainContentEl.style.cssText = `
-        min-height: calc(100vh - var(--nav-height, 64px) - 100px);
-        padding-bottom: 60px;
+        min-height: calc(100vh - var(--nav-height, 64px));
+        padding-bottom: ${isMobile ? '84px' : '60px'};
       `;
     }
   }

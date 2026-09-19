@@ -3,6 +3,8 @@
 // Claude Certified Architect | Google Antigravity ADK | AWS CLF-C02
 // ============================================================
 
+import { awsCloudData } from './awsCloudData.js';
+
 export const certificationsData = {
 
   certs: [
@@ -237,10 +239,10 @@ export const certificationsData = {
           name: "Domain 1: Cloud Concepts (24%)",
           weight: "24%",
           topics: [
-            { name: "What is cloud computing? IaaS vs PaaS vs SaaS", covered: false },
-            { name: "Benefits of AWS: Agility, Elasticity, Pay-as-you-go", covered: false },
-            { name: "AWS Well-Architected Framework (6 pillars)", covered: false },
-            { name: "AWS global infrastructure: Regions, AZs, Edge Locations", covered: false },
+            { name: "What is cloud computing? IaaS vs PaaS vs SaaS", covered: true },
+            { name: "Benefits of AWS: Agility, Elasticity, Pay-as-you-go", covered: true },
+            { name: "AWS Well-Architected Framework (6 pillars)", covered: true },
+            { name: "AWS global infrastructure: Regions, AZs, Edge Locations", covered: true },
           ]
         },
         {
@@ -248,11 +250,11 @@ export const certificationsData = {
           name: "Domain 2: Security & Compliance (30%)",
           weight: "30%",
           topics: [
-            { name: "Shared Responsibility Model", covered: false },
-            { name: "IAM: Users, Groups, Roles, Policies, MFA", covered: false },
-            { name: "AWS Organizations and Service Control Policies", covered: false },
-            { name: "AWS Shield, WAF, GuardDuty (security services)", covered: false },
-            { name: "AWS Compliance programs", covered: false },
+            { name: "Shared Responsibility Model", covered: true },
+            { name: "IAM: Users, Groups, Roles, Policies, MFA", covered: true },
+            { name: "AWS Organizations and Service Control Policies", covered: true },
+            { name: "AWS Shield, WAF, GuardDuty (security services)", covered: true },
+            { name: "AWS Compliance programs", covered: true },
           ]
         },
         {
@@ -260,14 +262,14 @@ export const certificationsData = {
           name: "Domain 3: Cloud Technology & Services (34%)",
           weight: "34%",
           topics: [
-            { name: "EC2 instance types and purchasing options", covered: false },
-            { name: "S3 storage classes and lifecycle policies", covered: false },
-            { name: "Lambda — serverless computing", covered: false },
-            { name: "RDS, DynamoDB, Aurora", covered: false },
-            { name: "VPC, Subnets, Security Groups, NACLs", covered: false },
-            { name: "CloudFront CDN and Route 53 DNS", covered: false },
-            { name: "CloudWatch monitoring and CloudTrail auditing", covered: false },
-            { name: "ECS, EKS — container services", covered: false },
+            { name: "EC2 instance types and purchasing options", covered: true },
+            { name: "S3 storage classes and lifecycle policies", covered: true },
+            { name: "Lambda — serverless computing", covered: true },
+            { name: "RDS, DynamoDB, Aurora", covered: true },
+            { name: "VPC, Subnets, Security Groups, NACLs", covered: true },
+            { name: "CloudFront CDN and Route 53 DNS", covered: true },
+            { name: "CloudWatch monitoring and CloudTrail auditing", covered: true },
+            { name: "ECS, EKS — container services", covered: true },
           ]
         },
         {
@@ -275,49 +277,21 @@ export const certificationsData = {
           name: "Domain 4: Billing & Pricing (12%)",
           weight: "12%",
           topics: [
-            { name: "AWS Pricing models: On-Demand, Reserved, Spot, Savings Plans", covered: false },
-            { name: "Cost Explorer, AWS Budgets, Cost and Usage Reports", covered: false },
-            { name: "AWS Free Tier categories", covered: false },
-            { name: "Support Plans: Basic, Developer, Business, Enterprise", covered: false },
+            { name: "AWS Pricing models: On-Demand, Reserved, Spot, Savings Plans", covered: true },
+            { name: "Cost Explorer, AWS Budgets, Cost and Usage Reports", covered: true },
+            { name: "AWS Free Tier categories", covered: true },
+            { name: "Support Plans: Basic, Developer, Business, Enterprise", covered: true },
           ]
         }
       ],
 
-      practiceQuestions: [
-        {
-          q: "Under the AWS Shared Responsibility Model, which of the following is AWS responsible for?",
-          options: [
-            "Configuring security groups for your EC2 instances",
-            "Encrypting your application data at rest",
-            "Physical security of AWS data centers",
-            "Managing IAM user permissions"
-          ],
-          correct: 2,
-          explanation: "AWS is responsible for 'security OF the cloud' — the physical infrastructure: data centers, networking hardware, the hypervisor. YOU are responsible for 'security IN the cloud' — your data, encryption, IAM configuration, security group rules, and OS patching on EC2 instances."
-        },
-        {
-          q: "Which AWS service lets you run code without provisioning or managing servers?",
-          options: [
-            "EC2 (Elastic Compute Cloud)",
-            "ECS (Elastic Container Service)",
-            "Lambda",
-            "Elastic Beanstalk"
-          ],
-          correct: 2,
-          explanation: "AWS Lambda is a serverless compute service. You upload code, define a trigger (HTTP request, file upload, schedule), and Lambda runs it automatically. You pay only for the compute time used (per millisecond). No servers to manage, no idle costs. EC2 requires you to manage server instances."
-        },
-        {
-          q: "Your application needs a database that can scale to millions of requests per second with single-digit millisecond latency. Which AWS service fits best?",
-          options: [
-            "Amazon RDS (PostgreSQL)",
-            "Amazon Aurora",
-            "Amazon DynamoDB",
-            "Amazon Redshift"
-          ],
-          correct: 2,
-          explanation: "DynamoDB is AWS's NoSQL database designed for exactly this use case: massive scale, consistent single-digit millisecond performance, and automatic scaling. RDS and Aurora are relational databases better suited for complex queries. Redshift is a data warehouse for analytics, not transactional workloads."
-        }
-      ],
+      practiceQuestions: awsCloudData.practiceExam.map(q => ({
+        q: q.question,
+        options: q.options,
+        correct: q.correct,
+        explanation: q.explanation,
+        domain: q.domain
+      })),
 
       studySchedule: [
         { week: 1, focus: "Cloud Concepts & Global Infrastructure", tasks: ["Read AWS Cloud overview", "Understand Region/AZ/Edge", "Well-Architected Framework pillars"] },

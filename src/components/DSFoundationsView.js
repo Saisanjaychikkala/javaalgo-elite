@@ -23,16 +23,13 @@ const visualizerMap = {
 
 export function renderDSFoundationsView() {
   const container = document.createElement('div');
-  container.style.cssText = 'display: flex; gap: 0; height: calc(100vh - 72px); overflow: hidden;';
+  container.className = 'ds-foundations-layout';
 
   let activeId = dsFoundations[0].id;
 
   // SIDEBAR
   const sidebar = document.createElement('nav');
-  sidebar.style.cssText = `
-    width: 240px; flex-shrink: 0; background: var(--surface-elevated);
-    border-right: 1px solid var(--border-subtle); overflow-y: auto; padding: 16px 0;
-  `;
+  sidebar.className = 'ds-foundations-sidebar';
   sidebar.innerHTML = `
     <div style="padding: 0 16px 12px; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;">Data Structures</div>
     ${dsFoundations.map(ds => `
@@ -52,7 +49,7 @@ export function renderDSFoundationsView() {
 
   // CONTENT AREA
   const content = document.createElement('div');
-  content.style.cssText = 'flex: 1; overflow-y: auto; padding: 32px 40px;';
+  content.className = 'ds-foundations-content';
 
   function renderDSTopic(id) {
     const ds = dsFoundations.find(d => d.id === id);

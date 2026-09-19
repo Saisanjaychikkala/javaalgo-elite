@@ -3,17 +3,14 @@ import { highlightJava } from '../utils/syntaxHighlighter.js';
 
 export function renderSystemDesignView() {
   const container = document.createElement('div');
-  container.style.cssText = 'display: flex; gap: 0; height: calc(100vh - 72px); overflow: hidden;';
+  container.className = 'sd-layout';
 
   let activeSection = 'framework';
   let activeProblem = null;
 
   // SIDEBAR
   const sidebar = document.createElement('nav');
-  sidebar.style.cssText = `
-    width: 240px; flex-shrink: 0; background: var(--surface-elevated);
-    border-right: 1px solid var(--border-subtle); overflow-y: auto; padding: 16px 0;
-  `;
+  sidebar.className = 'sd-sidebar';
 
   function buildSidebar() {
     sidebar.innerHTML = `
@@ -82,7 +79,7 @@ export function renderSystemDesignView() {
 
   // CONTENT
   const content = document.createElement('div');
-  content.style.cssText = 'flex: 1; overflow-y: auto; padding: 32px 40px;';
+  content.className = 'sd-content';
 
   function renderContent() {
     content.scrollTop = 0;

@@ -1,0 +1,66 @@
+:root {
+  /* Color Palette - Cyber Dark & Vibrant Accents */
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1e293b;
+  --bg-card: rgba(30, 41, 59, 0.7);
+  --bg-card-hover: rgba(51, 65, 85, 0.7);
+  --bg-glass: rgba(15, 23, 42, 0.75);
+  --bg-input: #0f172a;
+  --border-subtle: rgba(148, 163, 184, 0.12);
+  --border-medium: rgba(148, 163, 184, 0.25);
+  --border-glow: rgba(56, 189, 248, 0.35);
+
+  /* Brand Accents */
+  --primary: #38bdf8;
+  --primary-glow: rgba(56, 189, 248, 0.25);
+  --primary-dark: #0284c7;
+  --secondary: #818cf8;
+  --accent-purple: #c084fc;
+  --accent-emerald: #34d399;
+  --accent-amber: #fbbf24;
+  --accent-rose: #f43f5e;
+  --accent-orange: #fb923c;
+
+  /* Text Colors */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-invert: #0f172a;
+
+  /* Java Specific Colors */
+  --java-orange: #f97316;
+  --java-glow: rgba(249, 115, 22, 0.25);
+
+  /* Status Colors */
+  --easy: #10b981;
+  --easy-bg: rgba(16, 185, 129, 0.12);
+  --medium: #f59e0b;
+  --medium-bg: rgba(245, 158, 11, 0.12);
+  --hard: #ef4444;
+  --hard-bg: rgba(239, 68, 68, 0.12);
+
+  /* Fonts */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', Courier, monospace;
+
+  /* Shadows & Blurs */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 25px var(--primary-glow);
+  --glass-blur: blur(16px);
+
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout */
+  --nav-height: 70px;
+  --sidebar-width: 280px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+}

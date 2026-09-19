@@ -1134,3 +1134,95 @@ details.qa-accordion[open] summary { border-bottom: 1px solid rgba(255,255,255,0
     font-size: 1.05rem;
   }
 }
+
+/* ── DESKTOP NAV LINKS SCROLLABLE ROW ──────────────────────── */
+.desktop-nav-links {
+  flex: 1;
+  overflow-x: auto;
+  display: flex;
+  gap: 2px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 4px;
+  -ms-overflow-style: none;
+}
+.desktop-nav-links::-webkit-scrollbar { display: none; }
+
+/* ── AI REALWORLD CARDS HOVER ───────────────────────────────── */
+.ai-realworld-card {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.ai-realworld-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+/* ── PATTERN ACCORDION BODY ─────────────────────────────────── */
+.pattern-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+}
+.pattern-body.open {
+  max-height: 1000px;
+}
+
+/* ── MOBILE V3 POLISH ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* AI Universe & Certifications: show as horizontal chip bar on mobile */
+  /* (same pattern as DS Foundations sidebar) */
+
+  /* Touch feedback: scale on tap for all clickable items */
+  .ds-sidebar-item, .bottom-nav-item, .cert-quiz-opt, .quiz-opt,
+  .home-nav-card, .mobile-drawer-item {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .home-nav-card:active {
+    transform: scale(0.98) !important;
+  }
+  .bottom-nav-item:active {
+    transform: scale(0.92);
+  }
+
+  /* Prevent text zoom on iOS */
+  .ds-foundations-content pre, .ds-foundations-content code {
+    font-size: 0.8rem;
+  }
+
+  /* AI content sections responsive tables */
+  .ds-foundations-content table {
+    font-size: 0.78rem;
+  }
+  .ds-foundations-content th, .ds-foundations-content td {
+    padding: 8px 10px;
+  }
+
+  /* Cert domain grid fix for mobile */
+  .cert-domain-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── GPU COMPOSITING ON DRAWER ──────────────────────────────── */
+.mobile-drawer {
+  will-change: transform;
+  -webkit-overflow-scrolling: touch;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ── KEYBOARD SHORTCUT BADGES ────────────────────────────────── */
+.kbd-shortcut {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: var(--text-muted);
+  vertical-align: middle;
+  line-height: 1.4;
+}

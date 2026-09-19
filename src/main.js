@@ -1,4 +1,4 @@
-// JavaAlgo Elite v2.0 — Application Bootstrap
+// JavaAlgo Elite v3.0 — Application Bootstrap
 
 import { renderNavbar } from './components/Navbar.js';
 import { renderHomeView } from './components/HomeView.js';
@@ -8,12 +8,17 @@ import { renderJavaRefresherView } from './components/JavaRefresherView.js';
 import { renderPatternsView } from './components/PatternsView.js';
 import { renderVisualizerView } from './components/VisualizerView.js';
 import { renderSystemDesignView } from './components/SystemDesignView.js';
+import { renderAIUniverseView } from './components/AIUniverseView.js';
+import { renderCertificationsView } from './components/CertificationsView.js';
 import { renderQuizView } from './components/QuizView.js';
 import { createProblemModal } from './components/ProblemModal.js';
 import { createQuickSearchModal } from './components/QuickSearchModal.js';
 
-const FULL_HEIGHT_TABS = ['foundations', 'system-design'];
-const VALID_TABS = ['home', 'foundations', 'roadmap', 'refresher', 'patterns', 'visualizer', 'system-design', 'quiz'];
+const FULL_HEIGHT_TABS = ['foundations', 'system-design', 'ai-universe', 'certifications'];
+const VALID_TABS = [
+  'home', 'foundations', 'roadmap', 'refresher', 'patterns',
+  'visualizer', 'system-design', 'ai-universe', 'certifications', 'quiz'
+];
 
 class App {
   constructor() {
@@ -22,7 +27,6 @@ class App {
     this.problemModal = null;
     this.quickSearchModal = null;
     this.mainContentEl = null;
-
     this.init();
   }
 
@@ -33,37 +37,34 @@ class App {
 
   init() {
     this.appEl.innerHTML = '';
-
-    // Initialize Modals
     this.problemModal = createProblemModal();
     this.quickSearchModal = createQuickSearchModal(
       (problem) => this.openProblem(problem),
       (tab) => this.switchTab(tab)
     );
-
     document.body.appendChild(this.problemModal.el);
     document.body.appendChild(this.quickSearchModal.el);
 
-    // Render Navigation
     this.renderHeader();
 
-    // Main Content Mount Point
     this.mainContentEl = document.createElement('main');
     this.mainContentEl.id = 'main-content';
     this.applyMainStyles();
     this.appEl.appendChild(this.mainContentEl);
 
-    // Render Footer
     this.renderFooter();
-
-    // Render initial view
     this.renderCurrentView();
 
-    // Hash change listener
     window.addEventListener('hashchange', () => {
       const newTab = this.getInitialTab();
-      if (newTab !== this.activeTab) {
-        this.switchTab(newTab, false);
+      if (newTab !== this.activeTab) this.switchTab(newTab, false);
+    });
+
+    // Keyboard shortcut: Ctrl+K
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        this.quickSearchModal.open();
       }
     });
   }
@@ -73,15 +74,14 @@ class App {
     const isMobile = window.innerWidth <= 768;
 
     if (isFullHeight && !isMobile) {
-      // Full-height tabs: sidebar + content layout, no padding, no footer on desktop
       this.mainContentEl.style.cssText = `
-        min-height: calc(100vh - var(--nav-height, 64px));
+        min-height: calc(100vh - var(--nav-height, 70px));
         padding: 0;
         overflow: hidden;
       `;
     } else {
       this.mainContentEl.style.cssText = `
-        min-height: calc(100vh - var(--nav-height, 64px));
+        min-height: calc(100vh - var(--nav-height, 70px));
         padding-bottom: ${isMobile ? '84px' : '60px'};
       `;
     }
@@ -90,29 +90,21 @@ class App {
   renderHeader() {
     const existingNav = this.appEl.querySelector('.navbar');
     if (existingNav) existingNav.remove();
-
     const navbar = renderNavbar(
       this.activeTab,
       (newTab) => this.switchTab(newTab),
       () => this.quickSearchModal.open()
     );
-
     this.appEl.insertBefore(navbar, this.mainContentEl);
   }
 
   switchTab(newTab, updateHash = true) {
     if (this.activeTab === newTab && this.mainContentEl.children.length > 0) return;
     this.activeTab = newTab;
-
-    if (updateHash) {
-      window.location.hash = newTab;
-    }
-
+    if (updateHash) window.location.hash = newTab;
     this.applyMainStyles();
     this.renderHeader();
     this.renderCurrentView();
-
-    // Only scroll for non-full-height tabs
     if (!FULL_HEIGHT_TABS.includes(newTab)) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -120,8 +112,6 @@ class App {
 
   renderCurrentView() {
     this.mainContentEl.innerHTML = '';
-
-    // Hide/show footer for full-height tabs
     const footer = this.appEl.querySelector('footer');
     if (footer) {
       footer.style.display = FULL_HEIGHT_TABS.includes(this.activeTab) ? 'none' : '';
@@ -151,6 +141,12 @@ class App {
       case 'system-design':
         this.mainContentEl.appendChild(renderSystemDesignView());
         break;
+      case 'ai-universe':
+        this.mainContentEl.appendChild(renderAIUniverseView());
+        break;
+      case 'certifications':
+        this.mainContentEl.appendChild(renderCertificationsView());
+        break;
       case 'quiz':
         this.mainContentEl.appendChild(renderQuizView());
         break;
@@ -175,16 +171,29 @@ class App {
     `;
     footer.innerHTML = `
       <div class="container">
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
-          <span style="color: #fb923c; font-weight: 700;">JavaAlgo Elite v2.0</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;">
+          <span style="font-size: 1.1rem;">🚀</span>
+          <span style="color: #fb923c; font-weight: 800;">JavaAlgo Elite v3.0</span>
           <span>•</span>
-          <span>From DS Foundations to System Design — Everything you need to crack the job market</span>
+          <span>From Zero to Cracking Any Interview, Certification, or Offer</span>
         </div>
-        <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 12px; font-size: 0.8rem;">
-          8 Interactive Data Structures · 7-Tier Roadmap · 14 Algorithm Patterns · 6 System Design Problems · Java Refresher · Recall Quiz
-        </p>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 12px; font-size: 0.78rem;">
+          <span>📚 DS Foundations</span>
+          <span>·</span>
+          <span>🗺️ 7-Tier Roadmap</span>
+          <span>·</span>
+          <span>🏛️ System Design</span>
+          <span>·</span>
+          <span>🤖 AI Universe</span>
+          <span>·</span>
+          <span>☁️ AWS Cloud</span>
+          <span>·</span>
+          <span>🎓 Certifications</span>
+          <span>·</span>
+          <span>🧠 Quiz</span>
+        </div>
         <div style="font-size: 0.75rem;">
-          Press <kbd class="kbd-shortcut">Ctrl</kbd> + <kbd class="kbd-shortcut">K</kbd> anywhere to search syntax or problems.
+          Press <kbd class="kbd-shortcut">Ctrl</kbd> + <kbd class="kbd-shortcut">K</kbd> to search any topic, syntax, or problem.
         </div>
       </div>
     `;
@@ -192,7 +201,6 @@ class App {
   }
 }
 
-// Bootstrap application on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
   new App();
 });

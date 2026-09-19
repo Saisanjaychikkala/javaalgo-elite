@@ -42,7 +42,7 @@ export function renderHomeView(onNavigate) {
           <h1 style="font-size: 2.2rem; font-weight: 900; letter-spacing: -0.03em;">
             Welcome to <span class="java-gradient-text">JavaAlgo Elite</span>
           </h1>
-          <p style="color: var(--text-secondary); margin-top: 2px;">DSA in Java · System Design · AI Universe · Certifications — Your complete guide from noob to cracking any job or cert in 2026</p>
+          <p style="color: var(--text-secondary); margin-top: 2px;">DSA in Java · System Design · AI & ML Universe · AWS Cloud · Certifications — From noob to cracking any interview or certification in 2026</p>
         </div>
       </div>
     </section>
@@ -66,8 +66,12 @@ export function renderHomeView(onNavigate) {
         <div class="stat-label">System Designs</div>
       </div>
       <div class="stat-item">
-        <div class="stat-val" style="color: #818cf8;">15</div>
-        <div class="stat-label">AI/LLM Topics</div>
+        <div class="stat-val" style="color: #818cf8;">20</div>
+        <div class="stat-label">AI & ML Topics</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" style="color: #38bdf8;">4</div>
+        <div class="stat-label">AWS CLF Domains</div>
       </div>
       <div class="stat-item">
         <div class="stat-val" style="color: #34d399;">3</div>
@@ -110,13 +114,13 @@ export function renderHomeView(onNavigate) {
         </div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
           <div class="home-nav-card" data-tab="foundations" style="
-            padding: 12px 16px; background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.25);
+            padding: 12px 16px; background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.25);
             border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;
           ">
             <span style="font-size: 1.4rem;">📚</span>
             <div>
-              <div style="font-weight: 700; color: #c084fc;">Step 1: DS Foundations</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">8 data structures with full explanations & interactive visualizers</div>
+              <div style="font-weight: 700; color: #a5b4fc;">Step 1: Data Structure Foundations</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">8 Core DS with interactive visual playground</div>
             </div>
           </div>
           <div class="home-nav-card" data-tab="roadmap" style="
@@ -156,18 +160,27 @@ export function renderHomeView(onNavigate) {
       <div class="card" style="border-color: rgba(129,140,248,0.25); background: linear-gradient(135deg, rgba(129,140,248,0.06), rgba(192,132,252,0.04));">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
           <span style="font-size: 1.3rem;">🤖</span>
-          <h3 style="font-size: 1.1rem; font-weight: 700; color: #818cf8;">AI & Certification Tracks</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: #818cf8;">AI & Cloud Track</h3>
           <span style="font-size: 0.65rem; padding: 2px 6px; border-radius: 99px; background: rgba(129,140,248,0.2);
-            color: #818cf8; border: 1px solid rgba(129,140,248,0.3); font-weight: 800;">NEW v3.0</span>
+            color: #818cf8; border: 1px solid rgba(129,140,248,0.3); font-weight: 800;">PHASE 2 LIVE</span>
         </div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
           <div class="home-nav-card" data-tab="ai-universe" style="
             padding: 12px 16px; background: rgba(129,140,248,0.1); border: 1px solid rgba(129,140,248,0.3);
             border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 1.4rem;">🤖</span>
+            <span style="font-size: 1.4rem;">🧠</span>
             <div>
-              <div style="font-weight: 700; color: #818cf8;">AI Universe — Zero to Pro</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">AI → LLMs → RAG → Agents → MCPs → Claude → Gemini ADK</div>
+              <div style="font-weight: 700; color: #818cf8;">AI & ML Universe (20 Topics)</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">ML From Scratch · Neural Nets · Transformers · Agents · Road to AGI</div>
+            </div>
+          </div>
+          <div class="home-nav-card" data-tab="certifications" style="
+            padding: 12px 16px; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 1.4rem;">☁️</span>
+            <div>
+              <div style="font-weight: 700; color: #fbbf24;">AWS Cloud Practitioner (CLF-C02)</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">4 Domain Guides · Shared Responsibility Matrix · 15 Realistic Qs</div>
             </div>
           </div>
           <div class="home-nav-card" data-tab="certifications" style="
@@ -175,16 +188,8 @@ export function renderHomeView(onNavigate) {
             border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 1.4rem;">🎓</span>
             <div>
-              <div style="font-weight: 700; color: #34d399;">Certification Hub</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Claude Architect · Antigravity Agent Dev · AWS CLF-C02</div>
-            </div>
-          </div>
-          <div style="padding: 12px 14px; background: rgba(244,63,94,0.06); border: 1px dashed rgba(244,63,94,0.2);
-            border-radius: 10px; display: flex; align-items: center; gap: 10px; opacity: 0.75;">
-            <span style="font-size: 1.2rem;">🔒</span>
-            <div>
-              <div style="font-weight: 700; color: var(--text-muted); font-size: 0.85rem;">Mock Interview Room</div>
-              <div style="font-size: 0.75rem; color: rgba(255,255,255,0.3);">AI-powered live DSA + System Design — Coming Soon</div>
+              <div style="font-weight: 700; color: #34d399;">Certifications Hub</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Claude Architect · Google Antigravity Agent Dev · AWS CLF-C02</div>
             </div>
           </div>
         </div>

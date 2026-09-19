@@ -9,9 +9,9 @@ export const aiUniverseData = {
   // ── TRACK META ──────────────────────────────────────────
   title: "AI & Generative AI Universe",
   subtitle: "From 'What is AI?' to building production AI agents — no prior knowledge needed",
-  totalTopics: 15,
-  estimatedHours: 40,
-  certifications: ["Claude Certified Architect", "Google Antigravity Agent Dev", "AWS AI Practitioner"],
+  totalTopics: 20,
+  estimatedHours: 55,
+  certifications: ["Claude Certified Architect", "Google Antigravity Agent Dev", "AWS AI Practitioner", "AWS Cloud Practitioner"],
 
   // ── TOPICS ──────────────────────────────────────────────
   topics: [
@@ -1327,8 +1327,6 @@ response = client.messages.create(
 **Deployment & Monitoring:**
 - LangSmith: LangChain's observability platform
 - Langfuse: Open-source LLM tracing
-- Vertex AI: Google's ML deployment platform
-- AWS Bedrock: Run LLMs on AWS infrastructure
 - Azure OpenAI: GPT models in Azure cloud
 
 **Orchestration:**
@@ -1337,8 +1335,523 @@ response = client.messages.create(
 - Flowise: Visual agent builder`
         }
       ]
+    },
+
+    // ── TOPIC 16: ML FROM SCRATCH (MATH INTUITION → CODE) ──
+    {
+      id: "ml-from-scratch",
+      title: "ML from Scratch: Math Intuition → Code",
+      icon: "🧠",
+      color: "#f59e0b",
+      difficulty: "Beginner to Intermediate",
+      estimatedMins: 35,
+      hook: "You do not need a PhD in advanced calculus or linear algebra to understand Machine Learning. At its core, ML is drawing a line through scattered dots, measuring how wrong you are, and rolling a marble down a hill until it lands in the lowest valley. Here is the pure, intuitive math that powers modern AI.",
+
+      sections: [
+        {
+          type: "story",
+          title: "The Fruit Vendor's Secret Mental Model",
+          content: `Imagine an experienced fruit vendor at a bustling street market. A customer asks: *"Is this watermelon sweet?"*
+
+The vendor picks it up, taps it with his knuckles, weighs it in his hands, and says: *"Yes, 95% sweet."* How did he know?
+
+He didn't read a math paper. He learned through **experience**:
+1. Over 5 years, he sliced open 1,000 watermelons.
+2. In his brain, he mapped: **Weight** + **Hollow Sound Pitch** + **Yellow Field Spot** $\\to$ **Sweetness**.
+3. Every time a customer complained, his brain felt an error (**Loss**) and nudged his internal mental formula slightly (**Gradient Descent**).
+
+**That is Machine Learning in a single paragraph.**
+You give a computer historical examples with inputs and outcomes, and let the computer adjust its internal knobs until its predictions match reality.`
+        },
+        {
+          type: "concept",
+          title: "The Formula of Everything: y = w · x + b",
+          content: `Every neural network, every recommendation engine, and even large language models are built on stacked variations of this simple equation:
+
+$$\\mathbf{y = w \\cdot x + b}$$
+
+- **x (Input / Feature):** The data you feed in (e.g., size of an apartment in square feet, number of bedrooms).
+- **w (Weight / Slope):** How much this feature matters. If $w = 200$, each additional square foot adds $200 to the estimated rent. If $w = 0$, that feature is completely irrelevant.
+- **b (Bias / Intercept):** The baseline value when all inputs are zero (e.g., the minimum base rent of the land even if the apartment is 0 sq ft).
+- **y (Prediction):** The predicted output (e.g., estimated monthly rent).
+
+**Why do we call it a 'weight'?**
+Because it literally represents how heavily that piece of information weighs into your final decision!`
+        },
+        {
+          type: "concept",
+          title: "Loss Functions: The Scorecard of Mistakes",
+          content: `Before an AI can improve, it needs a way to measure **how wrong it currently is**. This scorecard is called the **Loss Function** (or Cost Function).
+
+The most famous loss function is **Mean Squared Error (MSE)**:
+$$\\text{Loss} = \\frac{1}{N} \\sum (y_{\\text{actual}} - y_{\\text{predicted}})^2$$
+
+**Why do we square the difference?**
+1. **Turns negatives into positives:** If the house actually sold for $300K and you predicted $310K, your error is -$10K. If you predicted $290K, your error is +$10K. In both cases, you were off by $10K. Squaring removes the negative sign ($(-10)^2 = 100$).
+2. **Severely penalizes big mistakes:** If you miss by 2 units, $(2)^2 = 4$. But if you miss by 10 units, $(10)^2 = 100$! The algorithm pays a 25x higher penalty for catastrophic blunders.`
+        },
+        {
+          type: "concept",
+          title: "Gradient Descent: The Blind Hiker on a Foggy Mountain",
+          content: `Once the model knows its current Loss, how does it adjust the weight ($w$) and bias ($b$) to make the Loss smaller?
+
+**The Blind Hiker Metaphor:**
+Imagine you are blindfolded on top of foggy Mount Fuji, and your goal is to find the lowest valley (the minimum Loss).
+- You can't see the landscape.
+- But you can feel the slope of the ground under your shoes with your toes.
+- If the ground slopes downward to your left, you take a step to the left!
+- You repeat this process step by step until the ground is completely flat under your feet. That flat ground is the optimal solution!
+
+**The Learning Rate (\\(\\alpha\\)):**
+The size of the step you take:
+- **Too Small (\\(\\alpha = 0.000001\\)):** You take microscopic baby steps. Training takes 4 months and thousands of dollars in cloud GPU compute.
+- **Too Large (\\(\\alpha = 10.0\\)):** You take giant kangaroo leaps. You jump right over the valley, land on the opposite mountain peak, and spiral out into infinity!
+- **Just Right (\\(\\alpha = 0.01\\)):** You smoothly descend down the mountain and settle into the valley.`
+        },
+        {
+          type: "concept",
+          title: "Logistic Regression: The S-Curve for Yes/No Probabilities",
+          content: `What if we don't want to predict a continuous number (like house price), but a probability between **0% and 100%** (e.g., Is this transaction fraudulent? Does this X-ray show pneumonia?)?
+
+If you use a straight line, it can output -50 or +2000, which makes no sense as a percentage.
+To fix this, we pass the linear output through the **Sigmoid Function**:
+$$\\sigma(z) = \\frac{1}{1 + e^{-z}}$$
+
+**The Magic of the Sigmoid S-Curve:**
+- If $z = -100$, $\\sigma(z) \\approx 0.00$ (0% probability).
+- If $z = 0$, $\\sigma(z) = 0.50$ (50% toss-up).
+- If $z = +100$, $\\sigma(z) \\approx 1.00$ (100% probability).
+It gracefully squashes any real number from $-\\infty$ to $+\\infty$ into a clean probability between 0 and 1!`,
+          code: {
+            language: "python",
+            label: "Gradient Descent From Scratch (Pure Python)",
+            content: `# Pure Python Gradient Descent — No External Libraries Needed!
+# We will learn the line: y = 2x + 1
+
+# Training data (x: hours studied, y: exam score)
+X = [1.0, 2.0, 3.0, 4.0, 5.0]
+Y = [3.0, 5.0, 7.0, 9.0, 11.0]  # Perfect relation: 2*x + 1
+
+# Initialize random weights and learning rate
+w = 0.0
+b = 0.0
+learning_rate = 0.02
+epochs = 500  # Number of training steps
+
+# Training Loop
+for epoch in range(epochs):
+    loss = 0.0
+    dw = 0.0  # Gradient for weight
+    db = 0.0  # Gradient for bias
+    n = len(X)
+    
+    # Forward pass and gradient calculation
+    for x_i, y_i in zip(X, Y):
+        prediction = w * x_i + b
+        error = prediction - y_i
+        loss += error ** 2
+        dw += (2 / n) * error * x_i
+        db += (2 / n) * error
+        
+    # Update weights (take step downhill)
+    w -= learning_rate * dw
+    b -= learning_rate * db
+    
+    if epoch % 100 == 0:
+        print(f"Epoch {epoch:3d} | Loss: {loss/n:.4f} | w: {w:.3f} | b: {b:.3f}")
+
+print(f"Final Model: y = {w:.2f} * x + {b:.2f}")
+# Output: Final Model: y = 2.00 * x + 1.00!`
+          }
+        },
+        {
+          type: "quiz",
+          questions: [
+            {
+              q: "Why do we square the difference in the Mean Squared Error (MSE) loss function?",
+              options: [
+                "Because computers can only multiply positive numbers",
+                "To remove negative signs and heavily penalize large errors over small ones",
+                "Because squaring turns linear models into neural networks",
+                "To speed up the network clock speed"
+              ],
+              correct: 1,
+              explanation: "Squaring ensures all errors are positive (an overestimate and an underestimate are both penalized) and aggressively penalizes large mistakes (an error of 10 results in 100 penalty, 25x worse than an error of 2)."
+            },
+            {
+              q: "What happens during gradient descent if your learning rate is set too high?",
+              options: [
+                "The model trains in 1 second with 100% accuracy",
+                "The model takes microscopic steps and never moves",
+                "The model overshoots the minimum and the loss explodes into infinity",
+                "The model converts automatically to unsupervised learning"
+              ],
+              correct: 2,
+              explanation: "If the learning rate is too high, the step size across the error surface is too large. Instead of settling into the minimum valley, the updates oscillate wildly and diverge towards infinity."
+            }
+          ]
+        }
+      ]
+    },
+
+    // ── TOPIC 17: HOW MACHINES ACTUALLY LEARN ───────────────
+    {
+      id: "how-machines-learn",
+      title: "How Machines Learn: Supervised, Unsupervised & RL",
+      icon: "🎯",
+      color: "#10b981",
+      difficulty: "Beginner",
+      estimatedMins: 25,
+      hook: "How does Spotify discover new indie songs you fall in love with? How did AlphaGo defeat the world champion in Go? How does self-driving software recognize pedestrians? The entire universe of machine learning is divided into 3 distinct learning paradigms.",
+
+      sections: [
+        {
+          type: "story",
+          title: "The 3 Ways Humans (and AI) Learn",
+          content: `Think about how you learned things growing up:
+
+1. **Learning with Flashcards (Supervised Learning):** Your teacher showed you a card with a picture of an elephant and the word "Elephant" on the back. You guessed, checked the answer, and corrected yourself.
+2. **Sorting Legos on the Carpet (Unsupervised Learning):** Nobody told you the rules, but you naturally grouped the blue bricks into one pile, long rectangular bricks into another, and wheels into a third. You found structure without labels.
+3. **Learning to Ride a Bicycle (Reinforcement Learning):** Nobody can write you a textbook on how to balance on two wheels. You pedal, wobble, fall and scrape your knee (negative reward), try again, balance for 10 seconds (positive dopamine reward), and gradually master the skill through trial and error.
+
+Every modern AI system uses one (or a combination) of these three methods.`
+        },
+        {
+          type: "concept",
+          title: "1. Supervised Learning: Learning from Labeled Data",
+          content: `In Supervised Learning, you feed the algorithm input data ($X$) accompanied by the correct answer ($Y$ or 'label').
+
+It is divided into two primary categories:
+- **Classification:** Predicting a discrete label or category.
+  - *Examples:* Spam vs Not Spam, Cat vs Dog, Loan Default vs Approved, Fraudulent Credit Card Swipe vs Genuine.
+- **Regression:** Predicting a continuous numerical quantity.
+  - *Examples:* Tomorrow's temperature (e.g. 74.5°F), Stock market closing price, Customer lifetime revenue ($420.50), House appraisal value.`
+        },
+        {
+          type: "concept",
+          title: "2. Unsupervised Learning: Discovering Hidden Structure",
+          content: `In Unsupervised Learning, you give the algorithm only raw data ($X$) with **ZERO labels or answers**.
+
+The algorithm must find natural patterns, clusters, or anomalies on its own:
+- **Clustering (e.g. K-Means):**
+  - An e-commerce site analyzes purchase histories of 5 million customers. The AI discovers 3 natural groups: "Weekend impulse buyers", "Bulk corporate buyers", and "Bargain coupon hunters". The marketing team can now tailor campaigns to each group.
+- **Dimensionality Reduction (e.g. PCA, t-SNE):**
+  - Compressing 1,000 data features into 2 or 3 dimensions so humans can visualize complex customer data on a 2D scatter plot.
+- **Anomaly Detection:**
+  - Finding credit card transactions that deviate from all historical clusters (e.g., someone charging $4,000 at 3 AM in another continent).`
+        },
+        {
+          type: "concept",
+          title: "3. Reinforcement Learning (RL): Learning Through Rewards",
+          content: `In Reinforcement Learning, an **Agent** interacts with an **Environment** in an ongoing loop:
+
+$$\\text{State} \\to \\text{Action} \\to \\text{Reward / Penalty} \\to \\text{New State}$$
+
+- **Agent:** The AI decision-maker (e.g., an autonomous robot, chess bot, or video game character).
+- **Environment:** The world the agent lives in (e.g., the chess board, Super Mario level, highway traffic).
+- **Reward:** A numerical signal. +10 for winning a game or avoiding an obstacle, -50 for crashing into a wall.
+- **Policy:** The agent's strategy that maps what action to take in any given state to maximize long-term cumulative reward.
+
+**Why RL is Crucial for Generative AI (RLHF):**
+Raw large language models trained on the internet often say rude, incoherent, or dangerous things.
+Engineers use **Reinforcement Learning from Human Feedback (RLHF)**: human evaluators rate model responses (+1 for helpful and safe, -1 for toxic). The model uses RL to become the helpful, respectful assistants we know today!`
+        },
+        {
+          type: "concept",
+          title: "The Overfitting Nightmare: Memorizing vs Generalizing",
+          content: `The single biggest trap in machine learning is **Overfitting**.
+
+**The High School Exam Analogy:**
+- **Student A (Underfitting):** Barely studied, didn't read the textbook, gets 40% on both practice exams and final exams. High Bias.
+- **Student B (Overfitting):** Memorized all 50 questions and exact answers from the 2022 practice exam. Gets 100% on the practice exam! But on the 2023 final exam, when the numbers change, Student B fails with 20%! High Variance.
+- **Student C (Optimal Generalization):** Understood the underlying mathematical principles. Gets 92% on the practice test and 90% on the real final exam!
+
+**How Engineers Prevent Overfitting:**
+1. **Train / Validation / Test Split:** Never evaluate a model on the data it was trained on! Keep 20% of data locked in a vault to test real-world generalization.
+2. **Regularization (L1/L2, Dropout):** Penalize the model for having overly complex, giant weights. In neural networks, randomly turn off 20% of neurons during training so the network cannot rely on memorization shortcuts.`
+        },
+        {
+          type: "quiz",
+          questions: [
+            {
+              q: "You want to predict the exact selling price of a used car based on mileage, year, and brand. What type of machine learning problem is this?",
+              options: [
+                "Unsupervised Clustering",
+                "Supervised Classification",
+                "Supervised Regression",
+                "Reinforcement Learning"
+              ],
+              correct: 2,
+              explanation: "Predicting a continuous numerical value (selling price in dollars) from labeled historical data is a Supervised Regression task."
+            }
+          ]
+        }
+      ]
+    },
+
+    // ── TOPIC 18: DEEP LEARNING & NEURAL NETWORKS ────────────
+    {
+      id: "deep-learning-intuition",
+      title: "Deep Learning & Neural Networks: From Neuron to Backprop",
+      icon: "⚡",
+      color: "#8b5cf6",
+      difficulty: "Intermediate",
+      estimatedMins: 35,
+      hook: "Why did machine learning stall for decades in the 1980s, and why did deep learning suddenly revolutionize computer vision, speech recognition, and language in the 2010s? The secret is how artificial neurons connect into deep layers to learn abstract concepts.",
+
+      sections: [
+        {
+          type: "story",
+          title: "How Your Visual Cortex Recognizes a Face",
+          content: `When light hits your retina, your brain doesn't instantly recognize "That's Grandma!" in one step. It processes the image through a hierarchical cascade of visual processing layers:
+
+- **Layer 1 (Primary Visual Cortex V1):** Detects tiny pixel contrast edges (horizontal lines, diagonal bars, sharp corners).
+- **Layer 2 (V2):** Combines edges into geometric shapes (ovals, triangles, circular curves).
+- **Layer 3 (V4):** Combines shapes into distinct facial features (an eye, the tip of a nose, lips).
+- **Layer 4 (Inferotemporal Cortex):** Combines features into high-level identities ("That is Grandma smiling").
+
+**Deep Neural Networks are designed on this exact principle:**
+Each layer transforms the raw numbers from the layer below into a higher, more abstract representation.`
+        },
+        {
+          type: "concept",
+          title: "The Artificial Neuron (Perceptron)",
+          content: `An artificial neuron takes multiple numerical inputs, multiplies each input by a specific weight, adds a bias threshold, and passes the sum through an activation function:
+
+$$\\mathbf{z = (x_1 w_1 + x_2 w_2 + \\dots + x_n w_n) + b}$$
+$$\\mathbf{a = f(z)}$$
+
+- **Inputs (\\(x\\)):** Incoming signals (e.g. brightness of pixels, word embeddings).
+- **Weights (\\(w\\)):** The synaptic strength of each connection.
+- **Bias (\\(b\\)):** How eager the neuron is to fire regardless of the inputs.
+- **Activation Function (\\(f\\)):** Determines whether the neuron sends a signal to the next layer.`
+        },
+        {
+          type: "concept",
+          title: "Activation Functions: The Spark of Non-Linearity",
+          content: `If you stack 100 linear layers without activation functions ($y = w_2(w_1 x + b_1) + b_2$), basic algebra proves that the entire 100-layer network collapses into a single linear equation: $y = W_{\\text{combined}} x + B_{\\text{combined}}$.
+Without non-linearity, a deep network is no more powerful than a single straight line!
+
+**The Essential Activation Functions:**
+1. **ReLU (Rectified Linear Unit):**
+   - Formula: $f(x) = \\max(0, x)$
+   - "If negative, output zero. If positive, let it pass through unchanged."
+   - Why it powers 90% of modern deep learning: It is computationally trivial to compute on GPUs and does not saturate, solving the vanishing gradient problem!
+2. **Softmax:**
+   - Used in the final output layer for classification.
+   - Takes raw scores (logits like $[2.4, 0.1, -1.2]$) and converts them into normalized probabilities that sum to exactly **1.0 (100%)** (e.g. $[88\\%, 9\\%, 3\\%]$).`
+        },
+        {
+          type: "concept",
+          title: "Backpropagation Demystified: The Chain Rule of Blame",
+          content: `How do millions of weights in a 50-layer neural network learn together? Through **Backpropagation** (backward propagation of errors).
+
+**The Corporate Project Blame Analogy:**
+Imagine a software company builds a product for a client:
+1. **Forward Pass:** The Junior Engineer writes code $\\to$ Senior Engineer reviews $\\to$ Director approves $\\to$ Product is shipped to client.
+2. **Loss Calculation:** The client is furious because the app crashed (Huge Error / Loss!).
+3. **Backward Pass (Backprop):**
+   - The Director is blamed by the CEO.
+   - The Director passes proportional blame down to the Senior Engineer.
+   - The Senior Engineer passes proportional blame down to the Junior Engineer.
+   - Everyone adjusts their habits slightly so the next version doesn't crash!
+
+In calculus, this is computed via the **Chain Rule of Derivatives**:
+$$\\frac{\\partial \\text{Loss}}{\\partial w_1} = \\frac{\\partial \\text{Loss}}{\\partial a} \\cdot \\frac{\\partial a}{\\partial z} \\cdot \\frac{\\partial z}{\\partial w_1}$$
+Backprop calculates exactly how much each individual weight contributed to the final error, allowing gradient descent to adjust every knob in the opposite direction!`
+        },
+        {
+          type: "quiz",
+          questions: [
+            {
+              q: "Why are non-linear activation functions (like ReLU) required in multi-layer neural networks?",
+              options: [
+                "To encrypt network weights during transmission",
+                "Without non-linear activations, stacking multiple layers collapses mathematically into a single linear model",
+                "To convert floating point numbers into integers",
+                "To reduce the size of the training dataset"
+              ],
+              correct: 1,
+              explanation: "Linear combinations of linear equations always produce another linear equation. Stacking 50 linear layers without non-linear activations has zero additional expressive power over a single-layer model."
+            }
+          ]
+        }
+      ]
+    },
+
+    // ── TOPIC 19: THE TRANSFORMER REVOLUTION ─────────────────
+    {
+      id: "transformer-revolution",
+      title: "The Transformer Revolution: Self-Attention & GenAI Decoded",
+      icon: "✨",
+      color: "#ec4899",
+      difficulty: "Intermediate",
+      estimatedMins: 35,
+      hook: "In 2017, eight researchers at Google published an 8-page paper titled 'Attention Is All You Need'. It threw away 30 years of recurrence and convolution, unlocked massive parallel training across thousands of GPUs, and gave birth to ChatGPT, Claude, Gemini, and the entire generative AI era.",
+
+      sections: [
+        {
+          type: "story",
+          title: "The Broken Telephone of Older Language Models",
+          content: `Before Transformers, AI processed text using **RNNs (Recurrent Neural Networks)**.
+An RNN reads like an impatient human: word 1, then word 2, then word 3... passing an internal hidden memory vector forward one step at a time.
+
+**The Fatal Flaw:**
+By the time the RNN reached word 300 of an essay, the memory vector for word 1 had been overwritten and diluted 300 times. It completely forgot the context from the beginning!
+Worse, because word 5 depends on word 4, you could not train words in parallel across multiple GPUs. Training large models took months.
+
+The Transformer solved both problems forever by introducing **Self-Attention** and eliminating sequential loops.`
+        },
+        {
+          type: "concept",
+          title: "Self-Attention: The Flashlight Analogy",
+          content: `Consider this famous sentence:
+> *"The animal didn't cross the street because **it** was too tired."*
+
+What does **"it"** refer to? The animal or the street?
+A human instantly knows: "it" refers to the animal (streets don't get tired).
+
+Now consider:
+> *"The animal didn't cross the street because **it** was too wide."*
+
+Now "it" refers to the street!
+
+**How Self-Attention Solves This:**
+In a Transformer, every word shines an 'attention flashlight' onto every other word in the sentence simultaneously:
+- When processing the word **"it"**, the model calculates similarity scores with all other words.
+- In the first sentence, the word **"tired"** casts a bright beam connecting **"it"** $\\leftrightarrow$ **"animal"**.
+- In the second sentence, the word **"wide"** casts a bright beam connecting **"it"** $\\leftrightarrow$ **"street"**.
+Context is computed dynamically across the entire sentence in a single GPU matrix multiplication step!`
+        },
+        {
+          type: "concept",
+          title: "Query, Key, and Value (Q, K, V): The YouTube Search Engine",
+          content: `Every attention calculation is structured like a search engine database lookup:
+
+1. **Query (Q):** What I am currently looking for (e.g. typing *"funny cat videos"* into the search bar).
+2. **Key (K):** The video title, tags, and description of every video stored on YouTube's servers.
+3. **Dot Product (Q · K):** Calculating how well your query matches each video's tags (The Attention Score).
+4. **Value (V):** The actual video content that YouTube streams back to your screen based on the highest matching scores!
+
+$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{Q K^T}{\\sqrt{d_k}}\\right) V$$`
+        },
+        {
+          type: "concept",
+          title: "Tokens & High-Dimensional Latent Space",
+          content: `Computers cannot understand words like "apple" or "philosophy". They only understand numbers.
+
+1. **Tokenization:** Text is sliced into tokens (~4 characters or 0.75 words). For example, "unbelievable" $\\to$ ["un", "believ", "able"].
+2. **Embeddings:** Each token is mapped to a vector of numbers (e.g. 1,536 dimensions in OpenAI embeddings or 4,096 in Claude).
+3. **Semantic Geometry:** In this high-dimensional mathematical universe, words with similar meanings cluster together.
+Famous Vector Arithmetic Discovery:
+$$\\vec{\\text{King}} - \\vec{\\text{Man}} + \\vec{\\text{Woman}} \\approx \\vec{\\text{Queen}}$$
+The model discovers gender, tense, geography, and conceptual relationships purely from word placement geometry!`
+        },
+        {
+          type: "quiz",
+          questions: [
+            {
+              q: "In the Transformer architecture, what was the primary advantage of Self-Attention over previous RNN architectures?",
+              options: [
+                "It eliminated the need for GPUs during training",
+                "It processes all words in a sentence simultaneously in parallel and captures long-distance context without memory degradation",
+                "It only works on English words",
+                "It requires zero training data"
+              ],
+              correct: 1,
+              explanation: "Self-Attention processes all tokens in parallel using matrix multiplications on GPUs, avoiding the sequential bottleneck of RNNs and preventing context loss across long passages."
+            }
+          ]
+        }
+      ]
+    },
+
+    // ── TOPIC 20: THE PATH TO AGI & THE FUTURE ──────────────
+    {
+      id: "path-to-agi-and-future",
+      title: "The Path to AGI & The Future: Reasoning, Agents & Next Era",
+      icon: "🚀",
+      color: "#06b6d4",
+      difficulty: "Beginner to Advanced",
+      estimatedMins: 30,
+      hook: "We have evolved from Narrow AI (spam filters and chess bots) to Generative AI (chatbots writing essays). We are now crossing the threshold into Reasoning Models and Autonomous Agents — the direct stepping stones toward AGI (Artificial General Intelligence). What does this mean for the future of software, work, and your career?",
+
+      sections: [
+        {
+          type: "story",
+          title: "The 3 Horizons of Artificial Intelligence",
+          content: `To understand where we are going, we must map the 3 evolutionary stages of AI:
+
+1. **Artificial Narrow Intelligence (ANI) — Yesterday & Today:**
+   - Hyper-specialized at a single task. A chess engine that crushes the world champion cannot book you a flight or tell if an email is spam.
+2. **Artificial General Intelligence (AGI) — Tomorrow (2025–2030):**
+   - Software that matches or exceeds human intellectual performance across **ANY domain**: coding, scientific research, financial analysis, legal reasoning, creative writing, and autonomous problem solving.
+3. **Artificial Superintelligence (ASI) — The Distant Future:**
+   - AI that is vastly smarter than the collective intelligence of all human brains combined, capable of solving unsolved physics, curing diseases, and interstellar engineering.`
+        },
+        {
+          type: "concept",
+          title: "The Breakthrough: Test-Time Compute & Reasoning Models",
+          content: `In 2024, AI reached a historic inflection point with models like **OpenAI o1/o3**, **Google Gemini 2.0 Thinking**, and **Claude Thinking**.
+
+Nobel laureate Daniel Kahneman divided human thought into two systems:
+- **System 1 (Fast & Intuitive):** Instant, gut-reaction thinking (e.g. 2 + 2 = 4, recognizing a friend's voice). Standard LLMs like GPT-4 operate in pure System 1: predicting tokens with zero delay.
+- **System 2 (Slow & Deliberate):** Step-by-step logical reasoning (e.g. 19 × 37 = ?, debugging a race condition, planning 8 moves ahead in chess).
+
+**What is Test-Time Compute?**
+Instead of answering immediately, reasoning models spend compute power *during the inference phase* to:
+1. Generate internal chains of thought.
+2. Brainstorm alternative hypotheses.
+3. Check their own work for bugs or mathematical errors.
+4. Backtrack when a proposed solution hits a dead end.
+This unlocks PhD-level performance in competitive mathematics, software architecture, and scientific analysis!`
+        },
+        {
+          type: "concept",
+          title: "Autonomous Agents: Giving the Brain Hands & Eyes",
+          content: `A raw LLM is just a brain in a jar. An **AI Agent** connects that brain to the real world through an autonomous execution loop:
+
+1. **Perception:** Ingesting multimodal input (reading code files, viewing browser DOM, inspecting error logs).
+2. **Planning:** Breaking down a complex objective (*"Build an e-commerce checkout service"*) into a sequence of actionable steps.
+3. **Tool Execution:** Using real-world tools: running bash commands, querying PostgreSQL databases, calling third-party REST APIs, writing code files.
+4. **Reflection & Self-Correction:** When a unit test fails or a compiler throws an error, the agent reads the traceback, diagnoses the bug, and rewrites the code automatically until all tests pass!`
+        },
+        {
+          type: "concept",
+          title: "The Human Superpower in the AI Era: How to Stay Irreplaceable",
+          content: `A common fear is: *"If AI writes code, is learning programming still worth it?"*
+
+Here is the truth:
+**Syntax is becoming cheap. Engineering, architectural vision, and systems thinking are becoming 100x more valuable!**
+
+In the age of AI, the most successful individuals are **AI Orchestrators**:
+- **Problem Formulation:** Knowing what to build, identifying real customer problems, and defining precise requirements.
+- **System Architecture:** Understanding how databases, caching layers, message queues, and security protocols stitch together.
+- **Verification & Critical Judgment:** Knowing how to evaluate AI outputs, spot subtle security vulnerabilities, and ensure compliance.
+- **Agent Orchestration:** Commanding teams of specialized AI agents to build in 2 days what used to take a 10-person engineering team 6 months!
+
+You do not need to memorize every syntax quirk of a language. You need the deep conceptual foundation, mental models, and the courage to command the future.`
+        },
+        {
+          type: "quiz",
+          questions: [
+            {
+              q: "What is the primary difference between standard LLMs (System 1) and Reasoning Models using Test-Time Compute (System 2)?",
+              options: [
+                "Reasoning models do not use neural networks",
+                "Reasoning models spend compute time during inference to generate internal chains of thought, self-critique, and backtrack before outputting the final answer",
+                "Standard LLMs can only run on quantum computers",
+                "Reasoning models only work offline"
+              ],
+              correct: 1,
+              explanation: "Test-Time Compute allows reasoning models to 'think' before answering — generating hidden chains of thought, testing assumptions, catching errors, and revising strategies before returning the response."
+            }
+          ]
+        }
+      ]
     }
   ]
 };
 
 export default aiUniverseData;
+

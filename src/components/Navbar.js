@@ -14,6 +14,7 @@ export function renderNavbar(activeTab, onTabChange, onOpenSearch) {
     { id: 'patterns',      label: 'Patterns',        icon: '🔮', desc: '14 Must-Know Algo Patterns',      group: 'dsa' },
     { id: 'visualizer',    label: 'Visualizer',      icon: '🎬', desc: 'Step-by-Step Animations',         group: 'dsa' },
     { id: 'system-design', label: 'System Design',   icon: '🏛️', desc: 'Distributed Systems Mastery',    group: 'advanced' },
+    { id: 'interview',     label: 'Mock Interview',  icon: '🎙️', desc: 'FAANG Scenario Drills',          group: 'advanced' },
     { id: 'ai-universe',   label: 'AI Universe',     icon: '🤖', desc: 'AI → RAG → Agents → MCPs',       group: 'ai' },
     { id: 'certifications',label: 'Certifications',  icon: '🎓', desc: 'Claude · Antigravity · AWS',      group: 'ai' },
     { id: 'quiz',          label: 'Quiz',            icon: '🧠', desc: 'Test Your Mastery',               group: 'core' },
@@ -47,6 +48,7 @@ export function renderNavbar(activeTab, onTabChange, onOpenSearch) {
             white-space: nowrap; display: flex; align-items: center; gap: 5px; font-size: 0.79rem;
             padding: 6px 10px; border-radius: 8px;
             ${tab.id === 'system-design' ? 'color: #fbbf24 !important;' : ''}
+            ${tab.id === 'interview' ? 'color: #38bdf8 !important;' : ''}
             ${tab.id === 'ai-universe' ? 'color: #818cf8 !important;' : ''}
             ${tab.id === 'certifications' ? 'color: #34d399 !important;' : ''}
           ">

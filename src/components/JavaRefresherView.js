@@ -22,14 +22,32 @@ export function renderJavaRefresherView() {
         Never get stuck on how to import a List, initialize a Max-Heap with custom comparators, or convert arrays again. One-click copyable snippets, Big-O tables, and the exact idioms expected in FAANG technical screens.
       </p>
 
-      <!-- Category Filter Pills -->
+      <!-- Search Bar & Category Filter Pills -->
+      <div style="max-width: 600px; margin: 0 auto 16px;">
+        <div style="position: relative;">
+          <input 
+            type="text" 
+            id="refresher-search-input" 
+            placeholder="🔍 Search Java syntax, methods, gotchas (e.g., deque, stream, lru, comparator)..." 
+            style="
+              width: 100%; padding: 12px 16px 12px 42px; background: rgba(15,23,42,0.8);
+              border: 1px solid var(--border-subtle); border-radius: 12px; color: #fff;
+              font-size: 0.92rem; outline: none; transition: border-color 0.2s;
+            "
+          />
+          <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1.1rem; opacity: 0.7;">⚡</span>
+        </div>
+      </div>
+
       <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px;" id="refresher-cat-filters">
         <button class="filter-btn active" data-cat="all">All Topics</button>
-        <button class="filter-btn" data-cat="Basics & Setup">Basics & Setup</button>
-        <button class="filter-btn" data-cat="Collections Framework">Collections Framework</button>
-        <button class="filter-btn" data-cat="Advanced Collections">Advanced Collections</button>
-        <button class="filter-btn" data-cat="Core Java">Core Java</button>
-        <button class="filter-btn" data-cat="Critical Nuances">Critical Nuances</button>
+        <button class="filter-btn" data-cat="Architecture & &quot;Why?&quot;">🏛️ Architecture & "Why?"</button>
+        <button class="filter-btn" data-cat="Collections Framework">📦 Collections Framework</button>
+        <button class="filter-btn" data-cat="Advanced Collections">⚡ Advanced Collections</button>
+        <button class="filter-btn" data-cat="Modern Java">🚀 Modern Java (Streams/Records)</button>
+        <button class="filter-btn" data-cat="Core Java">☕ Core Java</button>
+        <button class="filter-btn" data-cat="Basics & Setup">🛠️ Basics & Setup</button>
+        <button class="filter-btn" data-cat="Critical Nuances">⚠️ 10 Gotchas & Traps</button>
       </div>
     </section>
 
@@ -41,13 +59,32 @@ export function renderJavaRefresherView() {
 
   const cardsContainer = container.querySelector('#refresher-cards-list');
   const catFilterBtns = container.querySelectorAll('#refresher-cat-filters .filter-btn');
+  const searchInput = container.querySelector('#refresher-search-input');
+  let searchQuery = '';
 
   function renderCards() {
     cardsContainer.innerHTML = '';
 
-    const filtered = currentCategory === 'all'
-      ? javaRefresherData
-      : javaRefresherData.filter(d => d.category === currentCategory);
+    const filtered = javaRefresherData.filter(d => {
+      const matchCat = currentCategory === 'all' || d.category === currentCategory;
+      const matchSearch = !searchQuery || 
+        d.title.toLowerCase().includes(searchQuery) ||
+        d.summary.toLowerCase().includes(searchQuery) ||
+        d.description.toLowerCase().includes(searchQuery) ||
+        d.code.toLowerCase().includes(searchQuery);
+      return matchCat && matchSearch;
+    });
+
+    if (filtered.length === 0) {
+      cardsContainer.innerHTML = `
+        <div class="card" style="text-align: center; padding: 40px 20px;">
+          <div style="font-size: 2.5rem; margin-bottom: 12px;">🔎</div>
+          <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 6px;">No matching Java concepts found</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Try searching for "stack", "stream", "map", or clear your filter.</p>
+        </div>
+      `;
+      return;
+    }
 
     filtered.forEach(item => {
       const card = document.createElement('div');
@@ -108,6 +145,13 @@ export function renderJavaRefresherView() {
       renderCards();
     });
   });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      renderCards();
+    });
+  }
 
   renderCards();
   return container;

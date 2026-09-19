@@ -48,7 +48,7 @@ export function renderHomeView(onNavigate) {
     </section>
 
     <!-- Progress Overview Stats -->
-    <div class="hero-stats-row" style="justify-content: flex-start; margin-bottom: 36px;">
+    <div class="hero-stats-row" style="justify-content: flex-start; margin-bottom: 32px; flex-wrap: wrap; gap: 14px;">
       <div class="stat-item">
         <div class="stat-val" id="home-problems-stat" style="color: var(--accent-emerald);">${completed.length}/${totalProblems}</div>
         <div class="stat-label">Problems Solved</div>
@@ -59,7 +59,7 @@ export function renderHomeView(onNavigate) {
       </div>
       <div class="stat-item">
         <div class="stat-val" style="color: #c084fc;">${totalDs}</div>
-        <div class="stat-label">DS Foundations</div>
+        <div class="stat-label">DS Visualizers</div>
       </div>
       <div class="stat-item">
         <div class="stat-val" style="color: #fbbf24;">6</div>
@@ -67,20 +67,20 @@ export function renderHomeView(onNavigate) {
       </div>
       <div class="stat-item">
         <div class="stat-val" style="color: #818cf8;">20</div>
-        <div class="stat-label">AI & ML Topics</div>
+        <div class="stat-label">AI/ML Topics + Canvas</div>
       </div>
       <div class="stat-item">
-        <div class="stat-val" style="color: #38bdf8;">4</div>
-        <div class="stat-label">AWS CLF Domains</div>
+        <div class="stat-val" style="color: #38bdf8;">65 Qs</div>
+        <div class="stat-label">Timed AWS Mock</div>
       </div>
       <div class="stat-item">
-        <div class="stat-val" style="color: #34d399;">3</div>
-        <div class="stat-label">Certifications</div>
+        <div class="stat-val" style="color: #f43f5e;">4</div>
+        <div class="stat-label">Interview Drills</div>
       </div>
     </div>
 
-    <!-- THREE COLUMN LAYOUT: DSA | AI | Certs -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 36px;">
+    <!-- SPOTLIGHT GRID: Continue Next Problem & Mock Interview Room -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 36px;">
       
       <!-- LEFT: Next Up Banner -->
       <div class="card" style="border-color: rgba(56,189,248,0.4); background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(99,102,241,0.08));">
@@ -90,109 +90,132 @@ export function renderHomeView(onNavigate) {
         </div>
         ${nextAction ? `
           <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 8px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">TIER ${nextAction.tier} — Next Problem</p>
-          <h4 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;">${nextAction.problem.title}</h4>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+          <h4 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 8px;">${nextAction.problem.title}</h4>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;">
             <span class="badge badge-${nextAction.problem.difficulty.toLowerCase()}">${nextAction.problem.difficulty}</span>
-            <span class="badge badge-java" style="font-size: 0.7rem; text-transform: none;">${nextAction.problem.pattern}</span>
+            <span class="badge badge-java" style="font-size: 0.72rem; text-transform: none;">${nextAction.problem.pattern}</span>
           </div>
           <button class="btn-primary" id="continue-btn" style="width: 100%; justify-content: center;">
-            ${Icons.play} Go to Problem
+            ${Icons.play} Solve Next Problem
           </button>
         ` : `
           <div style="text-align: center; padding: 20px;">
             <div style="font-size: 2.5rem; margin-bottom: 8px;">🏆</div>
-            <p style="font-weight: 700; color: #34d399;">All problems completed! You're ready!</p>
+            <p style="font-weight: 700; color: #34d399;">All problems completed! You are interview ready!</p>
           </div>
         `}
       </div>
 
-      <!-- RIGHT: Today's Focus -->
-      <div class="card">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-          ${Icons.brain}
-          <h3 style="font-size: 1.1rem; font-weight: 700;">🎯 Your Learning Path</h3>
+      <!-- RIGHT: Mock Interview Room (Unlocked) -->
+      <div class="card" style="border-color: rgba(244,63,94,0.4); background: linear-gradient(135deg, rgba(244,63,94,0.08), rgba(168,85,247,0.08));">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.4rem;">🎙️</span>
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: #f43f5e;">FAANG Mock Interview Room</h3>
+          </div>
+          <span style="font-size: 0.68rem; padding: 2px 8px; border-radius: 99px; background: rgba(244,63,94,0.2); color: #fb7185; border: 1px solid rgba(244,63,94,0.3); font-weight: 800;">NEW LIVE</span>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <div class="home-nav-card" data-tab="foundations" style="
-            padding: 12px 16px; background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.25);
-            border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;
-          ">
-            <span style="font-size: 1.4rem;">📚</span>
-            <div>
-              <div style="font-weight: 700; color: #a5b4fc;">Step 1: Data Structure Foundations</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">8 Core DS with interactive visual playground</div>
-            </div>
-          </div>
-          <div class="home-nav-card" data-tab="roadmap" style="
-            padding: 12px 16px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25);
-            border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;
-          ">
-            <span style="font-size: 1.4rem;">🗺️</span>
-            <div>
-              <div style="font-weight: 700; color: var(--primary);">Step 2: 7-Tier Problem Roadmap</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Curated problems from Easy to FAANG-Hard with optimal Java solutions</div>
-            </div>
-          </div>
-          <div class="home-nav-card" data-tab="patterns" style="
-            padding: 12px 16px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);
-            border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;
-          ">
-            <span style="font-size: 1.4rem;">🔮</span>
-            <div>
-              <div style="font-weight: 700; color: #34d399;">Step 3: Master 14 Patterns</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Learn to recognize patterns in ANY new problem</div>
-            </div>
-          </div>
-          <div class="home-nav-card" data-tab="system-design" style="
-            padding: 12px 16px; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25);
-            border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;
-          ">
-            <span style="font-size: 1.4rem;">🏛️</span>
-            <div>
-              <div style="font-weight: 700; color: #fbbf24;">Step 4: System Design</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">URL Shortener, Instagram, WhatsApp, YouTube, Twitter, Redis</div>
-            </div>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; margin-bottom: 16px;">
+          Practice interactive, multi-turn technical interviews under real pressure. Handle senior engineer follow-up questions for <strong>LRU Cache</strong>, <strong>Median Stream</strong>, <strong>API Rate Limiting</strong>, and <strong>STAR Behavioral</strong> scenarios.
+        </p>
+        <button class="btn-secondary home-nav-card" data-tab="interview" style="width: 100%; justify-content: center; background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.4); color: #fff; font-weight: 700;">
+          🎙️ Enter Mock Interview Room
+        </button>
+      </div>
+    </div>
+
+    <!-- SIX CORE TRACKS GRID -->
+    <div style="margin-bottom: 36px;">
+      <div class="section-header" style="margin-bottom: 20px;">
+        <div class="section-title-wrap">
+          <div class="section-icon-box" style="background: rgba(99,102,241,0.15); color: #818cf8;">${Icons.layers}</div>
+          <div>
+            <h2 class="section-title">Core Learning Tracks</h2>
+            <p class="section-subtitle">Everything required to go from engineering fundamentals to Senior FAANG offers</p>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT: AI & Certs cards -->
-      <div class="card" style="border-color: rgba(129,140,248,0.25); background: linear-gradient(135deg, rgba(129,140,248,0.06), rgba(192,132,252,0.04));">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
-          <span style="font-size: 1.3rem;">🤖</span>
-          <h3 style="font-size: 1.1rem; font-weight: 700; color: #818cf8;">AI & Cloud Track</h3>
-          <span style="font-size: 0.65rem; padding: 2px 6px; border-radius: 99px; background: rgba(129,140,248,0.2);
-            color: #818cf8; border: 1px solid rgba(129,140,248,0.3); font-weight: 800;">PHASE 2 LIVE</span>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+        
+        <!-- Track 1: Java Refresher -->
+        <div class="home-nav-card card" data-tab="refresher" style="cursor: pointer; transition: all 0.2s ease; border-left: 4px solid #f97316;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-size: 1.6rem;">☕</span>
+            <span class="badge badge-java">Java Mastery</span>
+          </div>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;">Java Refresher & Architecture</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+            Why Deque over Stack, Interface Segregation (<code>List = new ArrayList</code>), HashMap internals, Streams, Records, and 10 Gotchas.
+          </p>
+          <div style="font-size: 0.78rem; font-weight: 700; color: #fb923c;">Explore Java Cheat Guide →</div>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <div class="home-nav-card" data-tab="ai-universe" style="
-            padding: 12px 16px; background: rgba(129,140,248,0.1); border: 1px solid rgba(129,140,248,0.3);
-            border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 1.4rem;">🧠</span>
-            <div>
-              <div style="font-weight: 700; color: #818cf8;">AI & ML Universe (20 Topics)</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">ML From Scratch · Neural Nets · Transformers · Agents · Road to AGI</div>
-            </div>
+
+        <!-- Track 2: DS Foundations & Visualizer -->
+        <div class="home-nav-card card" data-tab="foundations" style="cursor: pointer; transition: all 0.2s ease; border-left: 4px solid #38bdf8;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-size: 1.6rem;">📚</span>
+            <span class="badge" style="background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3);">8 Structures</span>
           </div>
-          <div class="home-nav-card" data-tab="certifications" style="
-            padding: 12px 16px; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3);
-            border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 1.4rem;">☁️</span>
-            <div>
-              <div style="font-weight: 700; color: #fbbf24;">AWS Cloud Practitioner (CLF-C02)</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">4 Domain Guides · Shared Responsibility Matrix · 15 Realistic Qs</div>
-            </div>
-          </div>
-          <div class="home-nav-card" data-tab="certifications" style="
-            padding: 12px 16px; background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25);
-            border-radius: 10px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 1.4rem;">🎓</span>
-            <div>
-              <div style="font-weight: 700; color: #34d399;">Certifications Hub</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Claude Architect · Google Antigravity Agent Dev · AWS CLF-C02</div>
-            </div>
-          </div>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;">Data Structures & Visualizer</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+            Interactive visual playground for Arrays, LinkedLists, Stacks, Queues, BSTs, Heaps, and Graphs with live operation buttons.
+          </p>
+          <div style="font-size: 0.78rem; font-weight: 700; color: #38bdf8;">Launch Visual Playground →</div>
         </div>
+
+        <!-- Track 3: 7-Tier Roadmap & Patterns -->
+        <div class="home-nav-card card" data-tab="roadmap" style="cursor: pointer; transition: all 0.2s ease; border-left: 4px solid #10b981;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-size: 1.6rem;">🗺️</span>
+            <span class="badge" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);">7 Tiers</span>
+          </div>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;">7-Tier Problem Roadmap</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+            Curated problems with "How to Think" frameworks, real-world analogies, and transferable problem matrices.
+          </p>
+          <div style="font-size: 0.78rem; font-weight: 700; color: #34d399;">View Problem Roadmap →</div>
+        </div>
+
+        <!-- Track 4: System Design Track -->
+        <div class="home-nav-card card" data-tab="system-design" style="cursor: pointer; transition: all 0.2s ease; border-left: 4px solid #fbbf24;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-size: 1.6rem;">🏛️</span>
+            <span class="badge" style="background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3);">6 Case Studies</span>
+          </div>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;">System Design Track</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+            URL Shortener, Instagram, WhatsApp, YouTube, Twitter, and Redis with interactive architecture diagrams and trade-offs.
+          </p>
+          <div style="font-size: 0.78rem; font-weight: 700; color: #fbbf24;">Learn Distributed Systems →</div>
+        </div>
+
+        <!-- Track 5: AI & ML Universe -->
+        <div class="home-nav-card card" data-tab="ai-universe" style="cursor: pointer; transition: all 0.2s ease; border-left: 4px solid #818cf8;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-size: 1.6rem;">🧠</span>
+            <span class="badge" style="background: rgba(129,140,248,0.15); color: #a5b4fc; border: 1px solid rgba(129,140,248,0.3);">Interactive Canvas</span>
+          </div>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;">AI & ML Universe</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+            20 topics: ML From Scratch with live Gradient Descent Canvas, Neural Nets, Transformers, Agentic Workflows, and Road to AGI.
+          </p>
+          <div style="font-size: 0.78rem; font-weight: 700; color: #a5b4fc;">Explore AI Universe →</div>
+        </div>
+
+        <!-- Track 6: AWS Cloud & Timed Mock Exam -->
+        <div class="home-nav-card card" data-tab="certifications" style="cursor: pointer; transition: all 0.2s ease; border-left: 4px solid #38bdf8;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-size: 1.6rem;">☁️</span>
+            <span class="badge" style="background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3);">65-Q Mock Exam</span>
+          </div>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;">AWS Cloud (CLF-C02)</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+            Full 4 Domain study guides, Service Matcher game, and 90-minute timed 65-question official mock exam with domain report.
+          </p>
+          <div style="font-size: 0.78rem; font-weight: 700; color: #38bdf8;">Start AWS Certification Prep →</div>
+        </div>
+
       </div>
     </div>
 

@@ -240,6 +240,75 @@ export const curriculumTiers = [
         spaceComplexity: "O(1)",
         edgeCases: ["Array length < 3", "Monotonically increasing or decreasing heights (no water trapped)", "All 0s"],
         javaTip: "Two pointers reduces the auxiliary space from O(N) (prefix/suffix arrays) to strict O(1)."
+      },
+      {
+        id: "merge-intervals",
+        title: "Merge Overlapping Intervals",
+        difficulty: "Medium",
+        companies: ["Amazon", "Meta", "Google", "Microsoft", "Bloomberg"],
+        leetcodeNumber: 56,
+        pattern: "Interval Sorting & Greedy Merge",
+        authorTag: "FAANG Standard",
+        summary: "Given an array of intervals [start, end], merge all overlapping intervals into non-overlapping intervals.",
+        intuition: "Sort intervals by their start times. Iterate through them: if the current interval starts before or when the previous interval ends (`curr[0] <= prev[1]`), they overlap! Merge them by stretching `prev[1] = Math.max(prev[1], curr[1])`. Otherwise, push `curr` as a new disjoint interval.",
+        howToThink: [
+          {
+            step: "1. Recognize the Spatial / Temporal Invariant",
+            desc: "When dealing with intervals, timestamps, or ranges, elements are unordered by default. Sorting by start time immediately transforms a 2D constraint into a linear 1D sweep."
+          },
+          {
+            step: "2. The Overlap Condition",
+            desc: "Once sorted, if interval B starts after interval A finishes (B.start > A.end), no future interval can ever overlap with A either. You can safely seal A and move to B."
+          },
+          {
+            step: "3. Greedy In-Place Merging",
+            desc: "Keep a pointer or active list of merged intervals. If overlap occurs, update the merged interval's end to `Math.max(merged.end, next.end)`."
+          },
+          {
+            step: "4. Java Return Type Trap",
+            desc: "The problem returns `int[][]`. Collect results into a `List<int[]>` first, then convert with `result.toArray(new int[result.size()][])`."
+          }
+        ],
+        realWorldScenario: "Calendar scheduling in Google Calendar or Outlook to compute busy meeting room windows, and AWS EC2 reserved instance consolidation where overlapping server reservation blocks are grouped for billing.",
+        transferableProblems: [
+          "Non-overlapping Intervals (LeetCode 435 - Greedy min removals)",
+          "Meeting Rooms II (LeetCode 253 - Min rooms required using Min-Heap)",
+          "Insert Interval (LeetCode 57 - Inserting into already sorted intervals)"
+        ],
+        code: `class Solution {
+    public int[][] merge(int[][] intervals) {
+        if (intervals == null || intervals.length <= 1) {
+            return intervals;
+        }
+
+        // 1. Sort intervals by start time ascending
+        Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));
+
+        List<int[]> merged = new ArrayList<>();
+        int[] current = intervals[0];
+        merged.add(current);
+
+        for (int i = 1; i < intervals.length; i++) {
+            int[] next = intervals[i];
+
+            if (next[0] <= current[1]) {
+                // Overlap exists: stretch current interval's end time
+                current[1] = Math.max(current[1], next[1]);
+            } else {
+                // Disjoint interval: start tracking new current
+                current = next;
+                merged.add(current);
+            }
+        }
+
+        // 2. Convert List<int[]> back to int[][]
+        return merged.toArray(new int[merged.size()][]);
+    }
+}`,
+        timeComplexity: "O(N log N) dominated by sorting",
+        spaceComplexity: "O(N) for the merged output list",
+        edgeCases: ["Single interval [[1,4]]", "Completely nested intervals [[1,10],[2,5]]", "Already disjoint intervals [[1,2],[3,4]]", "Identical intervals [[1,4],[1,4]]"],
+        javaTip: "Always use `merged.toArray(new int[merged.size()][])` instead of manually iterating to build the 2D primitive array."
       }
     ]
   },
@@ -475,6 +544,83 @@ class Solution {
         spaceComplexity: "O(N)",
         edgeCases: ["Temperatures never increase (all 0s in result)", "Strictly increasing temperatures"],
         javaTip: "Use `Deque<Integer> stack = new ArrayDeque<>()` instead of `Stack<Integer>` for zero synchronization overhead."
+      },
+      {
+        id: "sliding-window-maximum",
+        title: "Sliding Window Maximum (Monotonic Deque)",
+        difficulty: "Hard",
+        companies: ["Google", "Meta", "Amazon", "Citadel", "Bloomberg"],
+        leetcodeNumber: 239,
+        pattern: "Monotonic Decreasing Deque",
+        authorTag: "Sonnet Elite Masterpiece",
+        summary: "Given an array of integers nums and a sliding window of size k, return the max sliding window value at each step.",
+        intuition: "Maintain a Deque storing array indices in strictly decreasing order of their corresponding values (`nums[deque.peekFirst()]` is always the window max). When adding `nums[i]`, pop all elements from the back that are smaller than `nums[i]`, because they can never be the maximum again. Remove elements from the front that have expired out of the k-window (`deque.peekFirst() <= i - k`).",
+        howToThink: [
+          {
+            step: "1. Why Brute Force & Max-Heap Fail",
+            desc: "Brute force scanning every window takes O(N * k) = 10^10 ops -> TLE! A PriorityQueue / Max-Heap takes O(N log k), but in Java, removing the element sliding out of the window takes O(k) linear time inside PriorityQueue.remove(Object), which degrades to O(N * k). We need strict O(N) linear time."
+          },
+          {
+            step: "2. The 'Useless Element' Principle",
+            desc: "If you have an element at index j that is smaller than an incoming element at index i (where j < i), element j is older AND smaller. It will NEVER be the window maximum again! We can permanently purge it."
+          },
+          {
+            step: "3. Monotonic Deque Invariant",
+            desc: "By popping smaller elements from the tail, the Deque values are strictly decreasing from head to tail. The front element `deque.peekFirst()` is guaranteed to be the maximum of the current window."
+          },
+          {
+            step: "4. Window Eviction & Output Timing",
+            desc: "Pop from head if `deque.peekFirst() <= i - k`. Only record results once the initial window has filled (`i >= k - 1`)."
+          }
+        ],
+        realWorldScenario: "Streaming price anomaly detection in high-frequency trading (recording the max trade price in the last 10 seconds), and real-time audio volume compression in Spotify to normalize peak loudness without distortion.",
+        transferableProblems: [
+          "Daily Temperatures (LeetCode 739 - Next greater index)",
+          "Constrained Subsequence Sum (LeetCode 1425 - DP + Monotonic Deque)",
+          "Shortest Subarray with Sum at Least K (LeetCode 862 - Prefix sum + Deque)",
+          "Longest Continuous Subarray With Absolute Diff <= Limit (LeetCode 1438)"
+        ],
+        code: `class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        if (nums == null || nums.length == 0 || k <= 0) {
+            return new int[0];
+        }
+
+        int n = nums.length;
+        int[] result = new int[n - k + 1];
+        int resultIndex = 0;
+
+        // Deque stores INDICES, maintaining values in strictly decreasing order
+        Deque<Integer> deque = new ArrayDeque<>();
+
+        for (int i = 0; i < n; i++) {
+            // 1. Remove indices that are outside the current sliding window [i - k + 1, i]
+            while (!deque.isEmpty() && deque.peekFirst() <= i - k) {
+                deque.pollFirst();
+            }
+
+            // 2. Monotonic maintenance: remove all indices whose values are <= nums[i]
+            // They are older AND smaller, so they can never be the maximum!
+            while (!deque.isEmpty() && nums[deque.peekLast()] <= nums[i]) {
+                deque.pollLast();
+            }
+
+            // 3. Add current element index to the back
+            deque.offerLast(i);
+
+            // 4. Once the first window of size k is formed, record the maximum
+            if (i >= k - 1) {
+                result[resultIndex++] = nums[deque.peekFirst()];
+            }
+        }
+
+        return result;
+    }
+}`,
+        timeComplexity: "O(N) - Every index is pushed and popped from the deque at most once",
+        spaceComplexity: "O(k) auxiliary memory stored inside the Deque",
+        edgeCases: ["k = 1 (result is the identical array)", "k = nums.length (single maximum element)", "All negative numbers (e.g. [-7,-8,-7], k=2)", "Monotonically increasing or decreasing arrays"],
+        javaTip: "Store indices, NOT values, in the Deque. Storing indices lets you verify window expiration (`deque.peekFirst() <= i - k`) in O(1) time without extra variables."
       }
     ]
   },
@@ -900,6 +1046,95 @@ class Solution {
         spaceComplexity: "O(V + E)",
         edgeCases: ["Disconnected graph (returns -1)", "Source node has no outgoing edges", "Cycles with positive weights"],
         javaTip: "Always include `if (d > dist[u]) continue;` to discard duplicate queue entries inserted before a shorter path was discovered."
+      },
+      {
+        id: "agentic-dag-scheduler",
+        title: "Agentic DAG Parallel Wave Scheduler",
+        difficulty: "Hard",
+        companies: ["Google Antigravity", "Anthropic", "OpenAI", "Meta AI"],
+        leetcodeNumber: 0,
+        pattern: "Kahn's Topological BFS Wave Leveling",
+        authorTag: "Sonnet Elite Original",
+        summary: "Given N autonomous agent subtasks (0 to N-1) and an array of prerequisite dependencies [taskA, taskB] (meaning taskB must finish before taskA can execute), calculate the minimum number of parallel execution waves required to complete all tasks, or return -1 if an agent circular deadlock exists.",
+        intuition: "Model the agent workflow as a Directed Graph. In each execution 'wave', all agents whose current in-degree is 0 can run concurrently in parallel! Track waves using BFS level-order traversal (queue size per wave). Decrement dependent agents' in-degrees. If total tasks scheduled equals N, return wave count; otherwise a deadlock cycle exists.",
+        howToThink: [
+          {
+            step: "1. Real Agent Engineering Problem",
+            desc: "In agentic frameworks (Google Antigravity / LangGraph), subagents depend on tools and previous agent outputs. Running everything sequentially is too slow (wastes 10x latency). Running everything simultaneously crashes due to missing data. We must partition tasks into parallel execution waves."
+          },
+          {
+            step: "2. DAG Topological Invariant",
+            desc: "Any agent with in-degree == 0 has ZERO unmet dependencies. It is immediately ready to fire. All zero in-degree tasks at the same level can execute concurrently on separate GPU/CPU worker threads."
+          },
+          {
+            step: "3. Level-Order Wave Counter",
+            desc: "At each wave, record `int waveSize = queue.size()`. Loop `waveSize` times to pop and decrement neighbor in-degrees. Increment `waveCount++` after each level completes."
+          },
+          {
+            step: "4. Deadlock / Circular Dependency Detection",
+            desc: "If `processedTasks < totalTasks`, at least two subagents are waiting on each other in an infinite deadlock loop! Return -1."
+          }
+        ],
+        realWorldScenario: "The core orchestration loop inside Google Antigravity and Claude Multi-Agent teams: executing parallel web search, code compilation, and database queries in minimum round trips.",
+        transferableProblems: [
+          "Course Schedule (LeetCode 207 - Kahn's cycle detection)",
+          "Course Schedule II (LeetCode 210 - Linear topological order)",
+          "Minimum Height Trees (LeetCode 310 - Inward topological trimming)",
+          "Parallel Courses (LeetCode 1136 - Parallel semester scheduling)"
+        ],
+        code: `class Solution {
+    public int minParallelExecutionWaves(int numTasks, int[][] dependencies) {
+        // 1. Build adjacency graph and in-degree counter
+        List<List<Integer>> adj = new ArrayList<>(numTasks);
+        for (int i = 0; i < numTasks; i++) adj.add(new ArrayList<>());
+        int[] inDegree = new int[numTasks];
+
+        // dependencies[i] = {dependentTask, prerequisiteTask}
+        for (int[] dep : dependencies) {
+            int task = dep[0];
+            int prereq = dep[1];
+            adj.get(prereq).add(task); // prereq -> task
+            inDegree[task]++;
+        }
+
+        // 2. Queue all agents ready for Wave 1 (in-degree == 0)
+        Queue<Integer> queue = new ArrayDeque<>();
+        for (int i = 0; i < numTasks; i++) {
+            if (inDegree[i] == 0) {
+                queue.offer(i);
+            }
+        }
+
+        int waves = 0;
+        int completedTasks = 0;
+
+        // 3. Process each wave in parallel batches
+        while (!queue.isEmpty()) {
+            int currentWaveSize = queue.size();
+            waves++; // Starting a new parallel wave
+
+            for (int i = 0; i < currentWaveSize; i++) {
+                int currentTask = queue.poll();
+                completedTasks++;
+
+                for (int nextTask : adj.get(currentTask)) {
+                    inDegree[nextTask]--;
+                    // When all prerequisites are satisfied, queue for next wave
+                    if (inDegree[nextTask] == 0) {
+                        queue.offer(nextTask);
+                    }
+                }
+            }
+        }
+
+        // 4. If all tasks completed, return wave count; otherwise deadlock cycle detected
+        return (completedTasks == numTasks) ? waves : -1;
+    }
+}`,
+        timeComplexity: "O(V + E) where V is agent tasks and E is dependency edges",
+        spaceComplexity: "O(V + E) for the adjacency list and in-degree tracking",
+        edgeCases: ["Zero dependencies (all tasks run in 1 wave)", "Mutual circular deadlock [[0,1],[1,0]] returns -1", "Linear chain of 5 tasks runs in 5 separate waves"],
+        javaTip: "Processing the queue in batches using `int waveSize = queue.size()` is the standard pattern for level-order BFS across both trees and DAGs."
       }
     ]
   },
@@ -943,6 +1178,78 @@ class Solution {
         spaceComplexity: "O(amount)",
         edgeCases: ["Amount = 0 (returns 0)", "Cannot make change (returns -1)", "Coins larger than amount"],
         javaTip: "Using `amount + 1` instead of `Integer.MAX_VALUE` avoids integer overflow when doing `1 + dp[i - coin]`."
+      },
+      {
+        id: "word-break",
+        title: "Word Break (Dynamic Programming)",
+        difficulty: "Medium",
+        companies: ["Meta", "Amazon", "Google", "Bloomberg", "Apple"],
+        leetcodeNumber: 139,
+        pattern: "1D State Reachability DP",
+        authorTag: "FAANG Standard",
+        summary: "Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.",
+        intuition: "Define `dp[i]` as a boolean indicating whether the prefix `s[0...i-1]` of length `i` can be completely formed using words from the dictionary. Base case: `dp[0] = true` (empty string). For each end index `i`, check all split points `j`: if `dp[j] == true` AND `wordSet.contains(s.substring(j, i))`, then `dp[i] = true`! Break early as soon as any valid split is found.",
+        howToThink: [
+          {
+            step: "1. Convert List to HashSet",
+            desc: "In Java, `wordDict` is passed as a `List<String>`. Checking `contains()` on a List takes O(W * L) linear scan. Convert it immediately: `Set<String> wordSet = new HashSet<>(wordDict);` for O(1) average lookup."
+          },
+          {
+            step: "2. The Subproblem Decomposition",
+            desc: "A string of length i is valid if there exists some split point j (0 <= j < i) where: (1) prefix s[0..j-1] is already valid (dp[j] == true), AND (2) suffix s[j..i-1] is a word in our dictionary."
+          },
+          {
+            step: "3. Max Word Length Pruning",
+            desc: "You do not need to check all j from 0 to i! Find the longest word in the dictionary `maxLen`. Only check `j >= Math.max(0, i - maxLen)`. This slashes execution time by 90%."
+          },
+          {
+            step: "4. Edge Case Guarding",
+            desc: "Single characters, dictionary with words longer than s, and words with identical repeating characters ('aaaaaaa', ['aaaa', 'aaa'])."
+          }
+        ],
+        realWorldScenario: "Search query parsing in Google Search (breaking 'newyorktimes' into 'new york times' when users forget spaces), and text tokenization in NLP & LLM pipelines (BPE/WordPiece).",
+        transferableProblems: [
+          "Word Break II (LeetCode 140 - DP with Backtracking result generation)",
+          "Palindrome Partitioning (LeetCode 131 - Substring partitioning)",
+          "Decode Ways (LeetCode 91 - Numerical mapping DP)"
+        ],
+        code: `class Solution {
+    public boolean wordBreak(String s, List<String> wordDict) {
+        if (s == null || s.length() == 0) return true;
+
+        // 1. Convert dictionary list to HashSet for O(1) lookups
+        Set<String> wordSet = new HashSet<>(wordDict);
+
+        // Find max word length to prune inner loop
+        int maxWordLen = 0;
+        for (String word : wordDict) {
+            maxWordLen = Math.max(maxWordLen, word.length());
+        }
+
+        int n = s.length();
+        // dp[i] represents if prefix of length i can be segmented
+        boolean[] dp = new boolean[n + 1];
+        dp[0] = true; // Base case: empty string is valid
+
+        for (int i = 1; i <= n; i++) {
+            // Prune: only examine split points within maxWordLen reach
+            int minJ = Math.max(0, i - maxWordLen);
+
+            for (int j = i - 1; j >= minJ; j--) {
+                if (dp[j] && wordSet.contains(s.substring(j, i))) {
+                    dp[i] = true;
+                    break; // Early exit once any valid split point is confirmed!
+                }
+            }
+        }
+
+        return dp[n];
+    }
+}`,
+        timeComplexity: "O(N * M * L) where N is string length, M is maxWordLength, and L is substring hashing",
+        spaceComplexity: "O(N + D) for the DP boolean array and dictionary HashSet",
+        edgeCases: ["Single character string matching word", "Entire string is one word in dictionary", "Impossible partitioning (e.g. 'catsandog')", "Overlapping repeating letters"],
+        javaTip: "Pruning with `maxWordLen` prevents substring allocations on huge inputs and eliminates TLE on LeetCode test cases."
       },
       {
         id: "longest-increasing-subsequence",

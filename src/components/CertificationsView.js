@@ -1,5 +1,6 @@
 import { certificationsData } from '../data/certificationsData.js';
 import { awsCloudData } from '../data/awsCloudData.js';
+import { renderAwsTimedMockExam } from './AwsTimedMockExam.js';
 
 function renderDifficultyStars(level) {
   return Array.from({ length: 5 }, (_, i) =>
@@ -384,11 +385,16 @@ export function renderCertificationsView() {
             padding: 8px 16px; border-radius: 8px; font-size: 0.84rem; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease;
             ${activeSubTab === 'matcher' ? `background: #34d39922; color: #34d399; border-color: #34d39955;` : 'background: rgba(255,255,255,0.03); color: var(--text-secondary);'}">
             🎮 Architecture Service Matcher
+          </button>
+          <button class="cert-tab-btn ${activeSubTab === 'timed' ? 'active' : ''}" data-subtab="timed" style="
+            padding: 8px 16px; border-radius: 8px; font-size: 0.84rem; font-weight: 800; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease;
+            ${activeSubTab === 'timed' ? `background: #f59e0b25; color: #fbbf24; border-color: #f59e0b66;` : 'background: rgba(255,255,255,0.03); color: var(--text-secondary);'}">
+            ⏱️ 90-Min Mock Exam (65 Qs)
           </button>` : ''}
         <button class="cert-tab-btn ${activeSubTab === 'exam' ? 'active' : ''}" data-subtab="exam" style="
           padding: 8px 16px; border-radius: 8px; font-size: 0.84rem; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease;
           ${activeSubTab === 'exam' ? `background: ${cert.color}22; color: ${cert.color}; border-color: ${cert.color}55;` : 'background: rgba(255,255,255,0.03); color: var(--text-secondary);'}">
-          🎯 Practice Exam (${cert.practiceQuestions.length} Qs)
+          🎯 Practice Bank (${cert.practiceQuestions.length} Qs)
         </button>
       </div>
 
@@ -411,6 +417,15 @@ export function renderCertificationsView() {
         ${activeSubTab === 'exam' ? renderPracticeQuestions(cert.practiceQuestions, cert.color) : ''}
       </div>
     `;
+
+    // Mount Timed Full Exam into subtab body if selected
+    if (activeSubTab === 'timed' && isAws) {
+      const bodyEl = certContent.querySelector('#cert-subtab-body');
+      if (bodyEl) {
+        bodyEl.innerHTML = '';
+        bodyEl.appendChild(renderAwsTimedMockExam());
+      }
+    }
 
     certContent.querySelectorAll('.cert-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {

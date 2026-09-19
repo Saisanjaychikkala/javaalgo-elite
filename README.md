@@ -72,7 +72,23 @@
   - Twitter / Microblogging News Feed (Fan-out on write vs read, Hybrid)
   - Distributed Cache / In-memory Key-Value Store (Consistent Hashing, LRU)
 
-### 6. 🎯 Adaptive Quiz & Assessment
+### 6. 🎙️ FAANG Mock Interview Room (NEW in Phase 3)
+- Multi-turn interactive technical interview simulation under real time pressure.
+- **Coding Drills**: LRU Cache implementation with concurrency follow-ups, Streaming Median with two heaps.
+- **System Design Drills**: Distributed API Rate Limiter (Token Bucket vs Sliding Window Counter, Redis multi-datacenter sync).
+- **Behavioral Drills**: Navigating technical disagreements using the Amazon STAR method (Situation, Task, Action, Result).
+- Live senior engineer evaluation, feedback scores, and copyable production Java templates.
+
+### 7. 🧠 AI & ML Universe + Interactive Canvas (NEW in Phase 3)
+- **Interactive HTML5 Canvas**: Click-to-add data points for Linear Regression with live Gradient Descent animation adjusting weights $w$, bias $b$, and MSE loss.
+- 20 in-depth topics: ML from Scratch, Perceptrons, ReLU, Backpropagation, Transformers (Self-Attention, QKV), LLM Prompt Engineering, RAG architectures, Agentic Frameworks (MCP, Gemini ADK, LangChain), and the Road to AGI.
+
+### 8. ☁️ AWS Cloud Practitioner (CLF-C02) + 65-Q Timed Mock Exam (NEW in Phase 3)
+- Full 4 Domain guides aligned with official AWS CLF-C02 exam blueprints.
+- Interactive Service Matcher game.
+- **90-Minute 65-Question Timed Mock Exam**: Real-time countdown timer, question navigator grid, review & flag mode, scaled 100-1000 score calculator, and 4-domain competency diagnostic report.
+
+### 9. 🎯 Adaptive Quiz & Assessment
 - Timed practice quizzes categorized by difficulty and topic
 - Instant evaluation with in-depth technical explanations
 

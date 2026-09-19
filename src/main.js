@@ -10,14 +10,15 @@ import { renderVisualizerView } from './components/VisualizerView.js';
 import { renderSystemDesignView } from './components/SystemDesignView.js';
 import { renderAIUniverseView } from './components/AIUniverseView.js';
 import { renderCertificationsView } from './components/CertificationsView.js';
+import { renderMockInterviewView } from './components/MockInterviewView.js';
 import { renderQuizView } from './components/QuizView.js';
 import { createProblemModal } from './components/ProblemModal.js';
 import { createQuickSearchModal } from './components/QuickSearchModal.js';
 
-const FULL_HEIGHT_TABS = ['foundations', 'system-design', 'ai-universe', 'certifications'];
+const FULL_HEIGHT_TABS = ['foundations', 'system-design', 'ai-universe', 'certifications', 'interview'];
 const VALID_TABS = [
   'home', 'foundations', 'roadmap', 'refresher', 'patterns',
-  'visualizer', 'system-design', 'ai-universe', 'certifications', 'quiz'
+  'visualizer', 'system-design', 'ai-universe', 'certifications', 'interview', 'quiz'
 ];
 
 class App {
@@ -146,6 +147,9 @@ class App {
         break;
       case 'certifications':
         this.mainContentEl.appendChild(renderCertificationsView());
+        break;
+      case 'interview':
+        this.mainContentEl.appendChild(renderMockInterviewView());
         break;
       case 'quiz':
         this.mainContentEl.appendChild(renderQuizView());

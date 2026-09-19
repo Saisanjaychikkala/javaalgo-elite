@@ -1,5 +1,6 @@
 import { aiUniverseData } from '../data/aiUniverseData.js';
 import { highlightJava } from '../utils/syntaxHighlighter.js';
+import { renderRegressionPlayground } from './InteractiveRegressionCanvas.js';
 
 // ─── Syntax highlighter for Python (use for AI/ML code) ──────
 function highlightPython(code) {
@@ -333,6 +334,19 @@ export function renderAIUniverseView() {
           </button>` : ''}
       </div>
     `;
+
+    // Mount Interactive Regression Canvas if viewing ml-from-scratch
+    if (topic.id === 'ml-from-scratch') {
+      const sectionsEl = content.querySelector('#ai-content-sections');
+      if (sectionsEl) {
+        const playgroundEl = renderRegressionPlayground();
+        if (sectionsEl.children.length > 1) {
+          sectionsEl.insertBefore(playgroundEl, sectionsEl.children[1]);
+        } else {
+          sectionsEl.appendChild(playgroundEl);
+        }
+      }
+    }
 
     // Prev/Next navigation
     content.querySelectorAll('.ai-topic-nav-btn').forEach(btn => {

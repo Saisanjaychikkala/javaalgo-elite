@@ -372,50 +372,283 @@ String binaryStr = Integer.toBinaryString(n); // "1011"
 int highestOneBit = Integer.highestOneBit(n); // Largest power of 2 <= n`
   },
   {
+    id: 'why-deque-stack',
+    title: 'Why Deque & ArrayDeque Instead of Stack? (The Vector Legacy)',
+    category: 'Architecture & "Why?"',
+    icon: 'layers',
+    summary: 'The technical reason java.util.Stack is obsolete and ArrayDeque is the gold standard for LIFO.',
+    description: 'In technical interviews, writing `Stack<Integer> s = new Stack<>();` tells the interviewer you learned Java in 1998. Oracle and senior engineers unanimously recommend `Deque<Integer> s = new ArrayDeque<>();`. Here is the exact architectural reason why.',
+    tips: [
+      'Stack extends Vector: Every method in Vector is `synchronized`. Even in single-threaded interview code, you are acquiring and releasing monitor locks on every push/pop, causing a 3x CPU performance penalty.',
+      'Breaks LIFO Invariant: Because Stack extends Vector, `stack.get(0)` or `stack.add(2, 99)` compiles and runs! A true stack must NEVER allow random index access.',
+      'ArrayDeque vs LinkedList: ArrayDeque is backed by a circular array (cache-friendly, continuous memory, no node allocation). LinkedList allocates a 24-byte Node object per element, causing GC pauses.'
+    ],
+    code: `// ❌ THE OBSOLETE WAY (Avoid in interviews):
+// Stack<Integer> stack = new Stack<>(); // Extends Vector, synchronized, slow, exposes get(index)!
+
+// ✅ THE MODERN GOLD STANDARD:
+Deque<Integer> stack = new ArrayDeque<>();
+
+// LIFO (Last-In, First-Out) operations:
+stack.push(10);          // O(1) amortized
+stack.push(20);
+stack.push(30);
+
+int top = stack.peek();  // 30 (inspect without removing)
+int popped = stack.pop();// 30 (removes top)
+boolean empty = stack.isEmpty(); // true if empty
+
+// WHY ArrayDeque OVER LinkedList FOR STACK/QUEUE?
+// 1. Memory: ArrayDeque uses a contiguous int[]/Object[] buffer.
+//    LinkedList allocates a new Node(prev, next, item) for EVERY element (24-32 bytes overhead).
+// 2. Cache Locality: Modern CPUs prefetch contiguous arrays into L1/L2 cache.
+//    LinkedList nodes are scattered across the heap, causing constant CPU cache misses.`
+  },
+  {
+    id: 'programming-to-interfaces',
+    title: 'Why `List<T> = new ArrayList<>()`? (Polymorphism & LSP)',
+    category: 'Architecture & "Why?"',
+    icon: 'sparkles',
+    summary: 'Why we declare variables using the Interface type rather than the concrete implementation class.',
+    description: 'Why do we write `List<Integer> list = new ArrayList<>();` instead of `ArrayList<Integer> list = new ArrayList<>();`? This embodies the foundational Object-Oriented principle: "Program to an interface, not an implementation."',
+    tips: [
+      'Liskov Substitution Principle (LSP): Subtypes must be substitutable for their base types without altering program correctness.',
+      'Loose Coupling: The consuming code only cares about the methods defined in `List` (add, get, size, remove), not how `ArrayList` resizes internally.',
+      'Swapability: If profiling shows `LinkedList` is better for lots of arbitrary insertions, you only change the right side without rewriting 50 downstream methods.'
+    ],
+    code: `// ❌ Tightly Coupled (Anti-pattern):
+// ArrayList<String> names = new ArrayList<>();
+// public void process(ArrayList<String> list) { ... } // Cannot accept LinkedList or List.of()!
+
+// ✅ Program to the Interface (Clean Architecture):
+List<String> names = new ArrayList<>();
+
+// Methods accept the Interface, making them infinitely flexible:
+public void process(List<String> items) {
+    for (String item : items) {
+        System.out.println(item);
+    }
+}
+// Now this method works with:
+process(new ArrayList<>());
+process(new LinkedList<>());
+process(List.of("A", "B", "C")); // Immutable list
+process(Arrays.asList("X", "Y"));
+
+// Same rule applies across all Collections:
+Map<String, Integer> map = new HashMap<>();   // NOT HashMap<String, Integer>
+Set<Integer> set = new HashSet<>();          // NOT HashSet<Integer>
+Queue<Integer> queue = new ArrayDeque<>();    // NOT ArrayDeque<Integer>
+Deque<Integer> stack = new ArrayDeque<>();    // NOT ArrayDeque<Integer>`
+  },
+  {
+    id: 'collections-internals',
+    title: 'HashMap vs TreeMap vs LinkedHashMap Internals & Trade-offs',
+    category: 'Architecture & "Why?"',
+    icon: 'cpu',
+    summary: 'Buckets, Treeification threshold (8), Red-Black trees, and building an O(1) LRU Cache.',
+    description: 'A deep look under the hood of Java’s primary Map implementations. This is the exact knowledge FAANG system design and coding interviewers test to distinguish senior engineers from juniors.',
+    tips: [
+      'HashMap Bucket Treeification: In Java 8+, when a single bucket exceeds 8 elements (TREEIFY_THRESHOLD) and the array capacity is >= 64, the linked list converts to a Red-Black Balanced Tree (TreeNode), reducing collision lookup from O(N) to O(log N).',
+      'LinkedHashMap LRU Cache: Pass `accessOrder = true` to `new LinkedHashMap<>(16, 0.75f, true)` and override `removeEldestEntry()` for an instant production LRU Cache in 5 lines of code!'
+    ],
+    code: `// 1. HashMap: O(1) average lookup, unsorted
+// Internal structure: Node<K,V>[] table;
+// Index calculation: index = (n - 1) & (hash ^ (hash >>> 16))
+Map<String, Integer> hashMap = new HashMap<>();
+
+// 2. TreeMap: O(log N) lookup, keys strictly sorted
+// Internal structure: Red-Black Balanced Binary Search Tree
+TreeMap<Integer, String> treeMap = new TreeMap<>();
+treeMap.put(10, "Ten");
+treeMap.put(30, "Thirty");
+treeMap.put(20, "Twenty");
+
+int first = treeMap.firstKey();       // 10
+int last = treeMap.lastKey();         // 30
+Integer floor = treeMap.floorKey(25); // 20 (greatest key <= 25)
+Integer ceil = treeMap.ceilingKey(25);// 30 (smallest key >= 25)
+
+// 3. LinkedHashMap: O(1) lookup + preserves iteration order
+// Maintains a doubly-linked list running through all of its entries.
+// By default: Insertion-order.
+// With accessOrder = true: Access-order (Least Recently Used at head)!
+
+// ⚡ FAANG SHORTCUT: Instant O(1) LRU Cache using LinkedHashMap:
+class LRUCache<K, V> extends LinkedHashMap<K, V> {
+    private final int capacity;
+    public LRUCache(int capacity) {
+        super(capacity, 0.75f, true); // true = access order!
+        this.capacity = capacity;
+    }
+    @Override
+    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+        return size() > capacity; // Automatically evicts oldest accessed!
+    }
+}`
+  },
+  {
+    id: 'comparable-vs-comparator',
+    title: 'Comparable vs Comparator: Natural vs Dynamic Strategy Ordering',
+    category: 'Architecture & "Why?"',
+    icon: 'sparkles',
+    summary: 'The difference between internal natural order and external custom sorting lambdas.',
+    description: 'When should a class implement `Comparable<T>` vs using a `Comparator<T>`? Learn how to combine multiple sorting keys and avoid the famous integer subtraction overflow bug.',
+    tips: [
+      'Comparable defines the SINGLE default natural order for an object (e.g. Integer natural order is 1, 2, 3). Implemented inside the class via `compareTo(T o)`.',
+      'Comparator defines EXTERNAL sorting strategies. You can define 100 different comparators for the same class without modifying the class itself.',
+      'Always use `Comparator.comparingInt(...)` or `Integer.compare(a, b)` instead of `a - b` to prevent 32-bit integer underflow.'
+    ],
+    code: `// 1. Comparable: Natural Ordering (Inside the class)
+class Student implements Comparable<Student> {
+    String name;
+    int rollNumber;
+
+    public Student(String name, int rollNumber) {
+        this.name = name;
+        this.rollNumber = rollNumber;
+    }
+
+    @Override
+    public int compareTo(Student other) {
+        // Natural order: ascending by rollNumber
+        return Integer.compare(this.rollNumber, other.rollNumber);
+    }
+}
+
+// 2. Comparator: Dynamic External Strategies (Lambdas / Modern Java)
+List<Student> students = new ArrayList<>();
+
+// Strategy A: Sort by name alphabetically:
+students.sort((s1, s2) -> s1.name.compareTo(s2.name));
+
+// Strategy B: Modern fluent Comparator (by name length, then name alphabetically):
+students.sort(
+    Comparator.comparingInt((Student s) -> s.name.length())
+              .thenComparing(s -> s.name)
+);
+
+// Strategy C: PriorityQueue with 2D array coordinates (Min-heap by distance):
+PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> Integer.compare(a[0], b[0]));`
+  },
+  {
+    id: 'modern-java-syntax',
+    title: 'Modern Java Cheat Sheet: Streams, Records & Lambdas',
+    category: 'Modern Java',
+    icon: 'code',
+    summary: 'High-productivity features from Java 8 through Java 21 for interviews and clean code.',
+    description: 'Modern Java is expressive and concise. Using Java Records for coordinate pairs or Streams for grouping shows you write up-to-date, production-grade code.',
+    tips: [
+      'Java Records (Java 16+): One-line immutable data carrier! Automatically generates constructor, equals(), hashCode(), and toString(). Perfect for BFS states or Dijkstra nodes.',
+      'Streams for Frequency Map: `nums.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))`.',
+      'List.of() & Set.of(): Immutable, zero-allocation collections for quick test inputs.'
+    ],
+    code: `// 1. Java Records (Zero Boilerplate State Objects):
+// Replaces 50 lines of getters, equals(), hashCode(), and constructors!
+record State(int row, int col, int dist) {}
+
+// Use immediately in Queue or PriorityQueue:
+Queue<State> queue = new ArrayDeque<>();
+queue.offer(new State(0, 0, 0));
+State curr = queue.poll();
+System.out.println(curr.row() + ", " + curr.col()); // Auto-generated getters!
+
+// 2. Streams Cheat Sheet:
+List<Integer> nums = List.of(1, 2, 3, 4, 5, 6);
+
+// Filter & Map to new list:
+List<Integer> evensSquared = nums.stream()
+    .filter(n -> n % 2 == 0)
+    .map(n -> n * n)
+    .collect(Collectors.toList()); // [4, 16, 36]
+
+// Sum of array:
+int sum = nums.stream().mapToInt(Integer::intValue).sum();
+
+// Find max or default:
+int max = nums.stream().mapToInt(v -> v).max().orElse(-1);
+
+// Group by frequency:
+List<String> words = List.of("apple", "banana", "apple", "cherry");
+Map<String, Long> wordCounts = words.stream()
+    .collect(Collectors.groupingBy(w -> w, Collectors.counting()));
+
+// 3. Modern Switch Expression (Java 14+):
+String typeOfDay = switch (day) {
+    case "MONDAY", "FRIDAY" -> "Busy";
+    case "SATURDAY", "SUNDAY" -> "Weekend";
+    default -> "Regular";
+};`
+  },
+  {
     id: 'interview-traps',
-    title: '6 Java Interview Gotchas & Traps',
+    title: 'Top 10 Java Interview Gotchas (The Bug Hall of Fame)',
     category: 'Critical Nuances',
     icon: 'sparkles',
-    summary: 'The 6 silent bugs that fail test cases in technical rounds.',
-    description: 'These are the subtle Java language traps that cost candidates offers even when their algorithm is correct.',
+    summary: 'The 10 silent bugs that trip candidates up in FAANG coding interviews.',
+    description: 'These are the exact Java language traps that cause code to fail edge-case test suites even when the core algorithmic logic is correct.',
     tips: [
       'Never compare object wrappers (`Integer`, `Long`, `String`) with `==`. Always use `.equals()`.',
-      'Always calculate mid in binary search using `low + (high - low) / 2` to prevent 32-bit signed integer overflow.'
+      'Always calculate mid in binary search using `low + (high - low) / 2` to prevent 32-bit signed integer overflow.',
+      'Never remove items in an enhanced `for` loop; use `iterator.remove()` or `list.removeIf()` to prevent ConcurrentModificationException.'
     ],
-    code: `// TRAP 1: Integer Object Cache Trap (-128 to 127)
+    code: `// GOTCHA 1: Integer Object Cache Trap (-128 to 127)
 Integer a = 127, b = 127;
-System.out.println(a == b); // TRUE (cached in JVM)
+System.out.println(a == b); // TRUE (Cached by JVM)
 Integer c = 128, d = 128;
 System.out.println(c == d); // FALSE! (Different heap objects)
-// FIX: ALWAYS use .equals():
-System.out.println(c.equals(d)); // TRUE!
+System.out.println(c.equals(d)); // TRUE (Always use .equals()!)
 
-// TRAP 2: Arrays.asList with Primitives
-int[] arr = {1, 2, 3};
-// List<int[]> badList = Arrays.asList(arr); // Has size 1 containing the array itself!
-// FIX: Use Boxed stream or standard loop for primitives:
-List<Integer> goodList = Arrays.stream(arr).boxed().collect(Collectors.toList());
+// GOTCHA 2: list.remove(int index) vs list.remove(Object o)
+List<Integer> list = new ArrayList<>(List.of(10, 20, 30));
+list.remove(1); // REMOVES INDEX 1 (value 20), NOT the number 1!
+// FIX to remove the value 10:
+list.remove(Integer.valueOf(10));
 
-// TRAP 3: Negative Modulo in Java
+// GOTCHA 3: Arrays.asList with Primitive Arrays
+int[] primArr = {1, 2, 3};
+List<int[]> wrapped = Arrays.asList(primArr); // Size is 1! It boxed the entire array as 1 element!
+// FIX:
+List<Integer> proper = Arrays.stream(primArr).boxed().collect(Collectors.toList());
+
+// GOTCHA 4: Negative Modulo in Java
 int mod = -7 % 3; // Returns -1, NOT 2!
-// FIX: To get standard mathematical positive modulo:
+// FIX for circular arrays or hash table indexing:
 int positiveMod = (val % m + m) % m;
 
-// TRAP 4: Binary Search Midpoint Overflow
-int badMid = (low + high) / 2; // Overflows if low + high > 2,147,483,647
-// FIX:
-int safeMid = low + (high - low) / 2;
-// Or bitwise:
-int safeMid2 = (low + high) >>> 1;
+// GOTCHA 5: Binary Search Midpoint Overflow
+int badMid = (low + high) / 2; // Overflows if low + high > 2,147,483,647!
+int safeMid = low + (high - low) / 2; // SAFE
 
-// TRAP 5: Comparator Subtraction Overflow
-// Bad: (a, b) -> a - b (Fails when a = Integer.MIN_VALUE, b = 10)
-// FIX: Always use Integer.compare(a, b);
+// GOTCHA 6: Comparator Subtraction Underflow
+// Bad: (a, b) -> a - b (Overlows if a = Integer.MIN_VALUE, b = 1)
+// FIX: Always use:
+Comparator<Integer> safe = (a, b) -> Integer.compare(a, b);
 
-// TRAP 6: Pass-by-Value with Object References in Recursion
-// Modifying a primitive in recursion doesn't persist:
-// void dfs(int count) { count++; } // Caller's count does NOT change!
-// FIX: Pass an array of size 1 or return the value:
-// void dfs(int[] count) { count[0]++; }`
+// GOTCHA 7: ConcurrentModificationException in For-Each
+List<String> items = new ArrayList<>(List.of("a", "b", "c"));
+// for (String s : items) { if (s.equals("b")) items.remove(s); } // CRASH!
+// FIX: Use removeIf:
+items.removeIf(s -> s.equals("b"));
+
+// GOTCHA 8: String Literal Pool vs 'new String()'
+String s1 = "hello";
+String s2 = "hello";
+String s3 = new String("hello");
+// s1 == s2 is TRUE (interned string pool)
+// s1 == s3 is FALSE (s3 is a new heap allocation!)
+// FIX: Always use s1.equals(s3)
+
+// GOTCHA 9: Generic Arrays are Illegal in Java
+// List<Integer>[] arr = new ArrayList<Integer>[10]; // COMPILE ERROR (Type erasure)
+// FIX: Use List of Lists:
+List<List<Integer>> adjList = new ArrayList<>();
+for (int i = 0; i < 10; i++) adjList.add(new ArrayList<>());
+
+// GOTCHA 10: Mutating an Object Used as a HashMap Key
+// If you modify an object's fields after putting it into a HashMap, its hashCode changes.
+// The next map.get(key) will search the wrong bucket and return NULL!
+// RULE: HashMap keys should ALWAYS be immutable (e.g. String, Integer, Record).`
   }
 ];
+

@@ -1,10 +1,11 @@
 import { Icons } from '../utils/icons.js';
 import { Storage } from '../utils/storage.js';
+import { curriculumTiers } from '../data/curriculumData.js';
 
 export function renderNavbar(activeTab, onTabChange, onOpenSearch) {
   const completed = Storage.getCompleted();
-  const totalProblems = 22;
-  const pct = Math.round((completed.length / totalProblems) * 100);
+  const totalProblems = curriculumTiers.flatMap(t => t.problems).length;
+  const pct = totalProblems > 0 ? Math.round((completed.length / totalProblems) * 100) : 0;
 
   const tabs = [
     { id: 'home',          label: 'Home',           icon: '🏠', desc: 'Dashboard & Study Plan',          group: 'core' },

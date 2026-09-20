@@ -165,7 +165,7 @@ export function renderSortingGameView() {
             <label style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">
               ⚡ Racer 1
             </label>
-            <select id="algo1-select" class="form-select-sm" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.4); color: #fff; padding: 7px 12px; border-radius: 8px; font-weight: 600;">
+            <select id="algo1-select" class="form-select-sm" style="background: var(--bg-input); border: 1px solid rgba(56, 189, 248, 0.4); color: var(--text-primary); padding: 7px 12px; border-radius: 8px; font-weight: 600; box-shadow: var(--card-inner-highlight);">
               ${sortingAlgorithms.map(a => `<option value="${a.id}" ${a.id === algo1Id ? 'selected' : ''}>${a.icon} ${a.name} (${a.complexity.avg})</option>`).join('')}
             </select>
           </div>
@@ -174,7 +174,7 @@ export function renderSortingGameView() {
             <label style="font-size: 0.75rem; font-weight: 700; color: #f472b6; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">
               🔥 Racer 2
             </label>
-            <select id="algo2-select" class="form-select-sm" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(244, 114, 182, 0.4); color: #fff; padding: 7px 12px; border-radius: 8px; font-weight: 600;">
+            <select id="algo2-select" class="form-select-sm" style="background: var(--bg-input); border: 1px solid rgba(244, 114, 182, 0.4); color: var(--text-primary); padding: 7px 12px; border-radius: 8px; font-weight: 600; box-shadow: var(--card-inner-highlight);">
               ${sortingAlgorithms.map(a => `<option value="${a.id}" ${a.id === algo2Id ? 'selected' : ''}>${a.icon} ${a.name} (${a.complexity.avg})</option>`).join('')}
             </select>
           </div>
@@ -183,7 +183,7 @@ export function renderSortingGameView() {
             <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">
               📊 Distribution
             </label>
-            <select id="dist-select" class="form-select-sm" style="background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-subtle); color: #fff; padding: 7px 12px; border-radius: 8px; font-weight: 600;">
+            <select id="dist-select" class="form-select-sm" style="background: var(--bg-input); border: 1px solid var(--border-subtle); color: var(--text-primary); padding: 7px 12px; border-radius: 8px; font-weight: 600; box-shadow: var(--card-inner-highlight);">
               ${dataDistributions.map(d => `<option value="${d.id}" ${d.id === distributionId ? 'selected' : ''}>${d.icon} ${d.name}</option>`).join('')}
             </select>
           </div>
@@ -192,7 +192,7 @@ export function renderSortingGameView() {
             <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">
               🔢 Array Size
             </label>
-            <select id="size-select" class="form-select-sm" style="background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-subtle); color: #fff; padding: 7px 12px; border-radius: 8px; font-weight: 600;">
+            <select id="size-select" class="form-select-sm" style="background: var(--bg-input); border: 1px solid var(--border-subtle); color: var(--text-primary); padding: 7px 12px; border-radius: 8px; font-weight: 600; box-shadow: var(--card-inner-highlight);">
               <option value="15" ${arraySize === 15 ? 'selected' : ''}>15 Elements (Detailed)</option>
               <option value="25" ${arraySize === 25 ? 'selected' : ''}>25 Elements (Standard)</option>
               <option value="40" ${arraySize === 40 ? 'selected' : ''}>40 Elements (Stress Test)</option>
@@ -239,7 +239,7 @@ export function renderSortingGameView() {
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <span id="lane1-icon" style="font-size: 1.4rem;">⚡</span>
-              <h2 id="lane1-title" style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0;">Quick Sort</h2>
+              <h2 id="lane1-title" style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin: 0;">Quick Sort</h2>
             </div>
             <div id="lane1-badges" style="display: flex; gap: 6px; margin-top: 6px;">
               <span class="badge badge-java" id="lane1-avg">Avg: O(N log N)</span>
@@ -284,7 +284,7 @@ export function renderSortingGameView() {
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <span id="lane2-icon" style="font-size: 1.4rem;">🫧</span>
-              <h2 id="lane2-title" style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0;">Bubble Sort</h2>
+              <h2 id="lane2-title" style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin: 0;">Bubble Sort</h2>
             </div>
             <div id="lane2-badges" style="display: flex; gap: 6px; margin-top: 6px;">
               <span class="badge badge-java" id="lane2-avg">Avg: O(N²)</span>
@@ -330,17 +330,17 @@ export function renderSortingGameView() {
 
     <!-- Algorithm Deep Dive Knowledge Cards -->
     <div style="margin-top: 36px;">
-      <h3 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+      <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
         <span>📚</span> Algorithm Cheat Sheet & Interview Selection Rules
       </h3>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
         ${sortingAlgorithms.map(algo => `
-          <div class="card" style="padding: 20px; border-left: 4px solid ${algo.color}; background: rgba(15, 23, 42, 0.65);">
+          <div class="card" style="padding: 20px; border-left: 4px solid ${algo.color}; background: var(--bg-card);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="font-size: 1.3rem;">${algo.icon}</span>
-                <span style="font-size: 1.1rem; font-weight: 700; color: #fff;">${algo.name}</span>
+                <span style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">${algo.name}</span>
               </div>
               <span class="badge" style="background: rgba(255,255,255,0.08); color: ${algo.color}; font-weight: 700;">
                 ${algo.complexity.avg}
@@ -535,7 +535,7 @@ export function renderSortingGameView() {
           <h3 style="font-size: 1.25rem; font-weight: 800; color: #34d399; margin: 0;">
             ${winnerText}
           </h3>
-          <span class="badge" style="background: rgba(255,255,255,0.08); color: #fff;">
+          <span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-primary);">
             Data: ${dist.name} (${arraySize} items)
           </span>
         </div>

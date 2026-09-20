@@ -122,7 +122,7 @@ export function renderHomeView(onNavigate) {
         <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; margin-bottom: 16px;">
           Practice interactive, multi-turn technical interviews under real pressure. Handle senior engineer follow-up questions for <strong>LRU Cache</strong>, <strong>Median Stream</strong>, <strong>API Rate Limiting</strong>, and <strong>STAR Behavioral</strong> scenarios.
         </p>
-        <button class="btn-secondary home-nav-card" data-tab="interview" style="width: 100%; justify-content: center; background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.4); color: #fff; font-weight: 700;">
+        <button class="btn-secondary home-nav-card" data-tab="interview" style="width: 100%; justify-content: center; background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.4); color: var(--text-primary); font-weight: 700;">
           🎙️ Enter Mock Interview Room
         </button>
       </div>
@@ -290,9 +290,9 @@ export function renderHomeView(onNavigate) {
           { week: 'Week 9', theme: 'Dynamic Programming', color: '#fbbf24', tasks: ['1D DP: Coin Change, LIS', '2D DP: Edit Distance, LCS', 'Knapsack variants', 'DP on intervals & grids'] },
           { week: 'Week 10', theme: 'System Design', color: '#f43f5e', tasks: ['Scalability fundamentals', 'Design URL Shortener & Instagram', 'Design WhatsApp & YouTube', 'RADIO interview framework'] }
         ].map(week => `
-          <div style="background: rgba(15,23,42,0.7); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px 16px; border-top: 3px solid ${week.color};">
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px 16px; border-top: 3px solid ${week.color}; box-shadow: var(--card-inner-highlight);">
             <div style="font-size: 0.75rem; color: ${week.color}; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">${week.week}</div>
-            <div style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 10px;">${week.theme}</div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">${week.theme}</div>
             <ul style="padding-left: 16px; color: var(--text-secondary); font-size: 0.82rem; display: flex; flex-direction: column; gap: 3px;">
               ${week.tasks.map(t => `<li>${t}</li>`).join('')}
             </ul>

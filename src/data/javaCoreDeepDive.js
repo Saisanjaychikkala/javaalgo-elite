@@ -588,5 +588,136 @@ public class CounterDemo {
         return atomicCount.get();
     }
 }`
+  },
+  {
+    id: 'completable-future-reactive',
+    title: 'CompletableFuture & Non-Blocking Asynchronous Pipelines',
+    category: 'Concurrency & Multithreading',
+    icon: 'cpu',
+    summary: 'Why `Future.get()` destroys throughput, composing asynchronous computations (`thenCompose`, `thenCombine`), thread pool isolation, and timeout fallbacks.',
+    description: 'Modern backend microservices cannot afford to block operating system threads waiting on database queries and downstream REST/gRPC calls. `CompletableFuture` provides functional, monadic composition for asynchronous non-blocking programming in core Java.',
+    keyTakeaways: [
+      'The Blocking Future Problem: Calling `Future.get()` halts the calling thread until execution completes, wasting server resources and causing thread starvation under load.',
+      'Asynchronous Chaining: `thenApply()` (map value), `thenCompose()` (flatMap to another async stage), `thenCombine()` (merge two independent concurrent futures when both finish).',
+      'Thread Pool Isolation: Never run blocking I/O on `ForkJoinPool.commonPool()`! Always pass a dedicated bounded `ExecutorService` (`supplyAsync(..., customExecutor)`).',
+      'Resilience & Timeouts: Handle failures gracefully with `exceptionally()`, `handle()`, and `.orTimeout(timeout, unit)` (Java 9+).'
+    ],
+    code: `// ========================================================
+// 1. NON-BLOCKING MICROSERVICE AGGREGATOR PIPELINE
+// ========================================================
+import java.util.concurrent.*;
+
+public class AsyncAggregatorService {
+    // Isolated thread pool for network I/O calls
+    private final ExecutorService ioPool = Executors.newFixedThreadPool(16);
+
+    public CompletableFuture<UserDashboard> fetchDashboard(String userId) {
+        // Fetch User Profile (Async Task 1)
+        CompletableFuture<UserProfile> profileFuture = CompletableFuture
+            .supplyAsync(() -> queryUserService(userId), ioPool)
+            .orTimeout(500, TimeUnit.MILLISECONDS);
+
+        // Fetch User Credit Balance (Async Task 2, runs concurrently!)
+        CompletableFuture<CreditBalance> creditFuture = CompletableFuture
+            .supplyAsync(() -> queryPaymentService(userId), ioPool)
+            .orTimeout(500, TimeUnit.MILLISECONDS);
+
+        // Fetch Recent Transactions (Async Task 3, runs concurrently!)
+        CompletableFuture<List<Transaction>> txFuture = CompletableFuture
+            .supplyAsync(() -> queryLedgerService(userId), ioPool)
+            .orTimeout(800, TimeUnit.MILLISECONDS);
+
+        // Merge all 3 independent futures asynchronously when ALL complete:
+        return CompletableFuture.allOf(profileFuture, creditFuture, txFuture)
+            .thenApply(v -> {
+                // All three have completed without blocking any OS thread!
+                UserProfile profile = profileFuture.join();
+                CreditBalance credit = creditFuture.join();
+                List<Transaction> txs = txFuture.join();
+                return new UserDashboard(profile, credit, txs);
+            })
+            .exceptionally(ex -> {
+                // Graceful degradation / fallback if a downstream service fails or times out
+                System.err.println("Downstream failure: " + ex.getMessage());
+                return UserDashboard.fallback(userId);
+            });
+    }
+
+    private UserProfile queryUserService(String id) { return new UserProfile(id, "Sanjay"); }
+    private CreditBalance queryPaymentService(String id) { return new CreditBalance(150.0); }
+    private List<Transaction> queryLedgerService(String id) { return List.of(); }
+}`
+  },
+  {
+    id: 'forkjoin-workstealing',
+    title: 'ForkJoinPool, Work-Stealing Algorithm & The Parallel Streams Trap',
+    category: 'Concurrency & Multithreading',
+    icon: 'layers',
+    summary: 'Divide-and-conquer parallelism, double-ended work-stealing deques, and why calling blocking I/O inside `parallelStream()` paralyzes the JVM.',
+    description: 'The `ForkJoinPool` is the engine powering Java 8+ Parallel Streams and `CompletableFuture`. Understanding work-stealing and why the shared common pool is easily poisoned is a hallmark of staff software engineering.',
+    keyTakeaways: [
+      'Work-Stealing Architecture: Each worker thread maintains its own double-ended queue (Deque). A thread pushes and pops subtasks from the HEAD (LIFO order for cache locality). Idle threads STEAL work from the TAIL of busy threads (FIFO order).',
+      'RecursiveTask<V> vs RecursiveAction: Base case computation vs splitting work into sub-tasks via `fork()` and gathering with `join()`.',
+      'The Deadly Parallel Streams Trap: `collection.parallelStream()` by default uses the shared global `ForkJoinPool.commonPool()`. If a single query blocks on HTTP or Database I/O inside a parallel stream, all worker threads lock up, starving the entire JVM application!',
+      'Golden Rule: Use `parallelStream()` ONLY for CPU-bound computations with large datasets ($N > 10,000$). NEVER use it for I/O!'
+    ],
+    code: `// ========================================================
+// 1. RECURSIVETASK DIVIDE-AND-CONQUER PARALLELISM
+// ========================================================
+import java.util.concurrent.*;
+
+public class ParallelArraySum extends RecursiveTask<Long> {
+    private static final int THRESHOLD = 10_000; // Granularity limit
+    private final int[] arr;
+    private final int start;
+    private final int end;
+
+    public ParallelArraySum(int[] arr, int start, int end) {
+        this.arr = arr;
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    protected Long compute() {
+        // Base case: small enough to compute sequentially
+        if (end - start <= THRESHOLD) {
+            long sum = 0;
+            for (int i = start; i < end; i++) sum += arr[i];
+            return sum;
+        }
+
+        // Divide: Split array in half
+        int mid = start + (end - start) / 2;
+        ParallelArraySum leftTask = new ParallelArraySum(arr, start, mid);
+        ParallelArraySum rightTask = new ParallelArraySum(arr, mid, end);
+
+        // Fork left task asynchronously onto worker deque
+        leftTask.fork();
+
+        // Compute right task in CURRENT thread (avoids extra context switch!)
+        long rightResult = rightTask.compute();
+
+        // Join: await left task result and combine
+        long leftResult = leftTask.join();
+
+        return leftResult + rightResult;
+    }
+
+    // ========================================================
+    // 2. THE COMMON POOL TRAP: ISOLATE BLOCKING TASKS!
+    // ========================================================
+    public static void safeParallelExecution() {
+        int[] data = new int[1_000_000];
+        // ✅ Isolated custom ForkJoinPool: cannot affect shared common pool!
+        ForkJoinPool customPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+        try {
+            long total = customPool.invoke(new ParallelArraySum(data, 0, data.length));
+            System.out.println("Sum: " + total);
+        } finally {
+            customPool.shutdown();
+        }
+    }
+}`
   }
 ];

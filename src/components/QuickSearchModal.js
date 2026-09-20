@@ -2,6 +2,11 @@ import { Icons } from '../utils/icons.js';
 import { javaRefresherData } from '../data/javaRefresher.js';
 import { curriculumTiers } from '../data/curriculumData.js';
 import { patternMatrix } from '../data/patternMatrix.js';
+import { javaCoreDeepDive } from '../data/javaCoreDeepDive.js';
+import { systemDesignData } from '../data/systemDesign.js';
+import { dsFoundations } from '../data/dsFoundations.js';
+import { aiUniverseData } from '../data/aiUniverseData.js';
+import { awsCloudData } from '../data/awsCloudData.js';
 import { showToast } from '../utils/toast.js';
 
 export function createQuickSearchModal(onSelectProblem, onNavigateTab) {
@@ -26,7 +31,70 @@ export function createQuickSearchModal(onSelectProblem, onNavigateTab) {
     });
   });
 
-  // 2. Curriculum problems
+  // 2. Java Core & Concurrency Deep Dive
+  if (Array.isArray(javaCoreDeepDive)) {
+    javaCoreDeepDive.forEach(item => {
+      searchIndex.push({
+        type: 'Java Deep Dive',
+        title: item.title,
+        subtitle: item.summary,
+        category: item.category,
+        action: () => {
+          onNavigateTab('refresher');
+          setTimeout(() => {
+            const el = document.getElementById(item.id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        }
+      });
+    });
+  }
+
+  // 3. System Design Fundamentals & Case Studies
+  if (systemDesignData && Array.isArray(systemDesignData.fundamentals)) {
+    systemDesignData.fundamentals.forEach(fund => {
+      searchIndex.push({
+        type: 'System Design',
+        title: `${fund.icon || '📐'} ${fund.title}`,
+        subtitle: (fund.keyPoints && fund.keyPoints[0]) || 'Scalability, caching, load balancers, rate limiting',
+        category: 'Fundamentals',
+        action: () => {
+          onNavigateTab('system-design');
+        }
+      });
+    });
+  }
+
+  if (systemDesignData && Array.isArray(systemDesignData.problems)) {
+    systemDesignData.problems.forEach(prob => {
+      searchIndex.push({
+        type: 'System Design Case Study',
+        title: `${prob.icon || '🏗️'} ${prob.title}`,
+        subtitle: `${prob.difficulty} • ${(prob.companies || []).join(', ')} • ${prob.overview.slice(0, 60)}...`,
+        category: 'System Design',
+        action: () => {
+          onNavigateTab('system-design');
+        }
+      });
+    });
+  }
+
+  // 4. Data Structures Foundations
+  if (Array.isArray(dsFoundations)) {
+    dsFoundations.forEach(ds => {
+      searchIndex.push({
+        type: 'DS Foundation',
+        title: `${ds.emoji || '📦'} ${ds.title}`,
+        subtitle: ds.tagline,
+        category: ds.category || 'Data Structures',
+        action: () => {
+          onNavigateTab('foundations');
+        }
+      });
+    });
+  }
+
+  // 5. Curriculum problems
   curriculumTiers.forEach(tier => {
     tier.problems.forEach(prob => {
       searchIndex.push({
@@ -41,7 +109,7 @@ export function createQuickSearchModal(onSelectProblem, onNavigateTab) {
     });
   });
 
-  // 3. Patterns
+  // 6. Patterns
   patternMatrix.forEach(pat => {
     searchIndex.push({
       type: 'Interview Pattern',
@@ -58,7 +126,50 @@ export function createQuickSearchModal(onSelectProblem, onNavigateTab) {
     });
   });
 
-  // 4. Interactive Games & Speedrun
+  // 7. AI & GenAI Universe
+  if (aiUniverseData && Array.isArray(aiUniverseData.topics)) {
+    aiUniverseData.topics.forEach(topic => {
+      searchIndex.push({
+        type: 'AI Universe',
+        title: `${topic.icon || '🤖'} ${topic.title}`,
+        subtitle: `${topic.difficulty} • LLMs, RAG, Agents, MCPs`,
+        category: 'AI & GenAI',
+        action: () => {
+          onNavigateTab('ai-universe');
+        }
+      });
+    });
+  }
+
+  // 8. AWS Cloud Practitioner
+  if (awsCloudData && Array.isArray(awsCloudData.domains)) {
+    awsCloudData.domains.forEach(domain => {
+      searchIndex.push({
+        type: 'AWS Cloud Track',
+        title: `${domain.icon || '☁️'} Domain ${domain.number}: ${domain.title}`,
+        subtitle: domain.summary,
+        category: 'CLF-C02',
+        action: () => {
+          onNavigateTab('certifications');
+        }
+      });
+      if (Array.isArray(domain.topics)) {
+        domain.topics.forEach(t => {
+          searchIndex.push({
+            type: 'AWS Topic',
+            title: t.title,
+            subtitle: `Domain ${domain.number} • ${t.analogy ? t.analogy.slice(0, 70) + '...' : ''}`,
+            category: domain.title,
+            action: () => {
+              onNavigateTab('certifications');
+            }
+          });
+        });
+      }
+    });
+  }
+
+  // 9. Interactive Games & Speedrun
   searchIndex.push({
     type: 'Interactive Game',
     title: 'Algorithm Sorting Race Arena',
@@ -92,7 +203,7 @@ export function createQuickSearchModal(onSelectProblem, onNavigateTab) {
           type="text" 
           class="quick-search-input" 
           id="quick-search-field"
-          placeholder="Search imports, Collections (Map, List, Queue), patterns, or problems..." 
+          placeholder="Search problems, patterns, System Design, Concurrency, AI, or AWS Cloud..." 
           autocomplete="off"
         />
         <button class="modal-close-btn" id="search-close-btn" title="Close (Esc)">${Icons.close}</button>

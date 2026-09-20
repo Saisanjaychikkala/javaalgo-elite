@@ -51,9 +51,9 @@ export function renderJavaRefresherView() {
             id="refresher-search-input" 
             placeholder="🔍 Search concepts, JVM, memory, classes, gotchas (e.g., heap, equals, deque, generics)..." 
             style="
-              width: 100%; padding: 12px 16px 12px 42px; background: rgba(15,23,42,0.8);
-              border: 1px solid var(--border-subtle); border-radius: 12px; color: #fff;
-              font-size: 0.92rem; outline: none; transition: border-color 0.2s;
+              width: 100%; padding: 12px 16px 12px 42px; background: var(--bg-tertiary);
+              border: 1px solid var(--border-subtle); border-radius: 12px; color: var(--text-primary);
+              font-size: 0.92rem; outline: none; transition: border-color 0.2s; box-shadow: var(--card-inner-highlight);
             "
           />
           <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1.1rem; opacity: 0.7;">⚡</span>
@@ -144,7 +144,7 @@ export function renderJavaRefresherView() {
           <div>
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
               <span class="badge badge-java">${item.category}</span>
-              <h3 style="font-size: 1.3rem; font-weight: 700; color: #fff;">${item.title}</h3>
+              <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary);">${item.title}</h3>
             </div>
             <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5;">${item.description}</p>
           </div>
@@ -211,7 +211,7 @@ export function renderJavaRefresherView() {
           <div>
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
               <span class="badge badge-java">${item.category}</span>
-              <h3 style="font-size: 1.3rem; font-weight: 700; color: #fff;">${item.title}</h3>
+              <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary);">${item.title}</h3>
             </div>
             <p style="color: var(--text-secondary); font-size: 0.92rem;">${item.description}</p>
           </div>
@@ -313,12 +313,12 @@ export function renderJavaRefresherView() {
                 🔥 ${item.difficulty}
               </span>
             </div>
-            <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff; line-height: 1.4;">${item.question}</h3>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); line-height: 1.4;">${item.question}</h3>
           </div>
           <button style="
-            background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); color: #fff;
+            background: var(--bg-tertiary); border: 1px solid var(--border-subtle); color: var(--text-primary);
             width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 1.2rem; flex-shrink: 0;
+            cursor: pointer; font-size: 1.2rem; flex-shrink: 0; box-shadow: var(--card-inner-highlight);
           ">
             ${isExpanded ? '−' : '+'}
           </button>

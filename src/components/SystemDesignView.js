@@ -30,7 +30,7 @@ export function renderSystemDesignView() {
       </div>
 
       <!-- Fundamentals -->
-      <div style="padding: 10px 16px 4px; font-size: 0.68rem; color: rgba(255,255,255,0.2); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px;">Fundamentals</div>
+      <div style="padding: 10px 16px 4px; font-size: 0.68rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px;">Fundamentals</div>
       ${systemDesignData.fundamentals.map(f => `
         <div class="sd-sidebar-item ${activeSection === f.id && !activeProblem ? 'sd-active' : ''}" data-section="${f.id}" style="
           display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer;
@@ -43,7 +43,7 @@ export function renderSystemDesignView() {
       `).join('')}
 
       <!-- Problems -->
-      <div style="padding: 10px 16px 4px; font-size: 0.68rem; color: rgba(255,255,255,0.2); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px;">Classic Problems</div>
+      <div style="padding: 10px 16px 4px; font-size: 0.68rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px;">Classic Problems</div>
       ${systemDesignData.problems.map(p => `
         <div class="sd-sidebar-item ${activeProblem === p.id ? 'sd-active' : ''}" data-problem="${p.id}" style="
           display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer;
@@ -104,7 +104,7 @@ export function renderSystemDesignView() {
         </h1>
         <p style="color: var(--text-secondary); max-width: 680px; line-height: 1.6;">
           A proven 5-step framework for crushing any system design interview question. 
-          Interviewers want to see <strong style="color: #fff;">structured thinking</strong>, not just answers.
+          Interviewers want to see <strong style="color: var(--text-primary);">structured thinking</strong>, not just answers.
           This framework ensures you never freeze or miss critical aspects.
         </p>
       </div>
@@ -122,7 +122,7 @@ export function renderSystemDesignView() {
               <div style="flex: 1;">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
                   <h3 style="font-size: 1.2rem; font-weight: 800;">${step.name}</h3>
-                  <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 10px; border-radius: 20px; color: var(--text-muted);">⏱ ${step.timeAllocation}</span>
+                  <span style="font-size: 0.75rem; background: var(--bg-tertiary); padding: 3px 10px; border-radius: 20px; color: var(--text-muted); border: 1px solid var(--border-subtle);">⏱ ${step.timeAllocation}</span>
                 </div>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 14px;">${step.description}</p>
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 6px; margin-bottom: 12px;">
@@ -134,11 +134,11 @@ export function renderSystemDesignView() {
                   `).join('')}
                 </div>
                 <div style="
-                  padding: 10px 14px; background: rgba(255,255,255,0.04); border-radius: 8px;
+                  padding: 10px 14px; background: var(--bg-tertiary); border-radius: 8px;
                   border-left: 3px solid ${['#fbbf24','#38bdf8','#c084fc','#34d399','#f43f5e'][i]};
-                  font-size: 0.84rem; color: var(--text-secondary);
+                  font-size: 0.84rem; color: var(--text-secondary); border: 1px solid var(--border-subtle);
                 ">
-                  💡 <strong style="color: #fff;">Pro Tip:</strong> ${step.tip}
+                  💡 <strong style="color: var(--text-primary);">Pro Tip:</strong> ${step.tip}
                 </div>
               </div>
             </div>
@@ -160,12 +160,12 @@ export function renderSystemDesignView() {
             { item: 'Cross-continent', val: '~150 ms', note: '150 days analogy!' },
             { item: 'DNS Lookup', val: '~20–120 ms', note: 'Use CDN to reduce' },
           ].map(({ item, val, note }) => `
-            <div style="padding: 10px 14px; background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;">
+            <div style="padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
                 <span style="font-size: 0.84rem; color: var(--text-secondary);">${item}</span>
                 <span style="font-family: 'Fira Code', monospace; font-weight: 800; font-size: 0.84rem; color: #fbbf24;">${val}</span>
               </div>
-              ${note ? `<div style="font-size: 0.72rem; color: rgba(255,255,255,0.2);">${note}</div>` : ''}
+              ${note ? `<div style="font-size: 0.72rem; color: var(--text-muted);">${note}</div>` : ''}
             </div>
           `).join('')}
         </div>
@@ -268,7 +268,7 @@ export function renderSystemDesignView() {
         <div style="display: flex; flex-direction: column; gap: 12px;">
           ${problem.deepDive.map((qa, i) => `
             <details class="qa-accordion" style="
-              background: rgba(15,23,42,0.7); border: 1px solid var(--border-subtle); border-radius: 10px; overflow: hidden;
+              background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; overflow: hidden;
             ">
               <summary style="
                 padding: 16px 20px; cursor: pointer; font-weight: 700; font-size: 0.92rem;
@@ -283,7 +283,7 @@ export function renderSystemDesignView() {
                 <span style="margin-left: auto; color: var(--text-muted); font-size: 0.8rem; font-weight: 400;">click to reveal ▾</span>
               </summary>
               <div style="
-                padding: 16px 20px 18px 52px; border-top: 1px solid rgba(255,255,255,0.05);
+                padding: 16px 20px 18px 52px; border-top: 1px solid var(--border-subtle);
                 font-size: 0.89rem; color: var(--text-secondary); line-height: 1.7;
                 background: rgba(56,189,248,0.04);
               ">
@@ -309,11 +309,11 @@ export function renderSystemDesignView() {
 function renderMarkdownSD(text) {
   if (!text) return '';
   return text
-    .replace(/```sql([\s\S]*?)```/g, (_, code) => `<pre style="background: rgba(15,23,42,0.8); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; overflow-x: auto; margin: 12px 0;"><code style="font-family: 'Fira Code', monospace; font-size: 0.8rem; color: #a5b4fc;">${code.trim()}</code></pre>`)
-    .replace(/```([\s\S]*?)```/g, (_, code) => `<pre style="background: rgba(15,23,42,0.8); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; overflow-x: auto; margin: 12px 0;"><code style="font-family: 'Fira Code', monospace; font-size: 0.8rem; color: #a5b4fc;">${code.trim()}</code></pre>`)
+    .replace(/```sql([\s\S]*?)```/g, (_, code) => `<pre style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; overflow-x: auto; margin: 12px 0;"><code style="font-family: 'Fira Code', monospace; font-size: 0.8rem; color: #a5b4fc;">${code.trim()}</code></pre>`)
+    .replace(/```([\s\S]*?)```/g, (_, code) => `<pre style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; overflow-x: auto; margin: 12px 0;"><code style="font-family: 'Fira Code', monospace; font-size: 0.8rem; color: #a5b4fc;">${code.trim()}</code></pre>`)
     .replace(/\|(.+)\|/g, (row) => {
       const cells = row.split('|').filter(c => c.trim());
-      return '<tr>' + cells.map(c => `<td style="padding: 8px 14px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.84rem; color: var(--text-secondary);">${c.trim()}</td>`).join('') + '</tr>';
+      return '<tr>' + cells.map(c => `<td style="padding: 8px 14px; border: 1px solid var(--border-subtle); font-size: 0.84rem; color: var(--text-secondary);">${c.trim()}</td>`).join('') + '</tr>';
     })
     .replace(/(<tr>.*<\/tr>\n)+/gs, (rows) => `<div style="overflow-x: auto; margin: 12px 0;"><table style="border-collapse: collapse; width: 100%;">${rows}</table></div>`)
     .replace(/`([^`]+)`/g, '<code style="background: rgba(99,102,241,0.15); color: #a5b4fc; padding: 1px 6px; border-radius: 4px; font-size: 0.88em; font-family: Fira Code, monospace;">$1</code>')

@@ -95,7 +95,7 @@ export function renderStackVisualizer(container) {
           <div class="card" style="padding: 16px 18px; background: rgba(56,189,248,0.06);">
             <div style="font-weight: 700; color: #38bdf8; margin-bottom: 8px; font-size: 0.9rem;">🔑 LIFO = Last In, First Out</div>
             <div style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.6;">
-              Like a stack of plates — you always <strong style="color: #fff;">add to the top</strong> and <strong style="color: #fff;">remove from the top</strong>. 
+              Like a stack of plates — you always <strong style="color: var(--text-primary);">add to the top</strong> and <strong style="color: var(--text-primary);">remove from the top</strong>. 
               The plate you put on LAST is the first one you'll use.
             </div>
           </div>

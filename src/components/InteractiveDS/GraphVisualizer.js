@@ -184,7 +184,7 @@ export function renderGraphVisualizer(container) {
           <div class="card" style="padding: 16px; border-color: rgba(56,189,248,0.3);">
             <div style="font-weight: 700; color: #38bdf8; margin-bottom: 8px;">🌊 BFS — Breadth-First Search</div>
             <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6;">
-              Uses a <strong style="color: #fff;">Queue</strong> (FIFO).<br>
+              Uses a <strong style="color: var(--text-primary);">Queue</strong> (FIFO).<br>
               Explores all neighbors at distance 1, then distance 2...<br>
               <strong style="color: #34d399;">✅ Best for: Shortest path</strong> in unweighted graphs.<br>
               Time: O(V + E). Space: O(V).
@@ -193,7 +193,7 @@ export function renderGraphVisualizer(container) {
           <div class="card" style="padding: 16px; border-color: rgba(168,85,247,0.3);">
             <div style="font-weight: 700; color: #c084fc; margin-bottom: 8px;">🕳️ DFS — Depth-First Search</div>
             <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6;">
-              Uses <strong style="color: #fff;">Recursion</strong> (implicit stack).<br>
+              Uses <strong style="color: var(--text-primary);">Recursion</strong> (implicit stack).<br>
               Goes as deep as possible before backtracking.<br>
               <strong style="color: #34d399;">✅ Best for: Cycle detection, topological sort</strong>.<br>
               Time: O(V + E). Space: O(V) recursion stack.

@@ -289,7 +289,7 @@ export function createProblemModal() {
           <div>
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
               <span style="font-size: 1.2rem;">🧠</span>
-              <h3 style="font-size: 1.1rem; color: #fff; margin: 0;">The Cognitive Deduction: "How Did I Know to Use This?"</h3>
+              <h3 style="font-size: 1.1rem; color: var(--text-primary); margin: 0;">The Cognitive Deduction: "How Did I Know to Use This?"</h3>
             </div>
             <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; margin: 0;">
               Interviews don't test memorization; they test your step-by-step cognitive deduction. Follow this exact train of thought from the first sentence of the problem to the optimal data structure:

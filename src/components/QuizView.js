@@ -148,7 +148,7 @@ export function renderQuizView() {
         <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Question ${currentIdx + 1} of ${quizQuestions.length}</span>
       </div>
 
-      <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff; line-height: 1.4; margin-bottom: 24px;">
+      <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); line-height: 1.4; margin-bottom: 24px;">
         ${q.question}
       </h3>
 
@@ -157,10 +157,11 @@ export function renderQuizView() {
           <button class="quiz-option-btn" data-opt-idx="${idx}" style="
             text-align: left;
             padding: 14px 18px;
-            background: rgba(15, 23, 42, 0.7);
+            background: var(--bg-tertiary);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
             color: var(--text-primary);
+            box-shadow: var(--card-inner-highlight);
             font-size: 0.95rem;
             transition: all var(--transition-fast);
             display: flex;
@@ -269,7 +270,7 @@ export function renderQuizView() {
     mainCard.innerHTML = `
       <div style="text-align: center; padding: 20px 0;">
         <div style="font-size: 3rem; margin-bottom: 12px;">🎉</div>
-        <h2 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 8px;">
+        <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-bottom: 8px;">
           Flashcard Quiz Completed!
         </h2>
         <p style="color: var(--text-secondary); margin-bottom: 24px;">
@@ -355,7 +356,7 @@ export function renderQuizView() {
       </div>
 
       <!-- Question Title -->
-      <h3 style="font-size: 1.18rem; font-weight: 700; color: #fff; line-height: 1.4; margin-bottom: 14px;">
+      <h3 style="font-size: 1.18rem; font-weight: 700; color: var(--text-primary); line-height: 1.4; margin-bottom: 14px;">
         What is the Worst-Case Time Complexity of this code snippet?
       </h3>
 
@@ -384,16 +385,17 @@ export function renderQuizView() {
           ${complexityOptions.map(opt => `
             <button class="comp-option-btn" data-val="${opt}" style="
               padding: 12px 14px;
-              background: rgba(15, 23, 42, 0.8);
+              background: var(--bg-tertiary);
               border: 1px solid var(--border-subtle);
               border-radius: 8px;
-              color: #fff;
+              color: var(--text-primary);
               font-family: var(--font-mono);
               font-size: 0.95rem;
               font-weight: 700;
               cursor: pointer;
               transition: all var(--transition-fast);
               text-align: center;
+              box-shadow: var(--card-inner-highlight);
             ">${opt}</button>
           `).join('')}
         </div>
@@ -513,7 +515,7 @@ export function renderQuizView() {
     mainCard.innerHTML = `
       <div style="text-align: center; padding: 20px 0;">
         <div style="font-size: 3rem; margin-bottom: 12px;">⚡</div>
-        <h2 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 8px;">
+        <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-bottom: 8px;">
           Big-O Complexity Speedrun Finished!
         </h2>
         <p style="color: var(--text-secondary); margin-bottom: 12px;">

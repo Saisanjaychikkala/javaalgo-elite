@@ -1159,6 +1159,129 @@ Solutions:
         { q: 'What happens if a cache node crashes?', a: 'If using replication: replica is promoted to primary automatically. Consistent hashing ensures only that node\'s key range needs to be reconstructed. Other nodes unaffected.' },
         { q: 'How to prevent cache from becoming stale?', a: 'TTL is the primary mechanism. For critical data, use write-through (update cache and DB together) or cache invalidation (delete cache key when DB is updated, next read re-populates).' }
       ]
+    },
+    {
+      id: 'uber-ride-dispatch',
+      title: 'Design Uber / Lyft (Geospatial Ride Dispatch)',
+      icon: '🚗',
+      difficulty: 'Hard',
+      timeToDesign: '45 min',
+      companies: ['Uber', 'Lyft', 'DoorDash', 'Grab', 'Google'],
+      overview: 'Design a real-time ride-sharing dispatch system tracking millions of active drivers, matching nearby drivers with riders, dynamic surge pricing, and trip lifecycle state management.',
+      requirements: {
+        functional: [
+          'Drivers update their GPS location (latitude, longitude) every 3-4 seconds',
+          'Riders request rides and view nearby available drivers on a map with real-time ETA',
+          'Matching engine finds and dispatches the optimal driver within a search radius',
+          'Trip state machine tracks dispatch, acceptance, arrival, ongoing ride, and completion',
+          'Dynamic surge pricing calculates multiplier based on regional demand and driver supply'
+        ],
+        nonFunctional: [
+          '5 million active drivers, 50 million active riders worldwide',
+          'Location update write throughput: ~1.25M writes/sec',
+          'Rider query latency: < 200ms to fetch nearby drivers within 5km radius',
+          'High availability: 99.999% uptime (zero dropped trips, zero double dispatch)'
+        ]
+      },
+      estimation: {
+        storage: 'Driver location: driver_id (8B) + lat (8B) + lon (8B) + timestamp (8B) = 32 bytes. 5M drivers × 32 bytes = 160 MB. The entire global driver location map fits in RAM on a single Redis instance!',
+        bandwidth: '1.25M writes/sec × 32 bytes = 40 MB/s network ingress.',
+        cache: 'Redis cluster with in-memory Geospatial index (H3 or S2 indexing). Ephemeral driver locations do not need disk persistence on every ping.'
+      },
+      architecture: `**Core Architecture Overview:**
+
+1. **Driver Location Ingestion Pipeline:**
+   - Driver App → WebSockets / gRPC Gateway → Location Ingestion Service.
+   - Pings buffered into **Kafka** (partitioned by regional City ID / H3 Cell ID).
+   - Ingestion Workers consume Kafka and update **Redis Geospatial Cache** and in-memory Location Buffers.
+
+2. **Spatial Indexing & Why Hexagons Beat Squares:**
+   - **Naive approach (SQL)**: \`SELECT * FROM drivers WHERE lat BETWEEN x1 AND x2 AND lon BETWEEN y1 AND y2\` → $O(N)$ full table scan, melts DB under 1.25M writes/sec.
+   - **Geohash / QuadTree**: Square bounding boxes. Disadvantage: Neighbors at diagonals are further away ($\\sqrt{2} \\approx 1.414\\times$) than orthogonal neighbors, creating edge distortions.
+   - **Uber H3 (Hexagonal Hierarchical Spatial Index)**: Hexagons have uniform distance to all 6 adjacent neighbors. Earth is divided into hierarchical hexagonal cells (Resolution 7-8: ~460m radius).
+   - Each driver ping maps to an H3 index in $O(1)$ CPU operations.
+
+3. **Driver-Rider Matching Engine:**
+   - Rider requests ride at coordinate $(lat, lon)$.
+   - Matcher gets rider's H3 cell, finds all available drivers in the central cell and immediate $k$-ring neighbors (7 cells total).
+   - If fewer than $N$ drivers found, expand ring to $k=2$ (19 cells).
+   - Rank candidate drivers by: ETA (routing engine), rating, and acceptance rate.
+   - Lock driver via Redis distributed lock (\`SET driver_id:lock uuid NX PX 15000\`) to prevent two riders from being dispatched the same driver.
+
+4. **Trip State Machine & Consistency:**
+   - \`REQUESTED\` → \`DISPATCHING\` → \`ACCEPTED\` → \`ARRIVED\` → \`IN_TRIP\` → \`COMPLETED\`
+   - Stored in PostgreSQL with **Optimistic Concurrency Control** (\`version\` column) for strict ACID guarantees on financial and trip state transitions.`,
+      deepDive: [
+        { q: 'Why not save every driver GPS ping to a persistent database?', a: 'Only the LATEST position matters for dispatch. Ephemeral locations live in Redis with a 15-second TTL. If a driver loses cellular connection, their entry expires automatically. Historical telemetry paths are batched and flushed to S3/Parquet asynchronously for auditing.' },
+        { q: 'How does dynamic surge pricing prevent regional gridlock?', a: 'Each H3 hexagonal cell tracks supply (available drivers) and demand (ride requests in last 5 mins). If demand/supply > 1.5, a pricing multiplier is computed and updated into a Redis cache. This attracts idle drivers from adjacent cells while dampening excessive demand.' },
+        { q: 'How do you prevent race conditions when two riders claim the same driver?', a: 'Distributed locking with Redis Redlock or a conditional CAS update in Postgres (\`UPDATE drivers SET status = "RESERVED" WHERE id = ? AND status = "AVAILABLE"\`). If rows affected == 0, the dispatch engine instantly tries the next candidate.' },
+        { q: 'How is ETA calculated for 10 candidate drivers without overloading routing engines?', a: 'Two-phase pruning: Phase 1 uses straight-line Euclidean/Haversine distance to filter top 5 candidates. Phase 2 queries the routing engine (OSRM / Google Distance Matrix with pre-calculated road networks) only for the top 5 to get accurate traffic-aware ETAs.' }
+      ]
+    },
+    {
+      id: 'distributed-rate-limiter',
+      title: 'Design a Distributed Rate Limiter & API Gateway',
+      icon: '🛡️',
+      difficulty: 'Medium',
+      timeToDesign: '40 min',
+      companies: ['Stripe', 'Amazon', 'Cloudflare', 'GitHub', 'Meta'],
+      overview: 'Design a high-throughput, low-latency distributed rate limiter guarding an API gateway against DoS attacks, traffic spikes, and brute force while enforcing per-tier quotas.',
+      requirements: {
+        functional: [
+          'Limit requests by IP, User ID, or API Key (e.g. 100 req/min for free tier, 50,000 req/min for enterprise)',
+          'Return HTTP 429 Too Many Requests with standard RFC headers (`X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After`)',
+          'Support configurable algorithmic policies per route (e.g. strict login brute force vs smooth search API)'
+        ],
+        nonFunctional: [
+          'Ultra-low latency: Rate limiting check overhead must be < 2ms',
+          'High throughput: Handle 200,000+ requests/second',
+          'Distributed accuracy: Multi-node API gateway instances must enforce shared limits without race conditions',
+          'Graceful degradation: If the rate limiter cache fails, fail open (allow traffic) rather than bringing down the business'
+        ]
+      },
+      estimation: {
+        storage: 'Key: \`rate:user_id:endpoint\` (32B). Value: Counter + Timestamp (16B). Total ~64 bytes per user. For 20M daily active users: 20M × 64 bytes = ~1.28 GB RAM. Easily fits on a small Redis cluster!',
+        bandwidth: '200K req/s × 64B = 12.8 MB/s internal network load.'
+      },
+      architecture: `**Architecture & Algorithm Breakdown:**
+
+1. **The 4 Fundamental Rate Limiting Algorithms:**
+   - **Token Bucket (Stripe/AWS)**: Bucket holds tokens up to max capacity. Refills at constant rate $R$ tokens/sec. Request consumes 1 token. Allows burst traffic while bounding average rate.
+   - **Leaky Bucket**: FIFO queue of constant outflow. Smooths bursts into a perfectly steady output rate. Good for egress rate limiting to 3rd-party webhooks.
+   - **Sliding Window Log**: Stores timestamps of every request in a Redis Sorted Set (ZSET). Evicts timestamps older than window. Extreme precision, but high memory ($O(N)$ entries per user).
+   - **Sliding Window Counter (Optimal Hybrid)**: Blends previous window count with current window progress:
+     \`\`\`text
+     Current Count = (Previous Window Count × Overlap %) + Current Window Count
+     \`\`\`
+     Memory is $O(1)$ and eliminates window boundary burst vulnerabilities!
+
+2. **The Distributed Race Condition & Redis Lua Solution:**
+   - If two API gateway instances simultaneously execute \`GET counter\` and \`SET counter + 1\`, concurrent requests bypass the limit.
+   - **Solution**: Execute the entire rate-limiting decision inside an **Atomic Redis Lua Script**:
+   \`\`\`lua
+   local key = KEYS[1]
+   local limit = tonumber(ARGV[1])
+   local window = tonumber(ARGV[2])
+   local current = redis.call('INCR', key)
+   if current == 1 then
+       redis.call('EXPIRE', key, window)
+   end
+   if current > limit then
+       return 0 -- Rejected
+   else
+       return 1 -- Allowed
+   end
+   \`\`\`
+   Redis is single-threaded for command execution: the Lua script runs atomically with zero race conditions!
+
+3. **Multi-Region Consistency & Performance:**
+   - Local in-memory caching (Guava / Caffeine) at each API Gateway node with periodic asynchronous reconciliation with central Redis to drop latency to sub-millisecond ($<0.1$ms).`,
+      deepDive: [
+        { q: 'What happens if Redis dies or suffers network partition?', a: 'Fail Open vs Fail Closed policy. For security endpoints (login/password reset), fail closed (block). For general read APIs, fail open (allow) and sound alerts to Datadog/PagerDuty so users do not experience complete outage.' },
+        { q: 'How do you handle client clock skew?', a: 'Never trust client timestamps. Always use centralized server time (Redis \`TIME\` or NTP-synchronized API Gateway clock).' },
+        { q: 'How do you prevent memory leaks from inactive users?', a: 'Every key in Redis MUST have a short TTL matching the sliding window duration (e.g., 60 seconds). Once the user goes idle, Redis automatically evicts the key.' },
+        { q: 'What standard headers should be returned?', a: '\`X-RateLimit-Limit\`: allowed requests per period; \`X-RateLimit-Remaining\`: remaining quota; \`X-RateLimit-Reset\`: UTC epoch seconds when window resets; \`Retry-After\`: seconds until client can retry after 429.' }
+      ]
     }
   ],
 

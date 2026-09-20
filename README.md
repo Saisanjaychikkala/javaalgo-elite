@@ -38,11 +38,14 @@
   - Heaps & Priority Queues
   - Graphs (Adjacency Matrix vs Adjacency List)
 
-### 3. ☕ Java Refresher for Interviews
-- Java Collections Framework Cheat Sheet (`List`, `Set`, `Map`, `Queue`, `Deque`, `PriorityQueue`)
-- Common imports, syntax refresher, and built-in methods
-- Big-O Time & Space Complexity Reference Matrix
-- Idiomatic Java best practices for competitive programming
+### 3. ☕ Java Deep Dive & Core OOP Architecture
+- **JVM & Memory Mechanics**: Stack vs Heap, Pass-by-Value reality with visual diagrams, Garbage Collection roots & memory leak traps.
+- **Classes, Objects & Heap Lifecycle**: Step-by-step memory allocation during `new`, constructor chaining, shallow vs deep copy.
+- **4 Pillars of OOP Decoded**: Bulletproof immutable classes (defensive copying), Polymorphism (`vtable` dynamic dispatch), Abstraction (Interfaces vs Abstract classes).
+- **Static, Metaspace & Generics**: Static block execution orders, static nested classes preventing leaks, Generics Type Erasure, and the PECS rule (`? extends` vs `? super`).
+- **String Internals & Exception Architecture**: String Constant Pool, immutability rationales, `AutoCloseable` try-with-resources.
+- **Collections Framework Cheatsheet**: Lists, Maps, Sets, Queues, Deques, PriorityQueues with Big-O complexities and idioms.
+- **Top 20 FAANG Core Java Interview Q&A**: Interactive flashcards with detailed explanations and code for `equals()` & `hashCode()` contract, `String` immutability, `ConcurrentHashMap` internals, `Fail-Fast` vs `Fail-Safe`, and Java Records.
 
 ### 4. 🧠 15+ Core LeetCode Patterns
 - Two Pointers & Fast/Slow Pointers

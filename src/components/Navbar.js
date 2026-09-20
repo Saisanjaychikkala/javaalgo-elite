@@ -10,7 +10,7 @@ export function renderNavbar(activeTab, onTabChange, onOpenSearch) {
     { id: 'home',          label: 'Home',           icon: '🏠', desc: 'Dashboard & Study Plan',          group: 'core' },
     { id: 'foundations',   label: 'DS Foundations',  icon: '📚', desc: '8 Core Data Structures',          group: 'dsa' },
     { id: 'roadmap',       label: 'Roadmap',         icon: '🗺️', desc: '7-Tier LeetCode Track',           group: 'dsa' },
-    { id: 'refresher',     label: 'Java Refresher',  icon: '☕', desc: 'Syntax & Collections Cheatsheet', group: 'dsa' },
+    { id: 'refresher',     label: 'Java Deep Dive',  icon: '☕', desc: 'Core OOP, Collections & Q&A',      group: 'dsa' },
     { id: 'patterns',      label: 'Patterns',        icon: '🔮', desc: '14 Must-Know Algo Patterns',      group: 'dsa' },
     { id: 'visualizer',    label: 'Visualizer',      icon: '🎬', desc: 'Step-by-Step Animations',         group: 'dsa' },
     { id: 'system-design', label: 'System Design',   icon: '🏛️', desc: 'Distributed Systems Mastery',    group: 'advanced' },

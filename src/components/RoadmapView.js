@@ -152,9 +152,12 @@ export function renderRoadmapView(onSelectProblem) {
                     <span class="badge badge-${diffClass}">${prob.difficulty}</span>
                   </div>
 
-                  <div style="margin: 8px 0 10px 30px;">
+                  <div style="margin: 8px 0 10px 30px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
                     <span class="badge badge-java" style="font-size: 0.7rem; font-weight: 500;">
                       ${prob.pattern}
+                    </span>
+                    <span class="badge" style="background: rgba(56,189,248,0.08); color: #38bdf8; border: 1px solid rgba(56,189,248,0.25); font-size: 0.68rem; font-weight: 600;">
+                      📋 Prompt + Hook
                     </span>
                   </div>
 

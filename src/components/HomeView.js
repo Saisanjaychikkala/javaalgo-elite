@@ -144,11 +144,11 @@ export function renderHomeView(onNavigate) {
             <span style="font-size: 1.6rem;">☕</span>
             <span class="badge badge-java">Java Mastery</span>
           </div>
-          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;">Java Refresher & Architecture</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;">Java Deep Dive, OOP & Interview Q&A</h3>
           <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
-            Why Deque over Stack, Interface Segregation (<code>List = new ArrayList</code>), HashMap internals, Streams, Records, and 10 Gotchas.
+            Stack vs Heap, JVM memory, 4 OOP Pillars, Generics, Collections cheatsheet, Architecture "Why?", and 20 FAANG Q&A flashcards.
           </p>
-          <div style="font-size: 0.78rem; font-weight: 700; color: #fb923c;">Explore Java Cheat Guide →</div>
+          <div style="font-size: 0.78rem; font-weight: 700; color: #fb923c;">Explore Java Masterclass →</div>
         </div>
 
         <!-- Track 2: DS Foundations & Visualizer -->

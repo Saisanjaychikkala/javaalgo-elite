@@ -26,7 +26,7 @@
 
 .visualizer-status-banner {
   padding: 12px 18px;
-  background: rgba(15, 23, 42, 0.7);
+  background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   font-family: var(--font-mono);
@@ -45,9 +45,9 @@
   gap: 12px;
   min-height: 180px;
   padding: 30px 20px;
-  background: rgba(15, 20, 28, 0.8);
+  background: var(--bg-secondary);
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
   overflow-x: auto;
   position: relative;
 }
@@ -99,7 +99,7 @@
   font-family: var(--font-mono);
   font-size: 1.15rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   transition: all 0.3s ease;
 }
 

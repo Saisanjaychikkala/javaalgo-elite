@@ -1,6 +1,7 @@
 import { Icons } from '../utils/icons.js';
 import { Storage } from '../utils/storage.js';
 import { curriculumTiers } from '../data/curriculumData.js';
+import { showToast } from '../utils/toast.js';
 
 export function renderNavbar(activeTab, onTabChange, onOpenSearch) {
   const completed = Storage.getCompleted();
@@ -66,6 +67,10 @@ export function renderNavbar(activeTab, onTabChange, onOpenSearch) {
           <span class="search-btn-text">Search</span>
           <span class="kbd-shortcut">Ctrl+K</span>
         </button>
+        <button class="theme-toggle-btn" id="theme-toggle-btn" title="Cycle Theme: Cyber Dark → OLED Pitch → Studio Light" aria-label="Toggle Theme Mode">
+          <span class="theme-toggle-icon" id="theme-toggle-icon">🌌</span>
+          <span class="theme-toggle-label" id="theme-toggle-label">Theme</span>
+        </button>
         <div class="progress-pill" title="${completed.length} of ${totalProblems} completed">
           <span style="font-weight: 700; color: #10b981; font-size: 0.8rem;" id="nav-completed-count">${completed.length}/${totalProblems}</span>
           <div class="progress-pill-bar">
@@ -105,6 +110,15 @@ export function renderNavbar(activeTab, onTabChange, onOpenSearch) {
         <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
           <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#10b981,#38bdf8);border-radius:99px;"></div>
         </div>
+      </div>
+
+      <!-- Mobile Theme Switcher Row -->
+      <div class="mobile-theme-row" style="padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">Theme Mode</span>
+        <button class="mobile-theme-btn" id="mobile-theme-toggle" aria-label="Cycle Theme Mode">
+          <span id="mobile-theme-icon" style="font-size: 1rem;">🌌</span>
+          <span id="mobile-theme-text" style="font-size: 0.78rem; font-weight: 700;">Cyber Dark</span>
+        </button>
       </div>
 
       <!-- Drawer Links grouped -->
@@ -190,6 +204,46 @@ export function renderNavbar(activeTab, onTabChange, onOpenSearch) {
       fillEl.style.width = `${Math.round((list.length / totalProblems) * 100)}%`;
     }
   });
+
+  // Multi-Theme Controller (Cyber Dark / OLED Obsidian / Studio Light)
+  const THEMES = [
+    { id: 'cyber', label: 'Cyber Dark', icon: '🌌' },
+    { id: 'oled',  label: 'OLED Pitch', icon: '🖤' },
+    { id: 'light', label: 'Daylight',   icon: '☀️' }
+  ];
+
+  const updateThemeUI = (themeId) => {
+    const theme = THEMES.find(t => t.id === themeId) || THEMES[0];
+    const desktopIcon = nav.querySelector('#theme-toggle-icon');
+    const desktopLabel = nav.querySelector('#theme-toggle-label');
+    const mobileIcon = nav.querySelector('#mobile-theme-icon');
+    const mobileText = nav.querySelector('#mobile-theme-text');
+    if (desktopIcon) desktopIcon.textContent = theme.icon;
+    if (desktopLabel) desktopLabel.textContent = theme.label.split(' ')[0];
+    if (mobileIcon) mobileIcon.textContent = theme.icon;
+    if (mobileText) mobileText.textContent = theme.label;
+  };
+
+  const cycleTheme = () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'cyber';
+    const currentIdx = THEMES.findIndex(t => t.id === current);
+    const next = THEMES[(currentIdx + 1) % THEMES.length];
+    
+    document.documentElement.setAttribute('data-theme', next.id);
+    try {
+      localStorage.setItem('javaalgo-theme', next.id);
+    } catch(e) {}
+    updateThemeUI(next.id);
+    showToast(`Theme switched to ${next.label} ${next.icon}`, 'info', 1600);
+  };
+
+  const themeBtn = nav.querySelector('#theme-toggle-btn');
+  if (themeBtn) themeBtn.addEventListener('click', cycleTheme);
+  const mobileThemeBtn = nav.querySelector('#mobile-theme-toggle');
+  if (mobileThemeBtn) mobileThemeBtn.addEventListener('click', cycleTheme);
+
+  // Initialize theme button UI
+  updateThemeUI(document.documentElement.getAttribute('data-theme') || 'cyber');
 
   return nav;
 }

@@ -23,7 +23,7 @@ export function renderVisualizerView() {
       </p>
 
       <!-- Algorithm Chooser -->
-      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
         <button class="filter-btn ${currentAlgo === 'binary-search' ? 'active' : ''}" data-algo="binary-search">
           Binary Search (O(log N))
         </button>

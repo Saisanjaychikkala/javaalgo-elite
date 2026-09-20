@@ -262,12 +262,12 @@ export function createProblemModal() {
             </div>
           </div>
 
-          <div class="card" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(56,189,248,0.3);">
+          <div class="card" style="background: var(--bg-card); border: 1px solid rgba(56,189,248,0.3);">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
               <span style="font-size: 1.1rem;">📝</span>
               <h4 style="font-size: 0.95rem; font-weight: 700; color: #38bdf8; margin: 0;">The 10-Second Recall Formula</h4>
             </div>
-            <div style="font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.7; color: #a5f3fc; background: rgba(0,0,0,0.4); padding: 14px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.15);">
+            <div style="font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.7; color: var(--text-primary); background: var(--bg-tertiary); padding: 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
               ${hook.mentalFormula.replace(/->/g, '<span style="color:#f59e0b; font-weight:bold;"> ➔ </span>')}
             </div>
           </div>
@@ -412,7 +412,7 @@ export function createProblemModal() {
             </div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
               ${transferable.map(tp => `
-                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(15,23,42,0.7); border: 1px solid var(--border-subtle); border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-tertiary); border: 1px solid var(--border-subtle); border-radius: 8px;">
                   <span style="color: #34d399; font-weight: bold;">✔</span>
                   <span style="font-size: 0.88rem; color: var(--text-primary);">${tp}</span>
                 </div>

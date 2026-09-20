@@ -643,8 +643,8 @@
   align-items: center;
   gap: 8px;
   padding: 0 20px;
-  background: rgba(11, 17, 32, 0.98);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-subtle);
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -665,9 +665,9 @@
   padding: 0 16px;
   font-size: 0.85rem;
   font-weight: 500;
-  color: #94a3b8;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 8px;
   transition: all 0.18s ease;
   white-space: nowrap;
@@ -678,9 +678,9 @@
 }
 
 .modal-tab-btn:hover {
-  color: #f1f5f9;
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  background: var(--bg-card-hover);
+  border-color: var(--border-glow);
 }
 
 .modal-tab-btn.active {
@@ -1207,7 +1207,7 @@
 .mobile-drawer-footer {
   padding: 16px;
   border-top: 1px solid var(--border-subtle);
-  background: rgba(15, 23, 42, 0.8);
+  background: var(--bg-tertiary);
 }
 .mobile-search-btn {
   width: 100%;
@@ -1363,7 +1363,7 @@ details.qa-accordion[open] summary { border-bottom: 1px solid rgba(255,255,255,0
     overflow-y: hidden;
     padding: 10px 14px;
     gap: 8px;
-    background: rgba(11, 17, 32, 0.92);
+    background: var(--bg-glass);
     position: sticky;
     top: 70px;
     z-index: 30;
@@ -1385,8 +1385,8 @@ details.qa-accordion[open] summary { border-bottom: 1px solid rgba(255,255,255,0
     padding: 8px 14px !important;
     border-left: none !important;
     border-radius: 999px !important;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
     white-space: nowrap;
   }
   .ds-sidebar-item.active {
@@ -1441,7 +1441,8 @@ details.qa-accordion[open] summary { border-bottom: 1px solid rgba(255,255,255,0
     min-height: 48px !important;
     gap: 6px !important;
     flex-shrink: 0 !important;
-    background: rgba(11, 17, 32, 0.99) !important;
+    background: var(--bg-tertiary) !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
     -webkit-overflow-scrolling: touch !important;
   }
   .modal-tab-btn {
@@ -1598,10 +1599,10 @@ details.qa-accordion[open] summary { border-bottom: 1px solid rgba(255,255,255,0
 
 /* ── 🎮 SORTING RACE GAME & COMPLEXITY ARENA ─────────────────── */
 .sorting-controls-card {
-  background: rgba(15, 23, 42, 0.75);
+  background: var(--bg-card);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(56, 189, 248, 0.15);
+  border: 1px solid var(--border-subtle);
 }
 
 .sorting-arena-container {
@@ -1609,10 +1610,11 @@ details.qa-accordion[open] summary { border-bottom: 1px solid rgba(255,255,255,0
 }
 
 .sorting-lane-card {
-  background: rgba(15, 23, 42, 0.7);
+  background: var(--bg-card);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -1626,10 +1628,10 @@ details.qa-accordion[open] summary { border-bottom: 1px solid rgba(255,255,255,0
 }
 
 .comp-option-btn {
-  background: rgba(15, 23, 42, 0.8);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
-  color: #fff;
+  color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 0.95rem;
   font-weight: 700;
@@ -1640,6 +1642,8 @@ details.qa-accordion[open] summary { border-bottom: 1px solid rgba(255,255,255,0
 
 .comp-option-btn:hover {
   transform: translateY(-2px);
+  background: var(--bg-card-hover);
+  border-color: var(--primary);
   box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
 }
 
@@ -1652,8 +1656,8 @@ details.qa-accordion[open] summary { border-bottom: 1px solid rgba(255,255,255,0
 }
 
 .comp-filter-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: #fff !important;
+  background: var(--bg-card-hover) !important;
+  color: var(--text-primary) !important;
 }
 
 @media (max-width: 768px) {
@@ -1723,5 +1727,53 @@ details.qa-accordion[open] summary { border-bottom: 1px solid rgba(255,255,255,0
     width: 40px;
     height: 40px;
   }
+  
+  #main-content {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  
+  .container {
+    padding: 0 16px;
+  }
 }
+
+/* ============================================
+   LAPTOP & TABLET VIEWPORT TUNING (769px - 1280px)
+   ============================================ */
+@media (min-width: 769px) and (max-width: 1280px) {
+  .desktop-nav-links {
+    gap: 3px;
+    padding: 0 4px;
+  }
+  .nav-btn {
+    padding: 5px 8px !important;
+    font-size: 0.76rem !important;
+    gap: 4px !important;
+  }
+  .kbd-shortcut {
+    display: none !important;
+  }
+  .search-trigger-btn {
+    padding: 6px 10px !important;
+  }
+  .progress-pill-bar {
+    width: 36px !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1080px) {
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+  .theme-toggle-label {
+    display: none !important;
+  }
+  .search-btn-text {
+    display: none !important;
+  }
+  .progress-pill-bar {
+    display: none !important;
+  }
+}
+
 

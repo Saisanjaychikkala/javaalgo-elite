@@ -218,7 +218,7 @@ export function renderSortingGameView() {
 
           <div style="display: flex; align-items: center; gap: 6px; margin-left: 6px;">
             <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Speed:</span>
-            <select id="speed-select" style="background: rgba(15, 23, 42, 0.9); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 6px 10px; font-size: 0.8rem;">
+            <select id="speed-select" style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 6px 10px; font-size: 0.8rem;">
               <option value="120">Slow</option>
               <option value="40" selected>Normal</option>
               <option value="15">Fast</option>
@@ -252,7 +252,7 @@ export function renderSortingGameView() {
         </div>
 
         <!-- Metrics Row -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: rgba(11, 15, 25, 0.6); padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border-subtle);">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: var(--bg-tertiary); padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border-subtle);">
           <div>
             <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">COMPARISONS</div>
             <div id="lane1-comp-count" style="font-size: 1.15rem; font-weight: 800; color: #fbbf24; font-family: var(--font-mono);">0</div>
@@ -297,7 +297,7 @@ export function renderSortingGameView() {
         </div>
 
         <!-- Metrics Row -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: rgba(11, 15, 25, 0.6); padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border-subtle);">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: var(--bg-tertiary); padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border-subtle);">
           <div>
             <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">COMPARISONS</div>
             <div id="lane2-comp-count" style="font-size: 1.15rem; font-weight: 800; color: #fbbf24; font-family: var(--font-mono);">0</div>
@@ -334,7 +334,7 @@ export function renderSortingGameView() {
         <span>📚</span> Algorithm Cheat Sheet & Interview Selection Rules
       </h3>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px;">
         ${sortingAlgorithms.map(algo => `
           <div class="card" style="padding: 20px; border-left: 4px solid ${algo.color}; background: var(--bg-card);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">

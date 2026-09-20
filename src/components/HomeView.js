@@ -30,19 +30,19 @@ export function renderHomeView(onNavigate) {
 
   container.innerHTML = `
     <!-- HERO Welcome Section -->
-    <section style="padding: 40px 0 28px;">
-      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
+    <section style="padding: 32px 0 24px;">
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
         <div style="
-          width: 56px; height: 56px; border-radius: 16px;
+          width: 52px; height: 52px; border-radius: 14px;
           background: linear-gradient(135deg, #f97316, #ea580c);
           display: flex; align-items: center; justify-content: center;
-          font-size: 1.8rem; box-shadow: 0 6px 25px rgba(249,115,22,0.4);
+          font-size: 1.6rem; box-shadow: 0 6px 25px rgba(249,115,22,0.4); flex-shrink: 0;
         ">☕</div>
-        <div>
-          <h1 style="font-size: 2.2rem; font-weight: 900; letter-spacing: -0.03em;">
+        <div style="flex: 1; min-width: 240px;">
+          <h1 style="font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; letter-spacing: -0.03em; margin: 0; line-height: 1.2;">
             Welcome to <span class="java-gradient-text">JavaAlgo Elite</span>
           </h1>
-          <p style="color: var(--text-secondary); margin-top: 2px;">DSA in Java · System Design · AI & ML Universe · AWS Cloud · Certifications — From noob to cracking any interview or certification in 2026</p>
+          <p style="color: var(--text-secondary); margin-top: 4px; font-size: 0.92rem; line-height: 1.5;">DSA in Java · System Design · AI & ML Universe · AWS Cloud · Certifications — From noob to cracking any interview or certification in 2026</p>
         </div>
       </div>
     </section>
@@ -84,7 +84,7 @@ export function renderHomeView(onNavigate) {
     </div>
 
     <!-- SPOTLIGHT GRID: Continue Next Problem & Mock Interview Room -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 36px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; margin-bottom: 36px;">
       
       <!-- LEFT: Next Up Banner -->
       <div class="card" style="border-color: rgba(56,189,248,0.4); background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(99,102,241,0.08));">
@@ -140,7 +140,7 @@ export function renderHomeView(onNavigate) {
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px;">
         
         <!-- Track 1: Java Refresher -->
         <div class="home-nav-card card" data-tab="refresher" style="cursor: pointer; transition: all 0.2s ease; border-left: 4px solid #f97316;">
@@ -247,14 +247,14 @@ export function renderHomeView(onNavigate) {
           </div>
         </div>
       </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px;">
         ${tierProgress.map(t => {
           const pct = Math.round((t.done / t.total) * 100);
           const isDone = t.done === t.total;
           return `
             <div style="
-              background: rgba(15,23,42,0.7); border: 1px solid ${isDone ? 'rgba(16,185,129,0.4)' : 'var(--border-subtle)'};
-              border-radius: 10px; padding: 14px 16px;
+              background: var(--bg-card); border: 1px solid ${isDone ? 'rgba(16,185,129,0.4)' : 'var(--border-subtle)'};
+              border-radius: 10px; padding: 14px 16px; box-shadow: var(--card-inner-highlight);
             ">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <span class="badge" style="background: rgba(56,189,248,0.12); color: #38bdf8; border: 1px solid rgba(56,189,248,0.25); font-size: 0.7rem;">TIER ${t.tier}</span>
@@ -281,7 +281,7 @@ export function renderHomeView(onNavigate) {
           </div>
         </div>
       </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 14px;">
         ${[
           { week: 'Weeks 1-2', theme: 'Java Mastery', color: '#f97316', tasks: ['Java Collections & Syntax Refresher', 'Arrays, Strings, Sorting basics', 'HashMap frequency counters', 'Two Pointers (Two Sum, 3Sum)'] },
           { week: 'Weeks 3-4', theme: 'Linear DS + Search', color: '#38bdf8', tasks: ['Linked Lists (Reverse, Cycle, LRU)', 'Binary Search + Search on Answer', 'Sliding Window mastery', 'Stack & Monotonic Stack'] },
@@ -302,12 +302,12 @@ export function renderHomeView(onNavigate) {
     </div>
 
     <!-- Job Market Tips -->
-    <div class="card" style="margin-bottom: 32px; background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.9)); border-color: rgba(251,191,36,0.25);">
+    <div class="card" style="margin-bottom: 32px; background: var(--bg-card); border-color: rgba(251,191,36,0.25);">
       <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
         <span style="font-size: 1.5rem;">💼</span>
-        <h2 style="font-size: 1.35rem; font-weight: 800;">Cracking the 2026 Job Market — What Really Matters</h2>
+        <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin: 0;">Cracking the 2026 Job Market — What Really Matters</h2>
       </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px;">
         ${[
           { icon: '🎯', title: 'Quality over Quantity', text: 'Solve 100 problems DEEPLY rather than rushing through 500. Master each pattern until you can solve it without hints.' },
           { icon: '🗣️', title: 'Communicate While Coding', text: 'Interviewers evaluate your THINKING, not just your code. Talk through your approach, trade-offs, and edge cases out loud.' },
@@ -316,7 +316,7 @@ export function renderHomeView(onNavigate) {
           { icon: '📐', title: 'Master System Design', text: 'Senior roles (3+ years exp) are 50% System Design. Even junior roles at top companies ask it. Start learning Week 10 onwards.' },
           { icon: '🔄', title: 'Do Mock Interviews', text: 'Technical skill ≠ interview skill. Use Pramp, interviewing.io, or pair up with a friend. Simulate real 45-min pressure.' }
         ].map(tip => `
-          <div style="background: rgba(15,23,42,0.7); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px 16px;">
+          <div style="background: var(--bg-tertiary); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px 16px;">
             <div style="font-size: 1.4rem; margin-bottom: 6px;">${tip.icon}</div>
             <div style="font-weight: 700; color: #fbbf24; margin-bottom: 4px;">${tip.title}</div>
             <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">${tip.text}</div>

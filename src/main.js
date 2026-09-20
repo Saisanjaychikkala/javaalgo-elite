@@ -62,6 +62,10 @@ class App {
       if (newTab !== this.activeTab) this.switchTab(newTab, false);
     });
 
+    window.addEventListener('resize', () => {
+      this.applyMainStyles();
+    });
+
     // Keyboard shortcut: Ctrl+K
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {

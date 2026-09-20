@@ -107,7 +107,7 @@ export function renderNavbar(activeTab, onTabChange, onOpenSearch) {
           <span style="color:var(--text-muted);font-weight:600;">DSA Mastery</span>
           <span style="color:#10b981;font-weight:700;">${pct}% (${completed.length}/${totalProblems})</span>
         </div>
-        <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+        <div style="height:5px;background:var(--border-subtle);border-radius:99px;overflow:hidden;">
           <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#10b981,#38bdf8);border-radius:99px;"></div>
         </div>
       </div>
@@ -148,7 +148,7 @@ export function renderNavbar(activeTab, onTabChange, onOpenSearch) {
           <span class="bottom-nav-icon">${tab.icon}</span>
           <span class="bottom-nav-label" style="font-size: 0.62rem;">${tab.label.split(' ')[0]}</span>
         </button>`).join('')}
-      <button class="bottom-nav-item" id="bottom-nav-more" style="-webkit-tap-highlight-color: transparent;">
+      <button class="bottom-nav-item ${!bottomNavTabs.some(t => t.id === activeTab) ? 'active' : ''}" id="bottom-nav-more" style="-webkit-tap-highlight-color: transparent;">
         <span class="bottom-nav-icon">☰</span>
         <span class="bottom-nav-label" style="font-size: 0.62rem;">More</span>
       </button>

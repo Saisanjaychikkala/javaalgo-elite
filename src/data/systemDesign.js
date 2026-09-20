@@ -463,6 +463,293 @@ Split data across MULTIPLE independent database instances (shards). Each shard o
         'Cross-shard JOINs are expensive — design your data model to avoid them.',
         'Rule: Never shard until you absolutely must. Operational complexity is enormous.'
       ]
+    },
+    {
+      id: 'cap-theorem',
+      title: 'CAP Theorem, PACELC & Distributed Consistency',
+      icon: '⚖️',
+      content: `**The fundamental law of distributed computing.** Coined by Eric Brewer in 2000, the CAP Theorem proves that in any asynchronous network subject to partitions, you cannot achieve both strong consistency and 100% availability simultaneously.
+
+---
+
+### The Three Guarantees:
+1. **Consistency (C)**: Every read receives the most recent write or an explicit error. All nodes see the exact same data at the same millisecond. (Formally: Linearizability).
+2. **Availability (A)**: Every non-failing node returns a successful (non-error) response to every request — without guaranteeing it contains the latest write.
+3. **Partition Tolerance (P)**: The system continues to function despite an arbitrary number of dropped, delayed, or duplicated messages between nodes (network partition).
+
+---
+
+### The Hard Reality: "P" is Mandatory in Real Networks
+In distributed systems, physical cables get severed, cloud network switches fail, and cross-region fiber experiences latency spikes. **Network partitions WILL occur.** Therefore, you cannot choose "CA". Your real choice is strictly:
+
+> **When a partition occurs, do you choose CP or AP?**
+
+---
+
+### CP Systems (Consistency Over Availability)
+If network communication between nodes breaks, a CP system **refuses writes or reads** on the partitioned minority side to prevent stale data or "split-brain" divergence.
+- **Behavior**: Minority nodes return HTTP 500 / timeout errors.
+- **When to choose**: Banking, stock transactions, user authentication, inventory reservation where stale data causes financial loss.
+- **Real-World Examples**:
+  - **Google Cloud Spanner**: Uses atomic GPS + atomic clocks (TrueTime API) to deliver external consistency with high CP availability.
+  - **Apache ZooKeeper / etcd / Consul**: Uses consensus algorithms (Zab, Raft) requiring a strict quorum majority ($N/2 + 1$). Minority partitions reject writes immediately.
+  - **HBase / MongoDB (with majority write concern)**: Strictly linearizable single-primary architectures.
+
+---
+
+### AP Systems (Availability Over Consistency)
+An AP system keeps all nodes responding to reads and writes even when they cannot communicate with each other. Nodes diverge temporarily and reconcile later.
+- **Behavior**: Always returns HTTP 200, but data might be slightly stale.
+- **When to choose**: Social feeds, YouTube comments, shopping cart browsing, IoT sensor ingestion, DNS lookups.
+- **Resolution Mechanisms**:
+  - **Vector Clocks**: Track causal history across distributed nodes.
+  - **Last-Write-Wins (LWW)**: Timestamp-based overwrites (susceptible to clock skew).
+  - **Read Repair / Hinted Handoff**: Stale nodes updated during read operations or when partitions heal.
+- **Real-World Examples**:
+  - **Apache Cassandra**: Masterless ring with tunable consistency (\`QUORUM\`, \`ONE\`, \`ALL\`).
+  - **Amazon DynamoDB**: Originally designed so Amazon customers could *always* add items to their shopping cart even if a data center partition occurred.
+  - **DNS (Domain Name System)**: Updates take up to 24-48 hours to propagate globally, but DNS lookups never fail.
+
+---
+
+### The PACELC Theorem (The Modern Extension)
+Formulated by Professor Daniel Abadi:
+- If there is a **P**artition: choose **A**vailability or **C**onsistency.
+- **E**lse (normal operations without partitions): choose **L**atency or **C**onsistency.
+
+| System | Classification | Behavior Summary |
+|---|---|---|
+| **DynamoDB / Cassandra** | **PA/EL** | During partition: Available. Normal times: Ultra-low Latency over strict consistency. |
+| **Google Spanner** | **PC/EC** | During partition: Consistent. Normal times: Guaranteed Consistency over latency. |
+| **MongoDB** | **PC/EC** | Rejects writes to isolated primary; enforces consistent reads via primary. |
+| **VoltDB / CockroachDB** | **PC/EC** | Distributed SQL prioritizing ACID serializability. |`,
+      keyPoints: [
+        'Partition Tolerance (P) is non-negotiable in cloud systems — real networks always partition.',
+        'The true interview question: During a partition, do you fail requests (CP) or serve potentially stale data (AP)?',
+        'Tunable Consistency: Cassandra allows clients to specify consistency per query (ONE, QUORUM, ALL).',
+        'PACELC extends CAP: even when no partition exists, you must trade off Latency vs Consistency.',
+        'Financial transactions choose CP; social feeds and activity streams choose AP.'
+      ]
+    },
+    {
+      id: 'acid-transactions',
+      title: 'ACID Transactions & Distributed Consensus (2PC, Saga, Outbox)',
+      icon: '🏦',
+      content: `**Transactions guarantee data integrity.** When moving $100 from Account A to Account B, you cannot allow debiting A to succeed while crediting B crashes halfway through.
+
+---
+
+### The 4 Pillars of ACID in Single-Node Databases:
+
+1. **Atomicity ("All or Nothing")**
+   - Either every statement in the transaction executes successfully, or the database rolls back to its pre-transaction state.
+   - *Engine Mechanism*: Write-Ahead Log (WAL) and Undo Logs. If the server loses power mid-transaction, during recovery the JVM/DB reads the undo log and reverses uncommitted mutations.
+
+2. **Consistency ("Valid Invariants")**
+   - The database moves from one valid state to another, strictly obeying all schema rules, foreign keys, unique constraints, and check triggers.
+
+3. **Isolation ("Concurrent Independence")**
+   - Multiple concurrent transactions execute without stepping on each other's toes. The ANSI SQL standard defines 4 Isolation Levels:
+   - **Read Uncommitted**: Lowest level. Allows *Dirty Reads* (reading uncommitted data that later rolls back).
+   - **Read Committed**: Default in PostgreSQL and SQL Server. Prevents dirty reads. Allows *Non-Repeatable Reads* (re-reading row in same transaction yields different values because another committed transaction modified it).
+   - **Repeatable Read**: Default in MySQL InnoDB. Prevents non-repeatable reads using Multi-Version Concurrency Control (MVCC) snapshots. Can still suffer from *Phantom Reads* (new rows inserted by concurrent transactions).
+   - **Serializable**: Highest isolation. Full illusion of sequential execution. Implemented via Strict Two-Phase Locking (2PL) or Serializable Snapshot Isolation (SSI). Highest safety, lowest throughput.
+
+4. **Durability ("Survives Catastrophic Power Loss")**
+   - Once a transaction commits, its changes are permanently recorded in non-volatile storage.
+   - *Engine Mechanism*: Flush WAL to physical SSD via \`fsync()\` before acknowledging success to client.
+
+---
+
+### The Distributed ACID Dilemma
+In microservices or distributed multi-region databases, **classic ACID does not scale**. Holding database locks across network RPCs destroys throughput and causes deadlocks. 
+
+Here are the 3 industry-standard solutions:
+
+---
+
+### Solution 1: Two-Phase Commit (2PC)
+A centralized Coordinator manages distributed database participants:
+- **Phase 1 (Prepare)**: Coordinator asks all participants: *"Can you commit?"* Participants acquire locks, write changes to undo/redo logs, and reply YES or NO.
+- **Phase 2 (Commit)**: If ALL voted YES, coordinator broadcasts COMMIT. If any voted NO or timed out, coordinator broadcasts ROLLBACK.
+- ⚠️ *Major Drawback*: Blocking protocol! If the coordinator crashes after Phase 1, participants remain locked indefinitely, holding server resources. Rarely used in high-throughput internet systems.
+
+---
+
+### Solution 2: The Saga Pattern (Eventual Consistency Standard)
+Breaks a distributed transaction into a sequence of independent local ACID transactions.
+- Step 1: Order Service creates order (PENDING). Emits \`OrderCreated\` event.
+- Step 2: Payment Service charges credit card. Emits \`PaymentCaptured\` event.
+- Step 3: Inventory Service reserves stock. Emits \`StockReserved\` event.
+- **What if Step 3 fails? (Out of stock!)**
+  - The Saga executes **Compensating Transactions** backwards!
+  - Inventory emits \`StockReservationFailed\`.
+  - Payment Service consumes event and issues refund (compensating action for charge).
+  - Order Service consumes event and marks order as CANCELLED.
+
+---
+
+### Solution 3: Transactional Outbox Pattern (Dual-Write Solution)
+**Problem**: How do you update a database AND send a Kafka message atomically without 2PC? If DB write succeeds but Kafka publish fails, your system is corrupt.
+**Solution**:
+1. Within a single local ACID transaction, write both the business entity AND an "Outbox" record in an \`outbox_table\`.
+2. A background poller or Change Data Capture (CDC) tool like **Debezium** tails the database WAL and publishes outbox events to Kafka.
+3. Guarantees **At-Least-Once Delivery** without distributed locks!`,
+      keyPoints: [
+        'Single-node ACID uses WAL, undo logs, and MVCC to guarantee atomicity and isolation.',
+        'The 4 isolation levels trade off read phenomena (dirty, non-repeatable, phantom) for throughput.',
+        '2-Phase Commit (2PC) is strongly consistent but blocking and brittle across wide networks.',
+        'The Saga Pattern uses local transactions + compensating actions for distributed workflows.',
+        'The Transactional Outbox pattern with CDC (Debezium) solves the dual-write problem cleanly.'
+      ]
+    },
+    {
+      id: 'bloom-filters',
+      title: 'Bloom Filters & Probabilistic Data Structures',
+      icon: '🔍',
+      content: `**How do Google Bigtable, Apache Cassandra, and Medium check billions of records in sub-milliseconds with minimal RAM?** They use **Bloom Filters** — space-efficient probabilistic data structures invented by Burton Howard Bloom in 1970.
+
+---
+
+### The Fundamental Guarantees:
+- **False Negative**: **IMPOSSIBLE (0%)**. If a Bloom filter says an element is NOT in the set, it is 100% definitively NOT in the set!
+- **False Positive**: **POSSIBLE**. If it says an element IS in the set, it *might* be in the set, or it might be a collision.
+
+> **Rule of thumb: "Never False Negative, Sometimes False Positive."**
+
+---
+
+### How It Works Under the Hood:
+
+1. **Bit Array**: Allocate a bit array of size $m$ initialized to all 0s.
+2. **Hash Functions**: Select $k$ independent, uniform hash functions (e.g., Murmur3, CityHash, xxHash).
+
+\`\`\`
+Bit Array (m = 10 bits):
+[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+\`\`\`
+
+#### Adding an Element ("apple"):
+- Compute $h_1("apple") = 2$, $h_2("apple") = 5$, $h_3("apple") = 8$.
+- Set bits at indices 2, 5, and 8 to **1**:
+\`\`\`
+[ 0, 0, 1, 0, 0, 1, 0, 0, 1, 0 ]
+\`\`\`
+
+#### Querying an Element:
+- To test if "banana" exists: compute hashes $\to 2, 4, 8$.
+- Inspect bits: Index 2 is 1, index 8 is 1, but **index 4 is 0!**
+- Since index 4 is 0, "banana" was **DEFINITELY NEVER ADDED!** Immediate negative return with zero disk I/O!
+- If ALL probed bits are 1: return PROBABLY YES $\to$ fall back to disk/database lookup to verify.
+
+---
+
+### Mathematical Formula for Sizing:
+For $n$ items and desired false positive probability $p$:
+- Required bits: $m = -\\frac{n \\cdot \\ln(p)}{(\\ln 2)^2} \\approx -1.44 \\cdot n \\cdot \\log_2(p)$
+- Optimal hash count: $k = \\frac{m}{n} \\cdot \\ln 2 \\approx 0.7 \\cdot \\frac{m}{n}$
+- **Example**: To store 1,000,000 items with a 1% false positive rate requires only **1.2 MB of RAM** and 7 hash functions! Compared to a Java HashSet storing strings (which would consume 50-100 MB), this is a **98% memory reduction**.
+
+---
+
+### Real-World Production Applications:
+
+1. **LSM-Tree Databases (Cassandra, RocksDB, Bigtable)**:
+   - Every SSTable file on disk has an associated Bloom filter kept in RAM.
+   - When a user reads key \`user:9876\`, Cassandra checks the Bloom filter first.
+   - If 0, it skips reading the SSTable from disk entirely. This eliminates 90%+ of expensive random disk reads!
+
+2. **Web Crawlers (Googlebot)**:
+   - Avoid crawling the same billion URLs multiple times by storing visited URL signatures in a compact Bloom filter.
+
+3. **Content Platforms (Medium / Quora)**:
+   - "Don't show articles the user has already read": filter articles against user's read history Bloom filter before building recommendation feed.
+
+4. **Web Browsers (Google Chrome)**:
+   - Chrome maintains a Bloom filter of malicious URLs locally on your laptop. Only when a URL triggers a positive match does Chrome query Google's cloud API for full verification.`,
+      keyPoints: [
+        'Bloom filters guarantee ZERO false negatives: if it says NO, the item is definitely absent.',
+        'False positive rate is tunable mathematically by adjusting bit array size (m) and hash count (k).',
+        'Cannot remove elements from a standard Bloom filter (clearing a bit might corrupt other keys).',
+        'Counting Bloom Filter replaces bits with small integers to support deletions.',
+        'Cassandra and RocksDB use Bloom filters to avoid expensive SSD/disk seeks on SSTables.'
+      ]
+    },
+    {
+      id: 'cache-eviction',
+      title: 'Advanced Cache Eviction Policies & Thundering Herd Defense',
+      icon: '🛡️',
+      content: `**Memory is finite. What happens when your Redis cluster or application cache hits 100% capacity?** The cache must decide which keys to evict to make room for new data. Choosing the wrong policy destroys your cache hit ratio and floods your database.
+
+---
+
+### The Major Eviction Policies Compared:
+
+1. **LRU (Least Recently Used) — The Industry Standard**
+   - Evicts the item that has not been accessed for the longest time.
+   - *Mental Model*: A stack of books. Whenever you read a book, pull it out and put it on top. When shelf is full, throw away the bottom book.
+   - *Time Complexity*: $O(1)$ \`get\` and $O(1)$ \`put\`.
+   - *Data Structure*: **HashMap + Doubly Linked List**.
+   - *In Java*: \`LinkedHashMap\` has built-in LRU support:
+   \`\`\`java
+   LinkedHashMap<K, V> lru = new LinkedHashMap<>(capacity, 0.75f, true) {
+       @Override
+       protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+           return size() > capacity;
+       }
+   };
+   \`\`\`
+   - *Weakness*: Vulnerable to **Cache Pollution**! A one-time batch job scanning 100,000 old records will evict all frequently accessed hot keys!
+
+2. **LFU (Least Frequently Used) — Frequency Over Recency**
+   - Tracks how many times each key is accessed. Evicts the key with the lowest access count.
+   - Immune to one-time batch scan pollution because hot keys have counts in the thousands.
+   - *Implementation*: \`HashMap<Key, Node>\` + \`HashMap<Frequency, DoublyLinkedList>\` + \`minFrequency\` pointer ($O(1)$ complexity).
+   - *Weakness*: Historical bias — a key popular yesterday that is now abandoned stays in cache forever because its frequency counter is massive. (Fix: Decay frequency counters over time).
+
+3. **FIFO (First-In, First-Out)**
+   - Evicts the oldest entry regardless of how often or recently it was accessed. Simple queue, but poor hit rates.
+
+4. **ARC (Adaptive Replacement Cache)**
+   - Patented by IBM. Self-tunes dynamically between LRU and LFU based on recent hit history. Used in advanced storage appliances (ZFS).
+
+---
+
+### The 3 Fatal Cache Outage Patterns & How to Prevent Them:
+
+---
+
+#### 1. Cache Stampede / Thundering Herd
+**The Disaster**: Key \`trending_news_story\` expires at 12:00:00. At 12:00:01, 50,000 concurrent users request it. All 50,000 get a cache miss and hit the PostgreSQL database simultaneously. Database CPU hits 100% and crashes.
+**Defenses**:
+- **Distributed Mutex Lock**: The first thread that misses acquires a Redis lock (\`SET resource_name my_random_value NX PX 10000\`). Only that ONE thread queries DB and updates cache. Other 49,999 threads sleep for 50ms and read from cache.
+- **Probabilistic Early Expiration (XFetch Algorithm)**: Worker threads periodically check if a key is close to expiring. As expiration nears, the probability of background recomputation increases:
+  $$\\text{Recompute if } -\\beta \\cdot \\delta \\cdot \\ln(\\text{rand}()) > \\text{TTL}$$
+- **Soft TTL vs Hard TTL**: Store data with a logical 5-minute expiry, but set Redis TTL to 10 minutes. If read between 5 and 10 minutes, return stale data immediately and spawn async worker to refresh DB.
+
+---
+
+#### 2. Cache Penetration
+**The Disaster**: An attacker requests non-existent IDs (\`user_id = -1\`, \`user_id = 99999999\`). These keys never exist in cache, so EVERY single request hits the database.
+**Defenses**:
+- **Bloom Filter**: Place a Bloom filter in front of the cache. If user ID is not in Bloom filter, reject immediately without touching cache or DB.
+- **Cache Null Values**: Cache \`{"empty": true}\` with a short TTL (e.g., 60 seconds) so subsequent identical malicious queries hit cache.
+
+---
+
+#### 3. Cache Avalanche
+**The Disaster**: 500,000 product keys were bulk-loaded at midnight with a 6-hour TTL. At exactly 06:00:00 AM, all 500,000 keys expire at the same instant.
+**Defense**:
+- **TTL Jitter**: Never use flat expiration times. Always add random jitter:
+  \`TTL = base_expiry + random(0, 300) seconds\`
+  Spreads expiration evenly across a 5-minute window!`,
+      keyPoints: [
+        'LRU uses HashMap + DoublyLinkedList for O(1) get and put.',
+        'LFU prevents cache pollution from batch scans by evicting lowest frequency keys.',
+        'Cache Stampede / Thundering Herd is stopped with distributed locks or probabilistic early refresh (XFetch).',
+        'Cache Penetration is stopped with Bloom filters or caching null values with short TTL.',
+        'Cache Avalanche is stopped by adding random jitter to expiration TTLs.'
+      ]
     }
   ],
 

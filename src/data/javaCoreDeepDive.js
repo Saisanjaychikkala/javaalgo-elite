@@ -406,5 +406,187 @@ public class ExceptionBestPractices {
         }
     }
 }`
+  },
+  {
+    id: 'garbage-collection-generations',
+    title: 'Garbage Collection Generations, Mark-Sweep & G1/ZGC',
+    category: 'JVM & Memory',
+    icon: 'cpu',
+    summary: 'Weak Generational Hypothesis, Eden, Survivor S0/S1, Tenured space, Stop-The-World (STW) pauses, and modern low-latency collectors.',
+    description: 'The JVM does not scan all memory on every allocation. It relies on the Weak Generational Hypothesis: "Most objects die young." Understanding GC tuning, object promotion, and GC algorithms is expected in senior backend and FAANG interviews.',
+    keyTakeaways: [
+      'Weak Generational Hypothesis: 95%+ of all objects allocated in Java become unreachable shortly after creation (e.g. iterators, method-local strings).',
+      'Young Generation: Split into Eden Space (~80%) and two Survivor Spaces (S0/From, S1/To, ~10% each). Minor GC runs only on Young Gen and is ultra-fast.',
+      'Aging & Promotion: Objects surviving a Minor GC cycle get copied to Survivor space with age incremented. When age hits `-XX:MaxTenuringThreshold` (default 15), they promote to Old/Tenured Gen.',
+      'Old Generation (Tenured): Stores long-lived objects (Spring beans, thread pools, global caches). Major/Full GC scans both Young and Old Gen, causing longer Stop-The-World pauses.',
+      'Modern GC Collectors: G1GC (default since Java 9, splits heap into 2048 regions), ZGC (sub-millisecond STW pause times regardless of heap size up to 16TB), and Shenandoah.'
+    ],
+    code: `// ========================================================
+// 1. OBJECT PROMOTION LIFECYCLE IN HEAP
+// ========================================================
+/*
+  HEAP MEMORY ARCHITECTURE:
+  ┌───────────────────────────────────────────────────────────────┐
+  │                    YOUNG GENERATION                           │
+  │ ┌───────────────────────────┐ ┌──────────────┐ ┌────────────┐ │
+  │ │        Eden Space         │ │ Survivor S0  │ │Survivor S1 │ │
+  │ │  All 'new' allocations    │ │ (From Space) │ │ (To Space) │ │
+  │ └─────────────┬─────────────┘ └───────┬──────┘ └─────┬──────┘ │
+  └───────────────┼───────────────────────┼──────────────┼────────┘
+                  │                       │              │
+                  │ Minor GC Triggered    │ Object Age++ │ Age == 15
+                  ▼                       ▼              ▼
+  ┌───────────────────────────────────────────────────────────────┐
+  │                  OLD / TENURED GENERATION                     │
+  │  Stores long-lived Singletons, DB Connection Pools, Caches    │
+  └───────────────────────────────────────────────────────────────┘
+  ┌───────────────────────────────────────────────────────────────┐
+  │                   METASPACE (Native Memory)                   │
+  │  Stores Class Bytecode, Method Metadata, Static References    │
+  └───────────────────────────────────────────────────────────────┘
+*/
+
+// ========================================================
+// 2. DIAGNOSING A MEMORY LEAK (Classic Interview Question)
+// ========================================================
+import java.util.*;
+
+public class MemoryLeakGotcha {
+    // ❌ DANGEROUS: Static collection holds strong references indefinitely!
+    private static final List<byte[]> cache = new ArrayList<>();
+
+    public static void leakyMethod() {
+        // Even when caller finishes, the 1MB array CANNOT be collected
+        // because the static 'cache' roots it in GC Roots!
+        cache.add(new byte[1024 * 1024]);
+    }
+
+    // ✅ SOLUTION: Use WeakHashMap or clear references when done
+    private static final Map<Object, byte[]> safeCache = new WeakHashMap<>();
+}`
+  },
+  {
+    id: 'modern-java-features',
+    title: 'Modern Java (17+ & 21): Records, Sealed Classes & Pattern Matching',
+    category: 'Modern Java Architecture',
+    icon: 'sparkles',
+    summary: 'Say goodbye to Lombok: Immutable Records, Sealed type hierarchies, switch pattern matching, and Virtual Threads (Project Loom).',
+    description: 'Java has evolved rapidly from Java 8 to Java 17 (LTS) and Java 21 (LTS). Interviewers assess whether you write modern, idiomatic Java using algebraic data types, pattern matching, and lightweight concurrency.',
+    keyTakeaways: [
+      'Java Records (Java 14/16+): Pure immutable data carriers. Automatically generates `final` fields, canonical constructor, `equals()`, `hashCode()`, and `toString()`. No Lombok required!',
+      'Sealed Classes & Interfaces (Java 17+): Restricts which classes can extend or implement them using `permits`. Enables closed, compiler-verified algebraic type hierarchies.',
+      'Pattern Matching for `switch` & `instanceof` (Java 17/21+): Replaces clunky `if (obj instanceof String) String s = (String) obj;` with inline pattern variables and exhaustiveness checking.',
+      'Virtual Threads (Project Loom, Java 21+): JVM-managed lightweight threads (~few KB of RAM vs 1MB for OS platform threads). Allows 1,000,000 concurrent threads on a standard server without reactive programming complexity!'
+    ],
+    code: `// ========================================================
+// 1. JAVA RECORDS (Bulletproof Immutable DTOs)
+// ========================================================
+// Eliminates 80 lines of boilerplate getters, equals, hashCode, toString!
+public record Order(String orderId, double amount, List<String> items) {
+    // Compact constructor for validation (no need to repeat this.x = x):
+    public Order {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Amount cannot be negative");
+        }
+        // Defensive copy for immutability:
+        items = List.copyOf(items);
+    }
+}
+
+// ========================================================
+// 2. SEALED HIERARCHIES & PATTERN MATCHING SWITCH
+// ========================================================
+// Only approved payment types can exist in the system!
+public sealed interface PaymentMethod permits CreditCard, PayPal, Crypto {}
+
+public record CreditCard(String cardNumber, String cvv) implements PaymentMethod {}
+public record PayPal(String email) implements PaymentMethod {}
+public record Crypto(String walletAddress, String coin) implements PaymentMethod {}
+
+public class PaymentProcessor {
+    // Compiler verifies EXHAUSTIVENESS — no default branch needed!
+    // If someone adds ApplePay to PaymentMethod, this code won't compile until handled!
+    public String processPayment(PaymentMethod payment) {
+        return switch (payment) {
+            case CreditCard(var num, var cvv) -> "Charged card ending in " + num.substring(num.length() - 4);
+            case PayPal(var email)            -> "Billed PayPal account: " + email;
+            case Crypto(var wallet, var coin) -> "Transferred " + coin + " to " + wallet;
+        };
+    }
+}
+
+// ========================================================
+// 3. VIRTUAL THREADS (Project Loom, Java 21)
+// ========================================================
+public class VirtualThreadDemo {
+    public static void runMillionTasks() {
+        // Spawns 10,000 virtual threads concurrently in milliseconds!
+        // When a virtual thread blocks on DB/Network I/O, the underlying
+        // OS carrier thread is unmounted and freed to execute other work!
+        try (var executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+            for (int i = 0; i < 10_000; i++) {
+                final int id = i;
+                executor.submit(() -> {
+                    Thread.sleep(100); // Non-blocking to OS thread!
+                    return "Result " + id;
+                });
+            }
+        } // Executor auto-closes and awaits all tasks!
+    }
+}`
+  },
+  {
+    id: 'multithreading-jmm-concurrency',
+    title: 'Java Memory Model, `volatile`, Happens-Before & Concurrency',
+    category: 'Concurrency & Multithreading',
+    icon: 'layers',
+    summary: 'CPU caches, instruction reordering, the `volatile` keyword, happens-before guarantees, and `ReentrantLock`.',
+    description: 'Multi-threaded bugs are non-deterministic and can crash production servers under high load. Understanding CPU core caches, cache coherence, and Java Memory Model guarantees is essential for high-frequency trading and distributed backend roles.',
+    keyTakeaways: [
+      'The Visibility Problem: Each CPU core has its own L1/L2 cache. Without memory barriers, Thread B might read a stale cached variable written by Thread A.',
+      '`volatile` Keyword: Guarantees visibility (all reads/writes go directly to shared main RAM) and prevents instruction reordering. It does NOT guarantee atomicity (e.g. `count++` is NOT atomic).',
+      'Happens-Before Relationship: If Action A happens-before Action B, memory writes by A are guaranteed to be visible to B (e.g. unlock of monitor happens-before subsequent lock; write to `volatile` happens-before read).',
+      '`synchronized` vs `ReentrantLock`: `synchronized` is block-scoped and managed by JVM; `ReentrantLock` allows interruptible locking, timed lock attempts (`tryLock()`), and fair queueing.'
+    ],
+    code: `// ========================================================
+// 1. THE VOLATILE VISIBILITY GOTCHA
+// ========================================================
+public class WorkerThread implements Runnable {
+    // ❌ WITHOUT volatile: Thread cache might loop forever even if flag becomes false!
+    // ✅ WITH volatile: CPU cache line invalidated; immediately reads from RAM.
+    private volatile boolean running = true;
+
+    @Override
+    public void run() {
+        while (running) {
+            // Do batch processing...
+        }
+        System.out.println("Worker stopped cleanly.");
+    }
+
+    public void stop() {
+        this.running = false; // Immediately visible across all CPU cores!
+    }
+}
+
+// ========================================================
+// 2. ATOMIC VARIABLES VS SYNCHRONIZED
+// ========================================================
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class CounterDemo {
+    // ❌ volatile int count = 0; count++; // RACE CONDITION! Read-Modify-Write is 3 ops!
+    
+    // ✅ OPTION A: Lock-free atomic hardware CAS (Compare-And-Swap) instruction
+    private final AtomicInteger atomicCount = new AtomicInteger(0);
+
+    public void increment() {
+        atomicCount.incrementAndGet(); // Ultra-fast hardware level atomicity
+    }
+
+    public int getCount() {
+        return atomicCount.get();
+    }
+}`
   }
 ];

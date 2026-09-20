@@ -1334,8 +1334,68 @@ Return the max sliding window.`,
         difficulty: "Medium",
         companies: ["Google", "Amazon", "Twitter", "Microsoft"],
         leetcodeNumber: 208,
-        pattern: "Prefix Tree Node Array",
-        summary: "Implement a trie with insert, search, and startsWith methods.",
+        pattern: "Prefix Tree / Character Array Tries",
+        summary: "Implement a trie with insert, search, and startsWith methods in optimal O(L) time.",
+        interviewPrompt: `A trie (pronounced as "try") or prefix tree is a tree data structure used to efficiently store and retrieve keys in a dataset of strings. There are various applications of this data structure, such as autocomplete and spellchecker.
+
+Implement the Trie class:
+- Trie() Initializes the trie object.
+- void insert(String word) Inserts the string word into the trie.
+- boolean search(String word) Returns true if the string word is in the trie (i.e., was inserted before), and false otherwise.
+- boolean startsWith(String prefix) Returns true if there is a previously inserted string word that has the prefix prefix, and false otherwise.`,
+        examples: [
+          {
+            input: '["Trie", "insert", "search", "search", "startsWith", "insert", "search"]\n[[], ["apple"], ["apple"], ["app"], ["app"], ["app"], ["apple"]]',
+            output: "[null, null, true, false, true, null, true]",
+            explanation: "Trie trie = new Trie();\ntrie.insert(\"apple\");\ntrie.search(\"apple\");   // return True\ntrie.search(\"app\");     // return False (app is prefix, not full word)\ntrie.startsWith(\"app\"); // return True\ntrie.insert(\"app\");\ntrie.search(\"app\");     // return True"
+          }
+        ],
+        constraints: [
+          "1 <= word.length, prefix.length <= 2000",
+          "word and prefix consist only of lowercase English letters.",
+          "At most 3 * 10^4 calls in total will be made to insert, search, and startsWith."
+        ],
+        memoryHook: {
+          triggerKeywords: ["Prefix search", "Autocomplete", "Dictionary lookup", "Wildcard matching", "Common prefix"],
+          mnemonic: "Branch on Letters, Flag on Ends: Don't store whole strings at nodes; each edge is a letter and a boolean flags when a word completes!",
+          mentalFormula: "TrieNode { TrieNode[] children = new TrieNode[26]; boolean isEndOfWord; } -> Traverse char by char via (c - 'a')."
+        },
+        howToKnow: [
+          {
+            step: "1. The Naive Trap (Why HashSets Fail)",
+            desc: "Storing words in a standard `HashSet<String>` provides fast O(L) exact word lookup (`search()`), but `startsWith(prefix)` requires iterating over ALL N words in the set in O(N × L) time — leading to instant Time Limit Exceeded!"
+          },
+          {
+            step: "2. The Mathematical Invariant & Clue",
+            desc: "Strings sharing common prefixes (e.g. 'app', 'apple', 'application') share identical leading paths. Tree branching directly models this prefix-sharing invariant with zero redundant characters."
+          },
+          {
+            step: "3. 4-Stage Decision Logic Gate",
+            desc: "Q1: Do we need prefix matching or wildcard search? -> YES. Q2: Is the alphabet bounded? -> YES (lowercase English a-z = 26). Q3: What structure stores shared prefixes? -> A Trie. Q4: Array vs Map for children? -> Fixed array `TrieNode[26]` gives instant O(1) pointer jumps without hashing overhead."
+          },
+          {
+            step: "4. The 'Aha!' Implementation Breakthrough",
+            desc: "Each character `c` maps to index `c - 'a'`. Both `search` and `startsWith` share the exact same traversal helper `findNode(str)`! The only difference: `startsWith` only checks `node != null`, while `search` additionally checks `node.isEndOfWord`."
+          }
+        ],
+        realWorldScenario: "Search Engine Autocomplete & Mobile Keyboard Predictive Text: As the user types 'app', instantly traverse 3 node hops and gather all descendant suggestions ('apple', 'application', 'approach') in sub-millisecond response times.",
+        disguisedVariants: [
+          {
+            title: "Router IP Longest Prefix Matching",
+            prompt: "Given a routing table of IP subnets in CIDR notation, find the most specific matching route for an incoming packet destination IP.",
+            howItMaps: "A Binary Bitwise Trie (branching 0 or 1) maps IP prefix bits identically to character tries."
+          },
+          {
+            title: "Multi-Language Profanity & PII Filter",
+            prompt: "Build an in-memory streaming filter that inspects chat messages and detects blacklisted words in real time.",
+            howItMaps: "Build a Trie of blacklisted keywords; slide along text and match against the root in O(TextLength) time."
+          }
+        ],
+        transferableProblems: [
+          "Design Add and Search Words Data Structure (LeetCode 211 - Trie + Backtracking DFS for '.' wildcard)",
+          "Word Search II (LeetCode 212 - 2D Grid DFS + Trie prefix pruning)",
+          "Maximum XOR of Two Numbers in an Array (LeetCode 421 - Binary 32-bit Trie)"
+        ],
         intuition: "Each TrieNode has an array `children = new TrieNode[26]` and a boolean `isEndOfWord`. Characters map to indices via `c - 'a'`. Enables prefix queries in O(L) time where L is word length.",
         code: `class Trie {
     private static class TrieNode {
@@ -1447,8 +1507,73 @@ Return the max sliding window.`,
         difficulty: "Medium",
         companies: ["Google", "Amazon", "Meta", "Microsoft"],
         leetcodeNumber: 207,
-        pattern: "Kahn's BFS In-Degree Algorithm",
+        pattern: "Kahn's BFS In-Degree Algorithm / DAG Topological Sort",
         summary: "Given numCourses and prerequisite pairs, determine if it is possible to finish all courses (detect DAG cycle).",
+        interviewPrompt: `There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
+
+For example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.
+
+Return true if you can finish all courses. Otherwise, return false.`,
+        examples: [
+          {
+            input: "numCourses = 2, prerequisites = [[1,0]]",
+            output: "true",
+            explanation: "There are a total of 2 courses to take. To take course 1 you should have finished course 0. So it is possible: take course 0, then take course 1."
+          },
+          {
+            input: "numCourses = 2, prerequisites = [[1,0],[0,1]]",
+            output: "false",
+            explanation: "To take course 1 you should have finished course 0, and to take course 0 you should have finished course 1. Circular dependency detected!"
+          }
+        ],
+        constraints: [
+          "1 <= numCourses <= 2000",
+          "0 <= prerequisites.length <= 5000",
+          "prerequisites[i].length == 2",
+          "0 <= ai, bi < numCourses",
+          "All the pairs prerequisites[i] are unique."
+        ],
+        memoryHook: {
+          triggerKeywords: ["Prerequisites", "Dependencies", "Valid ordering", "Detect cycle in directed graph", "Build order"],
+          mnemonic: "Kahn's In-Degree Siphon: Queue all zero-dependency courses first; as each completes, decrement downstream prerequisites. If uncompleted courses remain, a cycle exists!",
+          mentalFormula: "inDegree[course]++ -> Queue all inDegree == 0 -> BFS poll, decrement neighbor inDegree, count processed == numCourses."
+        },
+        howToKnow: [
+          {
+            step: "1. The Naive Trap (Why Brute Force Fails)",
+            desc: "Trying all course order permutations takes O(N!) factorial time — impossible for N = 2000. Alternatively, ad-hoc DFS without 3-state coloring easily gets trapped in infinite loops on graph cycles."
+          },
+          {
+            step: "2. The Mathematical Invariant & Clue",
+            desc: "If and only if a directed graph contains NO cycles (is a Directed Acyclic Graph / DAG), there exists at least one topological ordering. A course in a cycle can NEVER have in-degree 0 because someone is always blocking it."
+          },
+          {
+            step: "3. 4-Stage Decision Logic Gate",
+            desc: "Q1: Is this directed dependency resolution? -> YES. Q2: What signifies a course ready to take? -> `inDegree == 0` (no prerequisite blockers). Q3: Which algorithm handles in-degree peeling? -> Kahn's Algorithm (BFS with Queue). Q4: DFS 3-state coloring vs Kahn's BFS? -> Kahn's BFS is easier to write, avoids recursion stack overflow, and directly gives the topological order."
+          },
+          {
+            step: "4. The 'Aha!' Implementation Breakthrough",
+            desc: "Count how many courses you successfully dequeue. If `processedCount == numCourses`, all courses were unlocked and finished! If `processedCount < numCourses`, the leftover courses form a circular deadlock."
+          }
+        ],
+        realWorldScenario: "Package Manager Dependency Resolution & Build Systems: Determining if Maven/Gradle/npm packages or microservice startup tasks have circular imports, and computing the optimal parallel compilation DAG.",
+        disguisedVariants: [
+          {
+            title: "Monorepo Build Order Pipeline",
+            prompt: "Given N software libraries and their build dependencies, determine if the pipeline can complete or if there is a circular dependency.",
+            howItMaps: "Libraries are nodes, dependency arrows are edges. Kahn's algorithm detects cycles in identical fashion."
+          },
+          {
+            title: "Excel Spreadsheet Formula Circular Reference",
+            prompt: "Detect if formulas across spreadsheet cells (e.g. cell A1 = B1 + 2, B1 = A1 * 3) form an illegal circular calculation loop.",
+            howItMaps: "Cells are vertices, formula references are directed edges. Detect DAG cycles using Kahn's algorithm."
+          }
+        ],
+        transferableProblems: [
+          "Course Schedule II (LeetCode 210 - Return the actual ordered array of courses)",
+          "Alien Dictionary (LeetCode 269 - Build order of unknown foreign alphabet characters)",
+          "Minimum Height Trees (LeetCode 310 - In-degree peeling from leaves inward)"
+        ],
         intuition: "Model as a Directed Acyclic Graph (DAG). Calculate in-degrees for all nodes. Push nodes with `inDegree == 0` into a Queue. Repeatedly poll from queue and decrement neighbors' in-degrees. If total courses processed equals `numCourses`, no cycle exists.",
         code: `class Solution {
     public boolean canFinish(int numCourses, int[][] prerequisites) {
@@ -1503,6 +1628,73 @@ Return the max sliding window.`,
         leetcodeNumber: 684,
         pattern: "Disjoint Set Union (Union-Find) with Path Compression",
         summary: "Given an undirected graph that started as a tree plus one extra edge, find and return the edge that created a cycle.",
+        interviewPrompt: `In this problem, a tree is an undirected graph that is connected and has no cycles.
+
+You are given a graph that started as a tree with n nodes labeled from 1 to n, with one additional edge added. The added edge has two different vertices chosen from 1 to n, and was not an edge that already existed. The graph is represented as an array edges of length n where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the graph.
+
+Return an edge that can be removed so that the resulting graph is a tree of n nodes. If there are multiple answers, return the answer that occurs last in the input.`,
+        examples: [
+          {
+            input: "edges = [[1,2],[1,3],[2,3]]",
+            output: "[2,3]",
+            explanation: "Edges [1,2] and [1,3] connect nodes 1, 2, 3 into a valid tree. Adding edge [2,3] closes a cycle between 1, 2, and 3. Edge [2,3] is redundant."
+          },
+          {
+            input: "edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]",
+            output: "[1,4]",
+            explanation: "Adding [1,4] closes the cycle 1-2-3-4-1. Returning [1,4] leaves a connected tree."
+          }
+        ],
+        constraints: [
+          "n == edges.length",
+          "3 <= n <= 1000",
+          "edges[i].length == 2",
+          "1 <= ai < bi <= edges.length",
+          "ai != bi",
+          "There are no repeated edges.",
+          "The given graph is connected."
+        ],
+        memoryHook: {
+          triggerKeywords: ["Find cycle in undirected graph", "Connected components", "Dynamic connectivity", "Extra edge in tree", "Kruskal's MST"],
+          mnemonic: "The Family Tree Test: If two nodes already share the exact same root ancestor, drawing a new edge between them creates an illegal marriage loop (cycle)!",
+          mentalFormula: "DSU with Path Compression: parent[x] = find(parent[x]) + Union by Rank -> if find(u) == find(v), return edge!"
+        },
+        howToKnow: [
+          {
+            step: "1. The Naive Trap (Why Repeated DFS/BFS Fails)",
+            desc: "For each edge, checking whether removing it keeps the graph connected using BFS/DFS costs O(E × (V + E)) = O(N^2) time. While passable for N = 1000, it wastes immense compute and fails higher constraints."
+          },
+          {
+            step: "2. The Mathematical Invariant & Clue",
+            desc: "A valid tree of N nodes has EXACTLY N - 1 edges. The input has N edges, meaning exactly ONE edge is redundant. If an edge connects two nodes that are ALREADY in the same connected component, that edge is the cycle-forming culprit!"
+          },
+          {
+            step: "3. 4-Stage Decision Logic Gate",
+            desc: "Q1: Is this dynamic connectivity in an undirected graph? -> YES. Q2: What data structure handles incremental edge additions in near O(1) time? -> Disjoint Set Union (Union-Find). Q3: How to make DSU ultra-fast? -> Combine Path Compression with Union by Rank."
+          },
+          {
+            step: "4. The 'Aha!' Implementation Breakthrough",
+            desc: "Initialize DSU where every node is its own parent. Iterate through edges one by one: for edge (u, v), check if `find(u) == find(v)`. If YES, return `[u, v]` immediately! If NO, `union(u, v)` and continue. The first edge where `find(u) == find(v)` is guaranteed to be the redundant edge."
+          }
+        ],
+        realWorldScenario: "Electric Grid & Telecommunications Loop Prevention: In power grids or mesh Ethernet LAN networks, detecting accidental duplicate lines that would cause power feedback or broadcast storms (Spanning Tree Protocol / STP).",
+        disguisedVariants: [
+          {
+            title: "Network Switch Redundant Loop Isolator",
+            prompt: "Given network switches connected by cables, find the cable that creates a dangerous network switching loop.",
+            howItMaps: "Switches are vertices, cables are edges. DSU detects the loop-closing cable in O(N) time."
+          },
+          {
+            title: "Merged Company Account De-duplication",
+            prompt: "Given customer IDs linked by shared phone numbers, find the first redundant link between already-consolidated corporate entities.",
+            howItMaps: "Identical to Disjoint Set Union component verification."
+          }
+        ],
+        transferableProblems: [
+          "Number of Connected Components in an Undirected Graph (LeetCode 323)",
+          "Number of Operations to Make Network Connected (LeetCode 1319)",
+          "Accounts Merge (LeetCode 721 - DSU by email string)"
+        ],
         intuition: "Iterate through edges. For each edge (u, v), find roots of u and v using DSU. If they already share the same root, adding this edge creates a cycle! Otherwise, union them together.",
         code: `class Solution {
     public int[] findRedundantConnection(int[][] edges) {

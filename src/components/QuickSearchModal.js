@@ -58,6 +58,27 @@ export function createQuickSearchModal(onSelectProblem, onNavigateTab) {
     });
   });
 
+  // 4. Interactive Games & Speedrun
+  searchIndex.push({
+    type: 'Interactive Game',
+    title: 'Algorithm Sorting Race Arena',
+    subtitle: 'Bubble vs Selection vs Insertion vs Merge vs Quick Sort head-to-head race',
+    category: 'Games',
+    action: () => {
+      onNavigateTab('games');
+    }
+  });
+
+  searchIndex.push({
+    type: 'Interactive Game',
+    title: 'Big-O Complexity Speedrun Arena',
+    subtitle: 'Test your ability to guess time complexity from 25 real code snippets',
+    category: 'Games',
+    action: () => {
+      onNavigateTab('quiz');
+    }
+  });
+
   // DOM Container
   const backdrop = document.createElement('div');
   backdrop.className = 'modal-backdrop';

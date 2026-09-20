@@ -14,6 +14,7 @@ export function renderNavbar(activeTab, onTabChange, onOpenSearch) {
     { id: 'refresher',     label: 'Java Deep Dive',  icon: '☕', desc: 'Core OOP, Collections & Q&A',      group: 'dsa' },
     { id: 'patterns',      label: 'Patterns',        icon: '🔮', desc: '14 Must-Know Algo Patterns',      group: 'dsa' },
     { id: 'visualizer',    label: 'Visualizer',      icon: '🎬', desc: 'Step-by-Step Animations',         group: 'dsa' },
+    { id: 'games',         label: 'Games',           icon: '🎮', desc: 'Sorting Race Arena',              group: 'dsa' },
     { id: 'system-design', label: 'System Design',   icon: '🏛️', desc: 'Distributed Systems Mastery',    group: 'advanced' },
     { id: 'interview',     label: 'Mock Interview',  icon: '🎙️', desc: 'FAANG Scenario Drills',          group: 'advanced' },
     { id: 'ai-universe',   label: 'AI Universe',     icon: '🤖', desc: 'AI → RAG → Agents → MCPs',       group: 'ai' },
@@ -199,6 +200,7 @@ function renderDrawerItem(tab, activeTab) {
     'ai-universe': '#818cf8',
     'certifications': '#34d399',
     'system-design': '#fbbf24',
+    'games': '#fbbf24',
   };
   const accent = accentColors[tab.id] || '#38bdf8';
   return `

@@ -12,13 +12,14 @@ import { renderAIUniverseView } from './components/AIUniverseView.js';
 import { renderCertificationsView } from './components/CertificationsView.js';
 import { renderMockInterviewView } from './components/MockInterviewView.js';
 import { renderQuizView } from './components/QuizView.js';
+import { renderSortingGameView } from './components/SortingGame.js';
 import { createProblemModal } from './components/ProblemModal.js';
 import { createQuickSearchModal } from './components/QuickSearchModal.js';
 
 const FULL_HEIGHT_TABS = ['foundations', 'system-design', 'ai-universe', 'certifications', 'interview'];
 const VALID_TABS = [
   'home', 'foundations', 'roadmap', 'refresher', 'patterns',
-  'visualizer', 'system-design', 'ai-universe', 'certifications', 'interview', 'quiz'
+  'visualizer', 'games', 'system-design', 'ai-universe', 'certifications', 'interview', 'quiz'
 ];
 
 class App {
@@ -138,6 +139,9 @@ class App {
         break;
       case 'visualizer':
         this.mainContentEl.appendChild(renderVisualizerView());
+        break;
+      case 'games':
+        this.mainContentEl.appendChild(renderSortingGameView());
         break;
       case 'system-design':
         this.mainContentEl.appendChild(renderSystemDesignView());

@@ -77,6 +77,10 @@ export function renderHomeView(onNavigate) {
         <div class="stat-val" style="color: #f43f5e;">4</div>
         <div class="stat-label">Interview Drills</div>
       </div>
+      <div class="stat-item">
+        <div class="stat-val" style="color: #fbbf24;">🎮 5</div>
+        <div class="stat-label">Sorting Racers</div>
+      </div>
     </div>
 
     <!-- SPOTLIGHT GRID: Continue Next Problem & Mock Interview Room -->
@@ -214,6 +218,19 @@ export function renderHomeView(onNavigate) {
             Full 4 Domain study guides, Service Matcher game, and 90-minute timed 65-question official mock exam with domain report.
           </p>
           <div style="font-size: 0.78rem; font-weight: 700; color: #38bdf8;">Start AWS Certification Prep →</div>
+        </div>
+
+        <!-- Track 7: Interactive Algorithm Battle & Games -->
+        <div class="home-nav-card card" data-tab="games" style="cursor: pointer; transition: all 0.2s ease; border-left: 4px solid #f59e0b;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-size: 1.6rem;">🎮</span>
+            <span class="badge" style="background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3);">Interactive Arena</span>
+          </div>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;">Algorithm Sorting Race & Big-O Arena</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+            Watch Quick Sort, Merge Sort, Insertion Sort and Bubble Sort battle head-to-head on live animated bar charts across different data distributions.
+          </p>
+          <div style="font-size: 0.78rem; font-weight: 700; color: #fbbf24;">Launch Algorithm Battle Arena →</div>
         </div>
 
       </div>

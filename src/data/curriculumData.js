@@ -14,6 +14,75 @@ export const curriculumTiers = [
         leetcodeNumber: 1,
         pattern: "Hash Map / Complement Lookup",
         summary: "Given an array of integers and a target, return indices of the two numbers such that they add up to target.",
+        interviewPrompt: `Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
+
+You may assume that each input would have exactly one solution, and you may not use the same element twice.
+
+You can return the answer in any order.`,
+        examples: [
+          {
+            input: "nums = [2,7,11,15], target = 9",
+            output: "[0,1]",
+            explanation: "Because nums[0] + nums[1] == 2 + 7 == 9, we return [0, 1]."
+          },
+          {
+            input: "nums = [3,2,4], target = 6",
+            output: "[1,2]",
+            explanation: "nums[1] + nums[2] == 2 + 4 == 6, so indices [1, 2] are returned."
+          },
+          {
+            input: "nums = [3,3], target = 6",
+            output: "[0,1]",
+            explanation: "Both elements have value 3. We cannot reuse the same index, but two distinct elements with value 3 form the valid pair."
+          }
+        ],
+        constraints: [
+          "2 <= nums.length <= 10^4 (Rules out O(N^3); O(N^2) brute force executes 10^8 ops and runs dangerously close to 1.0s limit; optimal must be O(N))",
+          "-10^9 <= nums[i] <= 10^9 (Values fit in standard 32-bit signed int; values can be negative)",
+          "-10^9 <= target <= 10^9 (Target can be negative, zero, or positive)",
+          "Only one valid answer exists."
+        ],
+        memoryHook: {
+          triggerKeywords: ["Find pair summing to target", "Unsorted array", "Return original indices", "Exact one solution"],
+          mnemonic: "The Complement Ledger: Don't look forward with nested loops; look backward into your ledger for (Target - Current)!",
+          mentalFormula: "Map<Value, Index> -> For each x: if map.containsKey(target - x) return [map.get(target-x), i]; map.put(x, i);"
+        },
+        howToKnow: [
+          {
+            step: "1. The Naive Trap (Why Brute Force Fails)",
+            desc: "Beginners immediately reach for nested loops: `for i: for j: if nums[i] + nums[j] == target`. At N = 10^4, N(N-1)/2 = 50 million operations. In multi-tenant cloud judges or heavy suites, this risks a Time Limit Exceeded (TLE) and signals lack of algorithmic maturity."
+          },
+          {
+            step: "2. The Mathematical Invariant & Clue",
+            desc: "For any number x, there is only ONE possible partner in the entire universe that can make the sum target: `complement = target - x`. Finding that complement is an EQUALITY SEARCH."
+          },
+          {
+            step: "3. 4-Stage Decision Logic Gate",
+            desc: "Q1: Is the array sorted? -> NO. Q2: Can we sort it? -> Sorting costs O(N log N) AND destroys original indices. Q3: What data structure gives O(1) equality lookup? -> A HashMap. Q4: Trade O(N) space for O(N) linear time."
+          },
+          {
+            step: "4. The 'Aha!' Single-Pass Breakthrough",
+            desc: "You do NOT need two passes! As you iterate left to right, check if the complement was already seen in the map. If not, record the current number. When the second partner is reached, its complement is already waiting in the map."
+          }
+        ],
+        realWorldScenario: "E-Commerce Checkout & FinTech Order Matching: Matching buyer bid and seller ask orders at exact clearing prices in electronic stock exchanges, and gift card / coupon balance exhaustion engines.",
+        disguisedVariants: [
+          {
+            title: "Elevator Safe Capacity Interlock",
+            prompt: "An industrial elevator has maximum weight limit W. Given a queue of incoming crates of various weights, determine if any two crates can be loaded together to hit exactly 100% capacity.",
+            howItMaps: "Crate weights are nums and limit W is target. Return true or crate indices using the identical HashMap complement check."
+          },
+          {
+            title: "Flight Duration Entertainment Matcher",
+            prompt: "You are designing an in-flight movie recommendation engine for a flight of duration D minutes. Find two distinct movies whose runtimes add up to exactly D - 30 minutes.",
+            howItMaps: "Target is D - 30. Movie runtimes are nums. We find the two movie IDs that sum to target in O(N) time."
+          }
+        ],
+        transferableProblems: [
+          "Two Sum II - Input Array Is Sorted (LeetCode 167 - Converging Two Pointers)",
+          "3Sum (LeetCode 15 - Sorting + Two Pointers)",
+          "Subarray Sum Equals K (LeetCode 560 - Prefix Sums + HashMap)"
+        ],
         intuition: "Instead of quadratic nested loops O(N^2), iterate through the array once while storing each number's value and index in a HashMap. For every number `x`, check if `target - x` is already in the map. If yes, you found the pair in O(1) time!",
         code: `class Solution {
     public int[] twoSum(int[] nums, int target) {
@@ -49,6 +118,73 @@ export const curriculumTiers = [
         leetcodeNumber: 49,
         pattern: "Hash Map / Frequency Array Canonical Key",
         summary: "Given an array of strings, group the anagrams together in any order.",
+        interviewPrompt: `Given an array of strings strs, group the anagrams together. You can return the answer in any order.
+
+An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.`,
+        examples: [
+          {
+            input: 'strs = ["eat","tea","tan","ate","nat","bat"]',
+            output: '[["bat"],["nat","tan"],["ate","eat","tea"]]',
+            explanation: '"bat" has no anagrams in the list. "nat" and "tan" both have {a:1, n:1, t:1}. "ate", "eat", and "tea" share {a:1, e:1, t:1}.'
+          },
+          {
+            input: 'strs = [""]',
+            output: '[[""]]',
+            explanation: 'An array with a single empty string returns a list containing that single empty string.'
+          },
+          {
+            input: 'strs = ["a"]',
+            output: '[["a"]]',
+            explanation: 'Single-character words form single-element anagram clusters.'
+          }
+        ],
+        constraints: [
+          "1 <= strs.length <= 10^4 (Total words; quadratic pairwise comparison O(N^2 * K) = 10^8 ops is too slow)",
+          "0 <= strs[i].length <= 100 (Max word length K; K is small, making K log K sort fast)",
+          "strs[i] consists of lowercase English letters only.",
+          "Words can be completely identical."
+        ],
+        memoryHook: {
+          triggerKeywords: ["Group words with same letters", "Anagram clusters", "Order-independent character counts"],
+          mnemonic: "The Canonical Fingerprint Rule: Two anagrams appear completely different, but once sorted or frequency-counted, they share the exact same canonical fingerprint key!",
+          mentalFormula: "Map<Fingerprint, List<String>> -> For each word: key = sort(word) -> map.computeIfAbsent(key, k -> new ArrayList<>()).add(word); return new ArrayList<>(map.values());"
+        },
+        howToKnow: [
+          {
+            step: "1. The Naive Trap (Pairwise Comparison)",
+            desc: "Testing every pair of words with `isAnagram(s1, s2)` requires N(N-1)/2 comparisons. For 10,000 words, that is 50,000,000 checks, leading to severe slowdowns or TLE."
+          },
+          {
+            step: "2. Equivalence Class Mathematical Property",
+            desc: "Anagrams form a mathematical equivalence class: transitive, symmetric, and reflexive. Every equivalence class has a unique canonical representation."
+          },
+          {
+            step: "3. Choosing the Canonical Key",
+            desc: "Either sort characters in O(K log K) (fast for K <= 100) or count character frequencies in an int[26] array in O(K) time. Use the sorted string as a HashMap key."
+          },
+          {
+            step: "4. Single-Pass Grouping",
+            desc: "Map canonical key -> List of original words. In Java, `map.computeIfAbsent(key, k -> new ArrayList<>()).add(word)` groups everything in a single linear pass!"
+          }
+        ],
+        realWorldScenario: "Search Engine Spell-Correction & Bio-Informatics: Grouping typo variations in Google Search queries, detecting plagiarized paragraphs with rearranged words, and classifying genomic k-mer nucleotide sequences in DNA analysis.",
+        disguisedVariants: [
+          {
+            title: "Genomic Codon Isomer Clustering",
+            prompt: "Given an array of gene sequences where mutations can permute base pairs, group all sequences that contain the identical nucleotide composition.",
+            howItMaps: "Nucleotide sequence letters map to characters. Find the canonical sorted sequence and group via HashMap."
+          },
+          {
+            title: "Social Media Duplicate Bot Ring Identification",
+            prompt: "Identify groups of automated bot accounts that generate usernames by permuting a fixed set of dictionary syllables.",
+            howItMaps: "Sort each username's syllables/characters and cluster bot accounts under identical hash buckets."
+          }
+        ],
+        transferableProblems: [
+          "Valid Anagram (LeetCode 242 - Frequency count equality)",
+          "Find All Anagrams in a String (LeetCode 438 - Sliding Window + Frequency Array)",
+          "Group Shifted Strings (LeetCode 249 - Normalized difference key)"
+        ],
         intuition: "Two words are anagrams if and only if their character counts or sorted characters are identical. Sort each word to use as a canonical key in a HashMap: `Map<String, List<String>>`. Group all words with the same sorted key together.",
         code: `class Solution {
     public List<List<String>> groupAnagrams(String[] strs) {
@@ -69,8 +205,8 @@ export const curriculumTiers = [
         return new ArrayList<>(map.values());
     }
 }`,
-        timeComplexity: "O(N * K log K)",
-        spaceComplexity: "O(N * K)",
+        timeComplexity: "O(N * K log K) where N = words and K = max word length",
+        spaceComplexity: "O(N * K) to store clustered lists in the HashMap",
         edgeCases: ["Empty array", "Array of single character strings", "Empty strings \"\""],
         javaTip: "`map.computeIfAbsent(key, k -> new ArrayList<>())` replaces 4 lines of `if (!map.containsKey)` boilerplate!"
       },
@@ -82,6 +218,72 @@ export const curriculumTiers = [
         leetcodeNumber: 15,
         pattern: "Sorting + Two Pointers",
         summary: "Find all unique triplets [nums[i], nums[j], nums[k]] such that i != j != k and the sum is zero.",
+        interviewPrompt: `Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.
+
+Notice that the solution set must not contain duplicate triplets. You can return the answer in any order.`,
+        examples: [
+          {
+            input: "nums = [-1,0,1,2,-1,-4]",
+            output: "[[-1,-1,2],[-1,0,1]]",
+            explanation: "nums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0. nums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0. Distinct unique triplets are [-1,0,1] and [-1,-1,2]."
+          },
+          {
+            input: "nums = [0,1,1]",
+            output: "[]",
+            explanation: "The only possible triplet does not sum up to 0."
+          },
+          {
+            input: "nums = [0,0,0]",
+            output: "[[0,0,0]]",
+            explanation: "The only possible triplet sums up to 0."
+          }
+        ],
+        constraints: [
+          "3 <= nums.length <= 3000 (O(N^3) triple loops = 27 billion operations -> massive TLE! O(N^2) = 9 million operations -> easily passes in ~20ms)",
+          "-10^5 <= nums[i] <= 10^5 (Sum can be negative or positive; 3 * 10^5 fits comfortably in 32-bit signed int)",
+          "No duplicate triplets in output list"
+        ],
+        memoryHook: {
+          triggerKeywords: ["Sum of 3 numbers equals 0", "Unique triplets", "Avoid duplicate combinations"],
+          mnemonic: "Fix One, Two-Pointer the Rest: Sort first! Freeze nums[i], then converge left & right like a pincer. Skip duplicates at every move!",
+          mentalFormula: "Arrays.sort(nums); for i in 0..n-3: if (nums[i] > 0) break; if (i > 0 && nums[i] == nums[i-1]) continue; left = i+1, right = n-1; while (left < right): check sum vs -nums[i]; skip duplicates on both ends!"
+        },
+        howToKnow: [
+          {
+            step: "1. The O(N^3) Brute Force Trap",
+            desc: "3 nested loops checking every i, j, k takes O(N^3). With N = 3000, 3000^3 / 6 = 4.5 billion operations. It will freeze the judge and instantly fail your interview."
+          },
+          {
+            step: "2. The Sort-First Insight",
+            desc: "The problem does NOT ask for original indices! It asks for values. This means we can SORT the array in O(N log N) without losing anything."
+          },
+          {
+            step: "3. Reducing 3Sum to Two Pointers",
+            desc: "Once sorted, iterate i from 0 to N-1. Now the problem becomes: find two numbers in `nums[i+1...N-1]` that sum to `-nums[i]`. Because the sub-array is sorted, two converging pointers (left & right) solve this in linear O(N) time."
+          },
+          {
+            step: "4. The Duplicate Trap",
+            desc: "The most common bug is returning duplicate triplets. Because the array is sorted, duplicates are adjacent! Simply skip `while (nums[i] == nums[i-1])` and `while (nums[left] == nums[left+1])`."
+          }
+        ],
+        realWorldScenario: "FinTech Triangle Arbitrage & Ledger Reconciliation: Detecting currency exchange cycles across 3 pairs (e.g. USD -> EUR -> GBP -> USD) where the net exchange differential settles to zero, and balancing 3-legged accounting transactions.",
+        disguisedVariants: [
+          {
+            title: "Triangular Structural Load Nullification",
+            prompt: "In a civil engineering truss, find all combinations of three force vectors along an axial strut that sum to zero to guarantee structural equilibrium.",
+            howItMaps: "Force scalars represent nums. Find unique triplets summing to 0 using Sort + Converging Two Pointers."
+          },
+          {
+            title: "Triple Trade Settlement Offset",
+            prompt: "Given an exchange with multiple customer debt and credit positions, find all triplets of parties whose balances net out to exactly zero for peer-to-peer clearing.",
+            howItMaps: "Balances are nums. Finding 3 parties that cancel out is standard 3Sum."
+          }
+        ],
+        transferableProblems: [
+          "Two Sum (LeetCode 1 - Complement Lookup)",
+          "3Sum Closest (LeetCode 16 - Min absolute difference tracking)",
+          "4Sum (LeetCode 18 - K-Sum general recursive template)"
+        ],
         intuition: "Sort the array first O(N log N). Fix the first element `nums[i]`. Then use two pointers `left = i + 1` and `right = n - 1` to find pairs adding up to `-nums[i]`. Skip duplicate numbers at every stage to ensure triplets are unique.",
         code: `class Solution {
     public List<List<Integer>> threeSum(int[] nums) {
@@ -121,9 +323,9 @@ export const curriculumTiers = [
         return result;
     }
 }`,
-        timeComplexity: "O(N^2)",
-        spaceComplexity: "O(1) extra space (excluding result)",
-        edgeCases: ["Fewer than 3 elements", "All zeros [0,0,0,0]", "No valid triplet exists"],
+        timeComplexity: "O(N^2) dominated by N outer iterations * O(N) two-pointer scan",
+        spaceComplexity: "O(1) extra space (ignoring the memory used for output list)",
+        edgeCases: ["Fewer than 3 elements", "All zeros [0,0,0,0]", "No valid triplet exists", "Multiple identical values requiring duplicate skipping"],
         javaTip: "`Arrays.asList(a, b, c)` creates a fast fixed-size list. Make sure to skip duplicates *after* moving pointers!"
       },
       {
@@ -134,6 +336,69 @@ export const curriculumTiers = [
         leetcodeNumber: 11,
         pattern: "Two Pointers / Greedy Contraction",
         summary: "Find two lines that together with the x-axis form a container that holds the most water.",
+        interviewPrompt: `You are given an integer array height of length n. There are n vertical lines drawn such that the two endpoints of the ith line are (i, 0) and (i, height[i]).
+
+Find two lines that together with the x-axis form a container, such that the container contains the most water.
+
+Return the maximum amount of water a container can store. Notice that you may not slant the container.`,
+        examples: [
+          {
+            input: "height = [1,8,6,2,5,4,8,3,7]",
+            output: "49",
+            explanation: "The vertical lines are at indices 1 (height 8) and 8 (height 7). The width is 8 - 1 = 7. The container height is limited by min(8, 7) = 7. Total water = 7 * 7 = 49."
+          },
+          {
+            input: "height = [1,1]",
+            output: "1",
+            explanation: "Width is 1, min height is 1. Max area is 1 * 1 = 1."
+          }
+        ],
+        constraints: [
+          "n == height.length",
+          "2 <= n <= 10^5 (Optimal solution must run in linear O(N); O(N^2) double loop = 10^10 ops -> instant TLE)",
+          "0 <= height[i] <= 10^4",
+          "Container width is index distance (right - left)"
+        ],
+        memoryHook: {
+          triggerKeywords: ["Maximize container area", "Two vertical lines", "min(height[l], height[r]) * width", "Non-slanted water barrier"],
+          mnemonic: "The Shorter Bar Bottleneck: Width starts at its absolute maximum at the boundaries. Moving inward decreases width! The ONLY way a smaller width can beat the max is if we find a TALLER bar. Therefore, always discard the shorter bar!",
+          mentalFormula: "left = 0, right = n - 1; while (left < right): area = (right - left) * min(h[l], h[r]); maxArea = max(maxArea, area); if (h[left] < h[right]) left++; else right--;"
+        },
+        howToKnow: [
+          {
+            step: "1. The O(N^2) Nested Loop Instinct",
+            desc: "The naive instinct checks all N(N-1)/2 pairs of lines. For N = 100,000, that is 5,000,000,000 comparisons, crashing on the 1-second timeout."
+          },
+          {
+            step: "2. The Mathematical Constraint & Invariant",
+            desc: "Area = (right - left) * min(h[left], h[right]). At the start (left=0, right=n-1), width is as wide as possible. As pointers converge, width strictly decreases."
+          },
+          {
+            step: "3. The Greedy Contraction Logic",
+            desc: "If height[left] < height[right], height[left] is the bottleneck for all containers formed with 'right', 'right-1', 'right-2'... Keeping 'left' while moving 'right' inward can NEVER produce a larger area because width decreases and height is still capped at height[left]. Thus, 'left' can be permanently eliminated."
+          },
+          {
+            step: "4. The Guaranteed O(N) Convergence",
+            desc: "Every comparison moves either left or right inward by 1 step. Total steps = N - 1. Strict O(N) time with O(1) auxiliary memory."
+          }
+        ],
+        realWorldScenario: "Solar Panel & Antenna Array Optimization: Maximizing optical aperture or radio reception angles across pairs of communication masts over varying terrain elevations, and warehouse cargo buffer containment volume optimization.",
+        disguisedVariants: [
+          {
+            title: "Highway Billboard Viewing Angle",
+            prompt: "Given billboard heights along a straight highway, find two billboards that maximize the visible advertising corridor area between them.",
+            howItMaps: "Highway distance is width, billboard heights are lines. Apply identical Two-Pointer Greedy Contraction."
+          },
+          {
+            title: "Hydraulic Dam Sluice Gate Spacing",
+            prompt: "Determine the placement of two movable floodgates along a riverbank to hold the maximum volume of emergency storm run-off.",
+            howItMaps: "Water volume is constrained by the shorter gate height multiplied by distance. Solved with Container With Most Water."
+          }
+        ],
+        transferableProblems: [
+          "Trapping Rain Water (LeetCode 42 - Two pointers with prefix/suffix max)",
+          "Two Sum II (LeetCode 167 - Two pointers on sorted array)"
+        ],
         intuition: "Start with maximum width: `left = 0`, `right = n - 1`. The area is constrained by `min(height[left], height[right]) * (right - left)`. To potentially find a taller line, always advance the pointer pointing to the shorter line.",
         code: `class Solution {
     public int maxArea(int[] height) {
@@ -169,6 +434,70 @@ export const curriculumTiers = [
         leetcodeNumber: 3,
         pattern: "Sliding Window / Last Seen Index",
         summary: "Find the length of the longest substring without repeating characters.",
+        interviewPrompt: `Given a string s, find the length of the longest substring without repeating characters.`,
+        examples: [
+          {
+            input: 's = "abcabcbb"',
+            output: "3",
+            explanation: 'The answer is "abc", with the length of 3.'
+          },
+          {
+            input: 's = "bbbbb"',
+            output: "1",
+            explanation: 'The answer is "b", with the length of 1.'
+          },
+          {
+            input: 's = "pwwkew"',
+            output: "3",
+            explanation: 'The answer is "wke", with the length of 3. Notice that the answer must be a substring, "pwke" is a subsequence and not a substring.'
+          }
+        ],
+        constraints: [
+          "0 <= s.length <= 5 * 10^4 (Requires O(N) sliding window; O(N^3) all substrings = 1.25 * 10^14 ops -> TLE)",
+          "s consists of English letters, digits, symbols and spaces.",
+          "Empty string input is valid and should return 0."
+        ],
+        memoryHook: {
+          triggerKeywords: ["Longest substring", "Without repeating characters", "Contiguous unique segment", "Window expansion"],
+          mnemonic: "The Sliding Rubber Band & Fast-Forward Pin: Expand the right edge. If you hit a duplicate that is inside your current window, snap the left edge directly past its previous position!",
+          mentalFormula: "int[128] lastSeen = -1; left = 0; for (right = 0..n-1): char c = s.charAt(right); if (lastSeen[c] >= left) left = lastSeen[c] + 1; lastSeen[c] = right; maxLen = max(maxLen, right - left + 1);"
+        },
+        howToKnow: [
+          {
+            step: "1. Substring vs Subsequence Clue",
+            desc: "The problem asks for a SUBSTRING (contiguous characters). Contiguous intervals over a sequence strongly signal a Sliding Window."
+          },
+          {
+            step: "2. The Duplicate Detection Invariant",
+            desc: "As the right pointer expands, we only need to know: has this character appeared inside the current window [left, right]? Instead of scanning the window in O(W), store each character's last seen index."
+          },
+          {
+            step: "3. Direct Jump vs Slow Left Increments",
+            desc: "Many candidates do `while (set.contains(c)) set.remove(s[left++])`. While O(N) amortized, jumping directly with `left = Math.max(left, lastSeen[c] + 1)` performs only 1 operation per duplicate."
+          },
+          {
+            step: "4. Array vs HashMap JVM Optimization",
+            desc: "For ASCII text, an `int[128]` array eliminates object allocation, boxing, and hash table collisions, making execution 50x faster."
+          }
+        ],
+        realWorldScenario: "Network Protocol Framing & Telemetry: Finding the longest uninterrupted transmission segment with distinct packet headers in high-throughput gRPC connections, and LZW / Deflate stream compression.",
+        disguisedVariants: [
+          {
+            title: "Longest Session of Unique Website Visitors",
+            prompt: "Given a stream of incoming visitor IDs, find the maximum consecutive duration where no single user ID appeared more than once.",
+            howItMaps: "Visitor IDs map to characters. Maintain a sliding window with a HashMap of last-seen timestamps."
+          },
+          {
+            title: "Audio Frequency Non-Harmonic Window",
+            prompt: "Analyze a digital audio track to find the longest time window where every frequency bin has an amplitude detected at most once.",
+            howItMaps: "Frequency bins represent characters. Sliding window with last-seen array."
+          }
+        ],
+        transferableProblems: [
+          "Longest Substring with At Most K Distinct Characters (LeetCode 340)",
+          "Max Consecutive Ones III (LeetCode 1004 - Sliding window flip count)",
+          "Minimum Window Substring (LeetCode 76 - Two-pointer sliding window)"
+        ],
         intuition: "Maintain a sliding window `[left, right]`. Store the last seen index of each character in a Map or 128-element ASCII array. When you encounter a character already in the current window, instantly jump `left = Math.max(left, lastSeen[c] + 1)`.",
         code: `class Solution {
     public int lengthOfLongestSubstring(String s) {
@@ -206,6 +535,66 @@ export const curriculumTiers = [
         leetcodeNumber: 42,
         pattern: "Two Pointers / Prefix & Suffix Maxima",
         summary: "Given n non-negative integers representing an elevation map where width of each bar is 1, compute how much water it can trap.",
+        interviewPrompt: `Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.`,
+        examples: [
+          {
+            input: "height = [0,1,0,2,1,0,1,3,2,1,2,1]",
+            output: "6",
+            explanation: "The elevation map is represented by array [0,1,0,2,1,0,1,3,2,1,2,1]. In this case, 6 units of rain water are trapped in the valleys between bars."
+          },
+          {
+            input: "height = [4,2,0,3,2,5]",
+            output: "9",
+            explanation: "Between bar 4 at index 0 and bar 5 at index 5, total trapped water across indices 1, 2, 3, 4 is 2 + 4 + 1 + 2 = 9 units."
+          }
+        ],
+        constraints: [
+          "n == height.length",
+          "1 <= n <= 2 * 10^4 (Requires linear O(N) time)",
+          "0 <= height[i] <= 10^5 (Heights are non-negative)",
+          "Water trapped is non-negative at every column"
+        ],
+        memoryHook: {
+          triggerKeywords: ["Elevation map", "Trap rain water", "Bars with width 1", "Puddles between peaks"],
+          mnemonic: "The Two-Sided Dam Bottleneck: Water at any column is bounded by min(maxLeft, maxRight) - height[i]. Always advance the pointer on the LOWER side, because that side is the true limiting barrier!",
+          mentalFormula: "l = 0, r = n - 1, maxL = 0, maxR = 0; while (l < r): if (h[l] <= h[r]) { if (h[l] >= maxL) maxL = h[l]; else ans += maxL - h[l]; l++; } else { if (h[r] >= maxR) maxR = h[r]; else ans += maxR - h[r]; r--; }"
+        },
+        howToKnow: [
+          {
+            step: "1. The Column-by-Column Invariant",
+            desc: "Instead of trying to calculate puddles horizontally, think vertically: how much water rests on top of column i? Column i can hold `min(maxLeft, maxRight) - height[i]` units of water."
+          },
+          {
+            step: "2. The O(N) Space Solution (Prefix/Suffix Arrays)",
+            desc: "You can precompute `leftMax[i]` from left to right and `rightMax[i]` from right to left in two passes. Then calculate water in a third pass. This is O(N) time and O(N) space."
+          },
+          {
+            step: "3. The Two-Pointer O(1) Space Optimization",
+            desc: "Notice: if `height[left] <= height[right]`, we know with 100% mathematical certainty that the water at `left` is trapped by `maxLeft`, because whatever `maxRight` is, it is at least `height[right] >= height[left] >= maxLeft`. The bottleneck at `left` is completely determined!"
+          },
+          {
+            step: "4. Closing the Pincer",
+            desc: "Move inward from the lower side. This gives a single pass, strict O(N) time and true O(1) auxiliary space, which delights FAANG interviewers."
+          }
+        ],
+        realWorldScenario: "GIS Flood Plain Modeling & Civil Drainage: Predicting storm run-off containment volumes in topographical digital elevation models (DEMs) for urban flood prevention, and microfluidic reservoir capacity calculations.",
+        disguisedVariants: [
+          {
+            title: "CNC Component Fluid Retention",
+            prompt: "Given a 1D cross-section of a machined mechanical valve with varying structural rib heights, calculate the total cooling lubricant trapped when submerged.",
+            howItMaps: "Rib heights correspond to elevation bars. Trapped lubricant volume is Trapping Rain Water."
+          },
+          {
+            title: "Thermal Energy Heat Sink Trapping",
+            prompt: "Calculate trapped thermal air pockets between cooling fins of varying heights on a server motherboard heat sink.",
+            howItMaps: "Fins are elevation bars. Trapped pockets calculated via min(leftMax, rightMax) - height."
+          }
+        ],
+        transferableProblems: [
+          "Container With Most Water (LeetCode 11 - Two pointers boundary contraction)",
+          "Product of Array Except Self (LeetCode 238 - Prefix and suffix array accumulation)",
+          "Largest Rectangle in Histogram (LeetCode 84 - Monotonic stack)"
+        ],
         intuition: "Water above any bar `i` is determined by `min(maxLeft, maxRight) - height[i]`. With two pointers starting at both ends, track `maxLeft` and `maxRight`. Advance the side with the smaller max, because that side is the true bottleneck.",
         code: `class Solution {
     public int trap(int[] height) {
@@ -250,6 +639,42 @@ export const curriculumTiers = [
         pattern: "Interval Sorting & Greedy Merge",
         authorTag: "FAANG Standard",
         summary: "Given an array of intervals [start, end], merge all overlapping intervals into non-overlapping intervals.",
+        interviewPrompt: `Given an array of intervals where intervals[i] = [start_i, end_i], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.`,
+        examples: [
+          {
+            input: "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+            output: "[[1,6],[8,10],[15,18]]",
+            explanation: "Since intervals [1,3] and [2,6] overlap, merge them into [1,6]."
+          },
+          {
+            input: "intervals = [[1,4],[4,5]]",
+            output: "[[1,5]]",
+            explanation: "Intervals [1,4] and [4,5] are considered overlapping because they touch at border point 4."
+          }
+        ],
+        constraints: [
+          "1 <= intervals.length <= 10^4 (Sorting takes O(N log N) which executes in ~15ms; quadratic interval comparison would be too slow)",
+          "intervals[i].length == 2",
+          "0 <= start_i <= end_i <= 10^4",
+          "Intervals are not necessarily sorted upon arrival"
+        ],
+        memoryHook: {
+          triggerKeywords: ["Merge overlapping intervals", "Start and end times", "Non-overlapping intervals", "Temporal ranges"],
+          mnemonic: "Sort Starts, Stretch Ends: Sort by start time ascending. If next starts before current ends (next[0] <= curr[1]), stretch curr[1] = max(curr[1], next[1]); else seal current and start new!",
+          mentalFormula: "Arrays.sort(intervals, (a,b) -> Integer.compare(a[0], b[0])); for each next: if (next[0] <= curr[1]) curr[1] = Math.max(curr[1], next[1]); else add next to merged;"
+        },
+        disguisedVariants: [
+          {
+            title: "AWS EC2 Reserved Instance Billing Consolidation",
+            prompt: "Given start and end timestamps of cloud server reservations across multiple accounts, combine overlapping reservation windows into minimal billable blocks.",
+            howItMaps: "Server reservation blocks represent intervals. Sort by start timestamp and merge overlapping active windows."
+          },
+          {
+            title: "Google Calendar Unified Busy-Time Generator",
+            prompt: "A user syncs multiple personal and corporate calendars. Generate a single consolidated schedule of busy time intervals to present to clients.",
+            howItMaps: "Calendar event start and end times represent intervals. Merging overlapping meetings yields the busy blocks."
+          }
+        ],
         intuition: "Sort intervals by their start times. Iterate through them: if the current interval starts before or when the previous interval ends (`curr[0] <= prev[1]`), they overlap! Merge them by stretching `prev[1] = Math.max(prev[1], curr[1])`. Otherwise, push `curr` as a new disjoint interval.",
         howToThink: [
           {
@@ -444,6 +869,68 @@ class Solution {
         leetcodeNumber: 146,
         pattern: "Doubly Linked List + HashMap",
         summary: "Design a data structure that follows the constraints of a Least Recently Used (LRU) cache with O(1) get and put.",
+        interviewPrompt: `Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.
+
+Implement the LRUCache class:
+- LRUCache(int capacity) Initialize the LRU cache with positive size capacity.
+- int get(int key) Return the value of the key if the key exists, otherwise return -1.
+- void put(int key, int value) Update the value of the key if the key exists. Otherwise, add the key-value pair to the cache. If the number of keys exceeds the capacity from this operation, evict the least recently used key.
+
+The functions get and put must each run in O(1) average time complexity.`,
+        examples: [
+          {
+            input: '["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"]\n[[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]',
+            output: "[null, null, null, 1, null, -1, null, -1, 3, 4]",
+            explanation: "LRUCache lRUCache = new LRUCache(2);\nlRUCache.put(1, 1); // cache is {1=1}\nlRUCache.put(2, 2); // cache is {1=1, 2=2}\nlRUCache.get(1);    // return 1, makes 1 MRU\nlRUCache.put(3, 3); // LRU key 2 is evicted, cache is {1=1, 3=3}\nlRUCache.get(2);    // returns -1 (not found)\nlRUCache.put(4, 4); // LRU key 1 is evicted, cache is {4=4, 3=3}\nlRUCache.get(1);    // return -1 (not found)\nlRUCache.get(3);    // return 3\nlRUCache.get(4);    // return 4"
+          }
+        ],
+        constraints: [
+          "1 <= capacity <= 3000",
+          "0 <= key <= 10^4",
+          "0 <= value <= 10^5",
+          "At most 2 * 10^5 calls will be made to get and put",
+          "Strict O(1) time complexity requirement for both operations"
+        ],
+        memoryHook: {
+          triggerKeywords: ["Least Recently Used", "O(1) get and put", "Evict oldest on capacity breach", "Cache hit ordering"],
+          mnemonic: "The VIP Red Carpet & Back Door: HashMap gives instant O(1) seat lookup. Doubly Linked List lets you pull any guest out and move them to the VIP head in O(1), or kick out the tail guest when full!",
+          mentalFormula: "Map<Integer, Node> + DoublyLinkedList with dummy head & tail; get(key): if present moveToHead(node), return node.val; put(key, val): if present update & moveToHead; else if full remove tail & map.remove; add new to head & map.put;"
+        },
+        howToKnow: [
+          {
+            step: "1. The Conflicting Requirements",
+            desc: "Requirement 1: O(1) key lookup -> only a Hash Table can do this. Requirement 2: O(1) ordering & eviction -> queues/arrays take O(N) to remove an item from the middle. What data structure allows O(1) deletion from anywhere? A Doubly Linked List with direct node pointers!"
+          },
+          {
+            step: "2. The Node Pointer Map Pairing",
+            desc: "Instead of storing primitives in the map, store references to the DLL nodes: `Map<Integer, Node>`. When `get(key)` is called, the map hands you the node directly in O(1), allowing you to rewire pointers in O(1)."
+          },
+          {
+            step: "3. Sentinel Dummy Head & Tail",
+            desc: "Boundary null-checks cause 90% of interview bugs. Create `head = new Node(0,0)` and `tail = new Node(0,0)` wired together. All real elements live between them. Never check for null!"
+          },
+          {
+            step: "4. Bidirectional Key Link",
+            desc: "The node must store BOTH key and value: `class Node { int key, value; Node prev, next; }`. Why? When evicting `tail.prev`, you need its key to remove it from the HashMap in O(1)!"
+          }
+        ],
+        realWorldScenario: "Redis in-memory caching engine, Linux OS virtual memory page table eviction, and MySQL InnoDB buffer pool management.",
+        disguisedVariants: [
+          {
+            title: "Browser Tab History Memory Saver",
+            prompt: "Design Chrome's tab discarding mechanism: when memory exceeds threshold, discard the tab that was least recently focused.",
+            howItMaps: "Focusing a tab is get/put (mark MRU). Discarding is tail eviction. Solved with LRU Cache."
+          },
+          {
+            title: "CDN Edge Asset Cache",
+            prompt: "A content delivery network edge server has 500GB SSD cache. Keep popular video chunks hot; purge the least recently accessed chunks when full.",
+            howItMaps: "Direct production implementation of an LRU Cache with TTL extensions."
+          }
+        ],
+        transferableProblems: [
+          "LFU Cache (LeetCode 460 - Least Frequently Used with double frequency lists)",
+          "Design In-Memory File System (LeetCode 588 - Trie + HashMap)"
+        ],
         intuition: "A HashMap gives O(1) key lookups, while a Doubly Linked List gives O(1) node insertion and deletion. Keep dummy `head` (most recently used) and dummy `tail` (least recently used) nodes to eliminate boundary null-checks.",
         code: `class LRUCache {
     class Node {
@@ -520,6 +1007,60 @@ class Solution {
         leetcodeNumber: 739,
         pattern: "Monotonic Decreasing Stack",
         summary: "Given an array of temperatures, return an array such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature.",
+        interviewPrompt: `Given an array of integers temperatures represents the daily temperatures, return an array answer such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature. If there is no future day for which this is possible, keep answer[i] == 0 instead.`,
+        examples: [
+          {
+            input: "temperatures = [73,74,75,71,69,72,76,73]",
+            output: "[1,1,4,2,1,1,0,0]",
+            explanation: "Day 0 (73) -> Day 1 (74 is warmer) -> 1 day. Day 2 (75) -> Day 6 (76 is warmer) -> 4 days."
+          },
+          {
+            input: "temperatures = [30,40,50,60]",
+            output: "[1,1,1,0]",
+            explanation: "Every day is warmer than the previous day until the last day."
+          }
+        ],
+        constraints: [
+          "1 <= temperatures.length <= 10^5 (Must be solved in O(N); O(N^2) brute force nested loops = 10^10 ops -> TLE)",
+          "30 <= temperatures[i] <= 100",
+          "Default value for non-existent warmer day is 0"
+        ],
+        memoryHook: {
+          triggerKeywords: ["Next warmer day", "Next greater element", "Days to wait", "Monotonic order"],
+          mnemonic: "The Decreasing Waiting Room: Keep a stack of indices waiting for someone warmer. As soon as a warmer temperature arrives, it answers and resolves everyone cooler on top of the stack!",
+          mentalFormula: "Deque<Integer> stack = new ArrayDeque<>(); for i in 0..n-1: while (!stack.isEmpty() && temp[i] > temp[stack.peek()]): int prev = stack.pop(); result[prev] = i - prev; stack.push(i);"
+        },
+        howToKnow: [
+          {
+            step: "1. The Quadratic Brute Force",
+            desc: "For each day i, scanning days i+1...n-1 takes O(N^2). For N = 100,000, that is 5 billion operations."
+          },
+          {
+            step: "2. The 'Next Greater Element' Signal",
+            desc: "Whenever a problem asks for the 'next greater', 'previous smaller', or 'span until higher' value, this is the classic textbook MONOTONIC STACK signature."
+          },
+          {
+            step: "3. Store Indices, Not Values",
+            desc: "The output requires day differences `i - prevDay`. Therefore, the stack must store array INDICES, allowing you to compute both the span and look up the temperature `temperatures[stack.peek()]`."
+          },
+          {
+            step: "4. Linear Amortized Analysis",
+            desc: "Although there is a while loop inside the for loop, every single index is pushed onto the stack exactly once and popped at most once. Total operations = 2N, giving strict O(N) linear time."
+          }
+        ],
+        realWorldScenario: "Stock market breakout indicator (calculating days until a stock price breaks above resistance), and seismic tremor anomaly monitoring.",
+        disguisedVariants: [
+          {
+            title: "Stock Resistance Breakout Calculator",
+            prompt: "Given closing prices of a stock, calculate for each day how many trading sessions elapsed before the price breached a new high.",
+            howItMaps: "Stock prices map to temperatures. Solved using a monotonic decreasing stack."
+          }
+        ],
+        transferableProblems: [
+          "Next Greater Element I (LeetCode 496 - Monotonic stack + map)",
+          "Largest Rectangle in Histogram (LeetCode 84 - Monotonic increasing stack)",
+          "Online Stock Span (LeetCode 901 - Monotonic stack streaming)"
+        ],
         intuition: "Maintain a monotonic decreasing stack storing indices. When the current temperature is higher than the temperature at the index on top of the stack, pop that index and calculate the day difference `i - poppedIndex`.",
         code: `class Solution {
     public int[] dailyTemperatures(int[] temperatures) {
@@ -554,6 +1095,43 @@ class Solution {
         pattern: "Monotonic Decreasing Deque",
         authorTag: "Sonnet Elite Masterpiece",
         summary: "Given an array of integers nums and a sliding window of size k, return the max sliding window value at each step.",
+        interviewPrompt: `You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position.
+
+Return the max sliding window.`,
+        examples: [
+          {
+            input: "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+            output: "[3,3,5,5,6,7]",
+            explanation: "Window position                Max\n---------------               -----\n[1  3  -1] -3  5  3  6  7       3\n 1 [3  -1  -3] 5  3  6  7       3\n 1  3 [-1  -3  5] 3  6  7       5\n 1  3  -1 [-3  5  3] 6  7       5\n 1  3  -1  -3 [5  3  6] 7       6\n 1  3  -1  -3  5 [3  6  7]      7"
+          },
+          {
+            input: "nums = [1], k = 1",
+            output: "[1]",
+            explanation: "Window of size 1 returns the array element itself."
+          }
+        ],
+        constraints: [
+          "1 <= nums.length <= 10^5 (Must be strictly O(N); O(N * k) = 10^10 ops -> TLE)",
+          "-10^4 <= nums[i] <= 10^4",
+          "1 <= k <= nums.length"
+        ],
+        memoryHook: {
+          triggerKeywords: ["Sliding window of size k", "Max in each window", "Monotonic double-ended queue", "Continuous rolling maximum"],
+          mnemonic: "The Greedy Bouncer Rule: If an incoming element is BIGGER than previous elements, those previous elements are older AND smaller. They will NEVER be the window max again! Kick them out from the back!",
+          mentalFormula: "Deque<Integer> dq = new ArrayDeque<>(); for (int i = 0; i < n; i++): while (!dq.isEmpty() && dq.peekFirst() <= i - k) dq.pollFirst(); while (!dq.isEmpty() && nums[dq.peekLast()] <= nums[i]) dq.pollLast(); dq.offerLast(i); if (i >= k - 1) res[idx++] = nums[dq.peekFirst()];"
+        },
+        disguisedVariants: [
+          {
+            title: "Spotify Peak Loudness Normalizer",
+            prompt: "In a real-time audio compressor, maintain the peak loudness level over a sliding 2-second audio frame window to adjust dynamic gain without clipping.",
+            howItMaps: "Audio frame amplitudes map to nums and frame duration maps to k. Solved via Monotonic Deque."
+          },
+          {
+            title: "AWS CloudWatch Peak Metric Throttling",
+            prompt: "Given per-second API request rates, track the maximum burst rate in any rolling 60-second window to trigger auto-scaling alerts.",
+            howItMaps: "Rolling window maximum solved with Monotonic Deque in O(N) time."
+          }
+        ],
         intuition: "Maintain a Deque storing array indices in strictly decreasing order of their corresponding values (`nums[deque.peekFirst()]` is always the window max). When adding `nums[i]`, pop all elements from the back that are smaller than `nums[i]`, because they can never be the maximum again. Remove elements from the front that have expired out of the k-window (`deque.peekFirst() <= i - k`).",
         howToThink: [
           {
@@ -1056,6 +1634,48 @@ class Solution {
         pattern: "Kahn's Topological BFS Wave Leveling",
         authorTag: "Sonnet Elite Original",
         summary: "Given N autonomous agent subtasks (0 to N-1) and an array of prerequisite dependencies [taskA, taskB] (meaning taskB must finish before taskA can execute), calculate the minimum number of parallel execution waves required to complete all tasks, or return -1 if an agent circular deadlock exists.",
+        interviewPrompt: `You are building an autonomous multi-agent orchestration engine. You are given an integer numTasks representing N subagent tasks numbered from 0 to numTasks - 1.
+
+You are also given a 2D array dependencies where dependencies[i] = [taskA, taskB], indicating that taskB must complete execution before taskA can begin.
+
+Tasks with zero unmet dependencies can run concurrently in parallel during the same execution wave.
+
+Return the minimum number of parallel execution waves required to execute all tasks. If there is a circular deadlock dependency such that not all tasks can complete, return -1.`,
+        examples: [
+          {
+            input: "numTasks = 4, dependencies = [[1,0],[2,0],[3,1],[3,2]]",
+            output: "3",
+            explanation: "Wave 1: Task 0 executes (no prereqs).\nWave 2: Tasks 1 and 2 execute in parallel (prereq Task 0 complete).\nWave 3: Task 3 executes (prereqs Tasks 1 and 2 complete).\nTotal waves = 3."
+          },
+          {
+            input: "numTasks = 2, dependencies = [[0,1],[1,0]]",
+            output: "-1",
+            explanation: "Task 0 waits on Task 1 and Task 1 waits on Task 0. Circular deadlock detected -> return -1."
+          }
+        ],
+        constraints: [
+          "1 <= numTasks <= 10^5",
+          "0 <= dependencies.length <= 2 * 10^5",
+          "dependencies[i].length == 2",
+          "0 <= taskA, taskB < numTasks and taskA != taskB"
+        ],
+        memoryHook: {
+          triggerKeywords: ["Multi-agent parallel execution", "Prerequisite graph", "Minimum parallel waves", "Deadlock detection"],
+          mnemonic: "The Level-Order Kahn's Wave: Queue all nodes with in-degree 0. Each wave pops the ENTIRE queue snapshot (waveSize), decrements neighbors, and increments waveCount! If completedTasks < N, it's a deadlock!",
+          mentalFormula: "Build adj & inDegree; queue inDegree==0; while (!queue.isEmpty()) { int sz = queue.size(); waves++; for (sz) { pop, decr neighbors, push if inDegree==0; } } return (done == N) ? waves : -1;"
+        },
+        disguisedVariants: [
+          {
+            title: "Distributed Build System Compilation Stage Planner",
+            prompt: "Given C++ compilation target files and #include dependencies, determine the minimum parallel compilation stages required for Bazel/Make.",
+            howItMaps: "Compile targets are tasks, #include links are dependencies. Waves are parallel compilation stages."
+          },
+          {
+            title: "Microservice Startup Dependency Coordinator",
+            prompt: "In a Kubernetes cluster, microservices have boot dependencies on databases and auth providers. Calculate the minimum startup waves.",
+            howItMaps: "Direct isomorphic problem to DAG wave leveling."
+          }
+        ],
         intuition: "Model the agent workflow as a Directed Graph. In each execution 'wave', all agents whose current in-degree is 0 can run concurrently in parallel! Track waves using BFS level-order traversal (queue size per wave). Decrement dependent agents' in-degrees. If total tasks scheduled equals N, return wave count; otherwise a deadlock cycle exists.",
         howToThink: [
           {
@@ -1188,6 +1808,50 @@ class Solution {
         pattern: "1D State Reachability DP",
         authorTag: "FAANG Standard",
         summary: "Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.",
+        interviewPrompt: `Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.
+
+Note that the same word in the dictionary may be reused multiple times in the segmentation.`,
+        examples: [
+          {
+            input: 's = "leetcode", wordDict = ["leet","code"]',
+            output: "true",
+            explanation: 'Return true because "leetcode" can be segmented as "leet code".'
+          },
+          {
+            input: 's = "applepenapple", wordDict = ["apple","pen"]',
+            output: "true",
+            explanation: 'Return true because "applepenapple" can be segmented as "apple pen apple". Note that you are allowed to reuse a dictionary word.'
+          },
+          {
+            input: 's = "catsandog", wordDict = ["cats","dog","sand","and","cat"]',
+            output: "false",
+            explanation: 'No valid combination of dictionary words segments "catsandog" cleanly.'
+          }
+        ],
+        constraints: [
+          "1 <= s.length <= 300",
+          "1 <= wordDict.length <= 1000",
+          "1 <= wordDict[i].length <= 20",
+          "s and wordDict[i] consist of only lowercase English letters.",
+          "All the strings of wordDict are unique."
+        ],
+        memoryHook: {
+          triggerKeywords: ["Segment string into dictionary words", "Word break", "Dictionary lookups", "Subproblem reachability"],
+          mnemonic: "The Stepping Stone DP: dp[i] is true if prefix length i can be reached. To reach stone i, you need a previous stone dp[j] == true AND substring(j, i) in the dictionary!",
+          mentalFormula: "dp = boolean[n+1]; dp[0] = true; for i in 1..n: for j in i-1 down to max(0, i-maxLen): if (dp[j] && set.contains(s.substring(j, i))) { dp[i] = true; break; } return dp[n];"
+        },
+        disguisedVariants: [
+          {
+            title: "Google Search Missing-Space Query Segmenter",
+            prompt: "When users enter URLs or queries without spaces (e.g. 'newyorktimesbookreview'), segment the query into recognized dictionary terms.",
+            howItMaps: "String s is the combined query, wordDict is the search lexicon. Solved via Word Break DP."
+          },
+          {
+            title: "LLM Subword Tokenizer Partitioning",
+            prompt: "Verify if a source code snippet can be tokenized into valid vocabulary tokens in a Byte-Pair Encoding (BPE) vocabulary.",
+            howItMaps: "Tokens form wordDict; code is s. Reachability DP verifies tokenizability."
+          }
+        ],
         intuition: "Define `dp[i]` as a boolean indicating whether the prefix `s[0...i-1]` of length `i` can be completely formed using words from the dictionary. Base case: `dp[0] = true` (empty string). For each end index `i`, check all split points `j`: if `dp[j] == true` AND `wordSet.contains(s.substring(j, i))`, then `dp[i] = true`! Break early as soon as any valid split is found.",
         howToThink: [
           {

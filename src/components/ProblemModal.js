@@ -88,12 +88,12 @@ export function createProblemModal() {
   backdrop.innerHTML = `
     <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="prob-modal-title">
       <div class="modal-header">
-        <div class="modal-title-group">
-          <div id="prob-badge-container"></div>
-          <h2 class="section-title" id="prob-modal-title" style="font-size: 1.35rem; margin: 0;"></h2>
+        <div class="modal-title-group" style="flex: 1; min-width: 0; margin-right: 10px;">
+          <div id="prob-badge-container" style="flex-shrink: 0;"></div>
+          <h2 class="section-title" id="prob-modal-title" style="font-size: 1.25rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></h2>
         </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <button class="btn-secondary" id="modal-complete-btn" style="padding: 6px 12px; font-size: 0.8rem;">
+        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+          <button class="btn-secondary" id="modal-complete-btn" style="padding: 6px 12px; font-size: 0.8rem; white-space: nowrap;">
             ${Icons.check} <span id="modal-complete-text">Mark Done</span>
           </button>
           <button class="modal-close-btn" id="prob-modal-close" title="Close (Esc)">${Icons.close}</button>
@@ -485,6 +485,8 @@ export function createProblemModal() {
     btn.addEventListener('click', () => {
       activeTab = btn.dataset.tab;
       tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+      btn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+      bodyEl.scrollTop = 0;
       renderTabContent();
     });
   });

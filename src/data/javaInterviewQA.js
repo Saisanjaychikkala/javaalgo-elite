@@ -424,5 +424,344 @@ public class CacheLeak {
         cache.add(new byte[1024 * 1024]); // Static list grows forever until OOM!
     }
 }`
+  },
+  {
+    id: 'checked-vs-unchecked-exceptions',
+    question: 'What is the difference between Checked and Unchecked Exceptions? When do you use each?',
+    category: 'Core Java',
+    difficulty: 'High Frequency',
+    shortAnswer: 'Checked exceptions are compile-time enforced (must be caught or declared); Unchecked exceptions (RuntimeException subclasses) are programming errors discovered at runtime.',
+    detailedExplanation: `Java's exception hierarchy splits under \`java.lang.Throwable\`:
+
+**Checked Exceptions** (inherit from \`Exception\`, NOT \`RuntimeException\`):
+- Compiler FORCES you to handle them: use \`try-catch\` or declare \`throws\`.
+- Represent recoverable external conditions: file not found, network failure, database timeout.
+- Examples: \`IOException\`, \`SQLException\`, \`FileNotFoundException\`, \`ClassNotFoundException\`.
+- Use when: the caller can reasonably recover (retry the network call, prompt user for a different file).
+
+**Unchecked Exceptions** (inherit from \`RuntimeException\`):
+- NOT checked by the compiler. No need to catch or declare.
+- Represent programming bugs: null dereference, invalid array index, bad type cast.
+- Examples: \`NullPointerException\`, \`ArrayIndexOutOfBoundsException\`, \`IllegalArgumentException\`, \`ClassCastException\`.
+- Use when: it's a programming error that should NEVER happen if code is correct.
+
+**The Rule of Thumb**: If the caller can reasonably recover → checked. If it's a bug in the code → unchecked (RuntimeException).`,
+    codeSnippet: `// CHECKED: IOException — caller must handle it
+public String readFile(String path) throws IOException {
+    // Compiler enforces handling!
+    return Files.readString(Path.of(path));
+}
+
+// UNCHECKED: IllegalArgumentException — programming error
+public void setAge(int age) {
+    if (age < 0) throw new IllegalArgumentException("Age cannot be negative: " + age);
+    this.age = age;
+}`
+  },
+  {
+    id: 'java8-streams-collectors',
+    question: 'Explain Java 8 Streams — what makes them powerful and what are their key operations?',
+    category: 'Java 8+ Modern Features',
+    difficulty: 'High Frequency',
+    shortAnswer: 'Streams are lazy, functional pipelines over data sources that compose map/filter/reduce operations without modifying the source, and evaluate only when a terminal operation is called.',
+    detailedExplanation: `A **Stream** is NOT a data structure — it's a PIPELINE of operations applied to a source (Collection, array, I/O).
+
+**3 Phases of Every Stream Pipeline:**
+1. **Source**: \`list.stream()\`, \`Arrays.stream(arr)\`, \`Stream.of(...)\`
+2. **Intermediate Operations** (lazy — return a new Stream, not evaluated yet):
+   - \`filter(Predicate)\` — keep elements matching condition
+   - \`map(Function)\` — transform each element
+   - \`flatMap(Function)\` — transform + flatten nested streams
+   - \`sorted()\`, \`distinct()\`, \`limit(n)\`, \`peek()\`
+3. **Terminal Operations** (trigger execution of the entire pipeline):
+   - \`collect(Collectors.toList())\` — gather results
+   - \`forEach(action)\`, \`count()\`, \`findFirst()\`, \`anyMatch()\`
+   - \`reduce(identity, BinaryOperator)\` — fold into single value
+
+**Why lazy evaluation?**: If you chain \`filter + map + findFirst\` on 1 million elements, the stream stops as soon as it finds the FIRST match. Without laziness, it would filter all 1M first.`,
+    codeSnippet: `List<Employee> employees = List.of(...);
+
+// Find top 3 salaries of engineers in decreasing order
+List<Double> top3Salaries = employees.stream()
+    .filter(e -> "Engineering".equals(e.getDepartment()))    // Intermediate (lazy)
+    .mapToDouble(Employee::getSalary)                        // Intermediate (lazy)
+    .boxed()
+    .sorted(Comparator.reverseOrder())                       // Intermediate (lazy)
+    .limit(3)                                                // Intermediate (lazy)
+    .collect(Collectors.toList());                           // Terminal → triggers pipeline!
+
+// Group employees by department
+Map<String, List<Employee>> byDept = employees.stream()
+    .collect(Collectors.groupingBy(Employee::getDepartment));`
+  },
+  {
+    id: 'comparable-vs-comparator',
+    question: 'What is the difference between Comparable and Comparator? When do you use each?',
+    category: 'Collections & Contracts',
+    difficulty: 'High Frequency',
+    shortAnswer: 'Comparable defines a class\'s single natural ordering via compareTo() inside the class. Comparator is an external, pluggable sorting strategy that can define multiple different orderings without modifying the class.',
+    detailedExplanation: `**Comparable<T>** (implements inside the class):
+- Method: \`int compareTo(T other)\`
+- Returns: negative (this < other), 0 (equal), positive (this > other)
+- Use when: there's ONE obvious natural order for the class (e.g., Integer naturally orders by value).
+- Affects: \`Collections.sort(list)\`, \`TreeSet\`, \`TreeMap\` default behavior.
+
+**Comparator<T>** (external pluggable strategy):
+- Method: \`int compare(T a, T b)\`
+- A functional interface → can be written as a Lambda!
+- Use when: you need MULTIPLE orderings, or you CAN'T modify the class (library class), or the natural order isn't right for your use case.
+- Affected: \`Collections.sort(list, comparator)\`, \`PriorityQueue(comparator)\`, \`TreeMap(comparator)\`
+
+**Comparator API (Java 8+):**
+- \`Comparator.comparing(Employee::getSalary)\`
+- \`.thenComparing(Employee::getName)\`
+- \`.reversed()\``,
+    codeSnippet: `// Comparable: Natural ordering by ID (inside class)
+class Employee implements Comparable<Employee> {
+    int id; String name; double salary;
+    
+    @Override
+    public int compareTo(Employee other) {
+        return Integer.compare(this.id, other.id); // Natural: by ID
+    }
+}
+
+// Comparator: Custom/external orderings (outside class)
+Comparator<Employee> bySalaryDesc = Comparator
+    .comparingDouble(Employee::getSalary)
+    .reversed();
+
+Comparator<Employee> byNameThenSalary = Comparator
+    .comparing(Employee::getName)
+    .thenComparingDouble(Employee::getSalary);
+
+// Usage
+employees.sort(bySalaryDesc);
+PriorityQueue<Employee> pq = new PriorityQueue<>(bySalaryDesc);`
+  },
+  {
+    id: 'synchronized-vs-reentrantlock',
+    question: 'What is the difference between synchronized and ReentrantLock? Why use ReentrantLock?',
+    category: 'Concurrency & Multithreading',
+    difficulty: 'Advanced',
+    shortAnswer: 'synchronized is simple, implicit mutual exclusion built into the JVM. ReentrantLock is explicit, more flexible, and supports timed locking, interruptible locking, tryLock(), and multiple condition variables.',
+    detailedExplanation: `**synchronized** (intrinsic lock / monitor):
+- Built into every Java object.
+- Simplest way to achieve mutual exclusion — no imports needed.
+- Lock released automatically when block exits (even on exception).
+- Limitations: Cannot try to acquire without blocking, cannot interrupt a waiting thread, only ONE condition variable per lock (wait/notify), cannot be acquired across methods.
+
+**ReentrantLock** (\`java.util.concurrent.locks\`):
+- Must call \`lock()\` and ALWAYS \`unlock()\` in a finally block.
+- **Extra powers**:
+  - \`tryLock()\` — attempt to acquire without blocking; returns boolean immediately.
+  - \`tryLock(time, unit)\` — attempt for a limited time, then give up.
+  - \`lockInterruptibly()\` — thread waiting for lock can be interrupted.
+  - **Multiple Condition Variables**: \`lock.newCondition()\` — create separate queues for producers and consumers (like a full buffer vs empty buffer condition).
+  - \`lock.isHeldByCurrentThread()\` — introspection.
+
+**Use ReentrantLock when**: you need timed/interruptible locking, tryLock, or multiple conditions. Use \`synchronized\` for simple cases — it's cleaner and JVM-optimized.`,
+    codeSnippet: `// synchronized — simple but limited
+public synchronized void increment() {
+    count++;
+}
+
+// ReentrantLock — powerful and flexible
+private final ReentrantLock lock = new ReentrantLock();
+private final Condition notFull  = lock.newCondition();
+private final Condition notEmpty = lock.newCondition();
+
+public void put(T item) throws InterruptedException {
+    lock.lock(); // Must unlock in finally!
+    try {
+        while (buffer.size() == capacity) notFull.await();
+        buffer.add(item);
+        notEmpty.signal(); // Wake up one consumer
+    } finally {
+        lock.unlock(); // ALWAYS release in finally
+    }
+}`
+  },
+  {
+    id: 'functional-interfaces',
+    question: 'What are the 4 core Functional Interfaces in Java 8? When do you use each?',
+    category: 'Java 8+ Modern Features',
+    difficulty: 'Medium',
+    shortAnswer: 'Supplier<T> (produces), Consumer<T> (consumes), Predicate<T> (tests condition → boolean), Function<T, R> (transforms). These are the building blocks of all lambda and stream operations.',
+    detailedExplanation: `Java 8 introduced \`java.util.function\` package with functional interfaces (interfaces with exactly one abstract method — @FunctionalInterface).
+
+**The Big 4:**
+
+1. **\`Supplier<T>\`** — Takes NO input, produces output.
+   - Method: \`T get()\`
+   - Use: Lazy evaluation, factory methods, default value generators.
+   - Example: \`() -> new ArrayList<>()\`
+
+2. **\`Consumer<T>\`** — Takes input, produces NO output (void). Side effects.
+   - Method: \`void accept(T t)\`
+   - Use: \`forEach\`, logging, saving to database.
+   - Example: \`employee -> System.out.println(employee.getName())\`
+
+3. **\`Predicate<T>\`** — Takes input, returns \`boolean\`.
+   - Method: \`boolean test(T t)\`
+   - Use: \`filter()\` in streams, validation rules.
+   - Example: \`employee -> employee.getSalary() > 100_000\`
+
+4. **\`Function<T, R>\`** — Takes input of type T, returns output of type R.
+   - Method: \`R apply(T t)\`
+   - Use: \`map()\` in streams, data transformation.
+   - Example: \`employee -> employee.getName().toUpperCase()\``,
+    codeSnippet: `// Supplier: creates a new ArrayList lazily
+Supplier<List<String>> listFactory = ArrayList::new;
+List<String> list = listFactory.get();
+
+// Consumer: logs each order
+Consumer<Order> logger = order -> System.out.println("Processing: " + order.getId());
+orders.forEach(logger);
+
+// Predicate: filter high-value customers
+Predicate<Customer> isVIP = customer -> customer.getTotalSpend() > 10_000;
+List<Customer> vips = customers.stream().filter(isVIP).collect(Collectors.toList());
+
+// Function: extract names from employees
+Function<Employee, String> nameExtractor = Employee::getName;
+List<String> names = employees.stream().map(nameExtractor).collect(Collectors.toList());`
+  },
+  {
+    id: 'thread-local',
+    question: 'What is ThreadLocal? What problem does it solve?',
+    category: 'Concurrency & Multithreading',
+    difficulty: 'Advanced',
+    shortAnswer: 'ThreadLocal provides each thread with its own independent copy of a variable, avoiding shared state and synchronization overhead. Used for per-request context in web servers (user session, database connections, transaction IDs).',
+    detailedExplanation: `**The Problem**: In a web server with 100 concurrent threads, you need each request to carry its own context (e.g., logged-in user ID, database connection, locale). If you use a shared variable, threads corrupt each other's data. If you pass the context as a parameter through every method call, the code becomes unwieldy.
+
+**ThreadLocal<T>** provides a per-thread storage slot. When thread A reads \`threadLocal.get()\`, it gets A's value. When thread B reads it, it gets B's value. Completely isolated.
+
+**How it works internally**: The JVM maintains a \`ThreadLocalMap\` inside each \`Thread\` object. The \`ThreadLocal\` instance is just a key that maps to the thread-local value stored in that map.
+
+**Critical Warning**: ThreadLocal variables in a Thread Pool (like Tomcat's servlet thread pool) are DANGEROUS! Threads are reused across requests. You MUST call \`remove()\` after each request, or the previous request's data leaks into the next request on the same thread!
+
+**Real use cases**:
+- Spring's \`TransactionSynchronizationManager\` (per-thread DB transaction)
+- SLF4J's MDC (Mapped Diagnostic Context — add request ID to every log line)
+- JDBC connection holders in a web application`,
+    codeSnippet: `public class RequestContext {
+    // Each thread gets its own copy of the current user
+    private static final ThreadLocal<User> CURRENT_USER = new ThreadLocal<>();
+
+    public static void setUser(User user) { CURRENT_USER.set(user); }
+    public static User getUser() { return CURRENT_USER.get(); }
+
+    // CRITICAL: Always remove after request to prevent leaks in thread pools!
+    public static void clear() { CURRENT_USER.remove(); }
+}
+
+// In servlet/filter:
+try {
+    RequestContext.setUser(authenticatedUser);
+    processRequest(); // All method calls can read CURRENT_USER
+} finally {
+    RequestContext.clear(); // MUST clean up before thread returns to pool
+}`
+  },
+  {
+    id: 'singleton-pattern',
+    question: 'How do you implement a thread-safe Singleton in Java? What are the pitfalls?',
+    category: 'Design Patterns',
+    difficulty: 'High Frequency',
+    shortAnswer: 'The best thread-safe Singleton uses the "Enum Singleton" or "Bill Pugh Initialization-on-Demand Holder" pattern. Double-checked locking requires volatile. Simple synchronized getInstance() works but is slow.',
+    detailedExplanation: `A **Singleton** ensures only ONE instance of a class exists in the JVM. 4 implementation approaches:
+
+1. **Eager Initialization** (thread-safe, simple):
+   - Instance created at class load time. Thread-safe by class loader guarantee.
+   - Disadvantage: Created even if never used (wasteful for expensive resources).
+
+2. **Synchronized getInstance()** (thread-safe, slow):
+   - \`synchronized\` keyword on \`getInstance()\` method.
+   - Problem: Every call acquires the lock, even after initialization. Huge performance cost under contention.
+
+3. **Double-Checked Locking (DCL) + volatile** (thread-safe, fast):
+   - Check null twice: once without lock (fast path), once with lock (slow path).
+   - The \`volatile\` keyword is MANDATORY to prevent instruction reordering. Without it, a partially constructed object can be seen by another thread!
+
+4. **Bill Pugh / Initialization-on-Demand Holder** (Best for most cases):
+   - Inner static class holds the instance. Class is loaded lazily on first \`getInstance()\` call.
+   - Thread-safe by JVM class-loading guarantee. No synchronized needed. Zero overhead after creation.
+
+5. **Enum Singleton** (Absolutely safe, prevents reflection/serialization attacks):
+   - Java enums are always singleton by design. Serialization-safe out of the box. Cannot be broken by reflection.`,
+    codeSnippet: `// ✅ BEST OPTION 1: Bill Pugh Holder Pattern
+public class DatabaseConnection {
+    private DatabaseConnection() {} // Private constructor
+
+    private static class Holder {
+        // Loaded ONLY when getInstance() is first called (lazy)
+        private static final DatabaseConnection INSTANCE = new DatabaseConnection();
+    }
+
+    public static DatabaseConnection getInstance() {
+        return Holder.INSTANCE; // No sync needed! Thread-safe by class loader
+    }
+}
+
+// ✅ BEST OPTION 2: Enum Singleton (Joshua Bloch recommendation)
+public enum AppConfig {
+    INSTANCE;
+    // Cannot be broken by reflection, serialization, or clone()
+    public String getDatabaseUrl() { return "jdbc:postgresql://..."; }
+}
+
+// Usage:
+DatabaseConnection conn = DatabaseConnection.getInstance();
+AppConfig config = AppConfig.INSTANCE;`
+  },
+  {
+    id: 'optional-api',
+    question: 'How do you properly use Optional<T> in Java? What should you NEVER do with it?',
+    category: 'Java 8+ Modern Features',
+    difficulty: 'Medium',
+    shortAnswer: 'Use Optional as a return type for methods that might not find a value. Use orElse/orElseGet/orElseThrow to extract values. NEVER use Optional.get() without isPresent() — NEVER store Optional in fields or pass as parameters.',
+    detailedExplanation: `**What is Optional?**: A container object that may or may not contain a non-null value. It makes the "no result" case EXPLICIT in the API contract rather than implicitly returning null.
+
+**Creating Optional:**
+- \`Optional.of(value)\` — wraps a non-null value (throws NPE if null passed!)
+- \`Optional.ofNullable(value)\` — wraps a value that might be null
+- \`Optional.empty()\` — explicitly empty
+
+**Extracting Values (the RIGHT way):**
+- \`orElse(default)\` — return value or a default
+- \`orElseGet(Supplier)\` — return value or compute a default lazily
+- \`orElseThrow(ExceptionSupplier)\` — return value or throw
+- \`ifPresent(Consumer)\` — execute only if present
+- \`map(Function)\` — transform the value inside Optional (stays wrapped)
+- \`flatMap(Function)\` — when transformation also returns Optional
+
+**Common Mistakes (NEVER do these):**
+1. \`optional.get()\` without checking \`optional.isPresent()\` first → defeats the purpose, still throws \`NoSuchElementException\`
+2. Storing Optional in instance fields → wastes memory, Optional is not serializable
+3. Passing Optional as a method parameter → caller still needs to handle null Optional
+4. Using Optional for Collections — just return empty collection instead`,
+    codeSnippet: `// Repository returns Optional — makes "not found" explicit
+public Optional<User> findById(int id) {
+    return userRepository.stream()
+        .filter(u -> u.getId() == id)
+        .findFirst();
+}
+
+// ❌ WRONG: Back to NPE territory
+User user = findById(42).get(); // NoSuchElementException if empty!
+
+// ✅ RIGHT: Provide default
+User user = findById(42).orElse(User.GUEST);
+
+// ✅ RIGHT: Throw business exception
+User user = findById(42)
+    .orElseThrow(() -> new UserNotFoundException("User 42 not found"));
+
+// ✅ RIGHT: Chain transformations safely
+String email = findById(42)
+    .map(User::getContact)
+    .map(Contact::getEmail)
+    .orElse("no-email@default.com");`
   }
 ];

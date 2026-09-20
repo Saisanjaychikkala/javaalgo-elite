@@ -300,6 +300,169 @@ Only keys between 150° and 200° (previously going to Server B) now go to Serve
         'This is WHY caching exists: replace 10ms DB calls with 0.1ms cache hits.',
         'In interviews, use these to justify architectural decisions.'
       ]
+    },
+    {
+      id: 'rate-limiting',
+      title: 'Rate Limiting & Throttling',
+      icon: '🚦',
+      content: `**Why Rate Limiting is Non-Negotiable in Production Systems**: Without rate limiting, a single malicious client can send 100,000 requests/second, exhausting your server resources, causing downtime for all legitimate users, and running up massive cloud bills. Rate limiting protects your system's availability and ensures fair usage.
+
+**The 4 Core Rate Limiting Algorithms:**
+
+**1. Token Bucket (Industry Standard — Twitter, Stripe use this)**
+- A bucket holds max N tokens (capacity). Tokens are added at a fixed rate (e.g., 10 tokens/second).
+- Each request consumes 1 token. If the bucket is empty, the request is rejected (or queued).
+- ✅ Allows short bursts (bucket drains quickly but refills smoothly).
+- ✅ Smooth, predictable throughput over time.
+- Implementation: \`tokens = min(capacity, tokens + (now - lastRefill) * refillRate)\`
+
+**2. Leaky Bucket (Smoothing traffic)**
+- Requests enter a bucket (queue) and leak out at a CONSTANT rate regardless of arrival bursts.
+- If the bucket (queue) overflows, new requests are dropped.
+- ✅ Guarantees perfectly smooth output rate. ✅ Great for protecting downstream services.
+- ❌ Adds latency during bursts (requests queue up instead of being processed immediately).
+
+**3. Fixed Window Counter (Simple, but flawed)**
+- Count requests in a fixed time window (e.g., 100 req/min). Reset counter at window end.
+- ❌ Boundary attack: A client sends 100 requests in the last second of window 1, then 100 in the first second of window 2 — effectively 200 requests in 2 seconds while bypassing the limit!
+
+**4. Sliding Window Log / Counter (Most accurate)**
+- Track each request's exact timestamp. Count only requests within the last N seconds.
+- Sliding Window Log: O(N) memory per user (stores timestamps). Accurate but expensive.
+- Sliding Window Counter: Approximation using current + previous window weighted average.
+
+**Rate Limiting in Distributed Systems:**
+- Problem: 10 app servers each allow 100 req/min → 1000 req/min total. Need centralized counting!
+- Solution: Use **Redis INCR** with TTL as the central counter. Atomic increment + expiry in one command.
+\`\`\`
+INCR user:42:2024-01-01-12:05  // Increment counter for this minute
+EXPIRE user:42:2024-01-01:12:05 60  // Auto-delete after 60 seconds
+\`\`\`
+- Single-digit millisecond Redis latency doesn't meaningfully impact request latency.
+
+**HTTP Response Codes:**
+- \`429 Too Many Requests\` — standard rate limit response
+- Headers: \`X-RateLimit-Limit: 100\`, \`X-RateLimit-Remaining: 23\`, \`X-Retry-After: 37\``,
+      keyPoints: [
+        'Token Bucket is the industry gold standard: allows bursts while maintaining average rate.',
+        'Fixed Window has a boundary vulnerability — sliding window is more accurate.',
+        'Use Redis INCR + EXPIRE for distributed rate limiting across multiple servers.',
+        'Always return 429 with Retry-After headers so clients can back off gracefully.',
+        'Rate limit by user ID, API key, AND IP to prevent abuse from multiple vectors.'
+      ]
+    },
+    {
+      id: 'microservices-patterns',
+      title: 'Microservices Patterns: Circuit Breaker, Saga & API Gateway',
+      icon: '🏗️',
+      content: `**What Are Microservices?** Breaking a monolith into independent, loosely-coupled services that each own their data, deploy independently, and communicate over network calls.
+
+**The 3 Key Microservices Interview Patterns:**
+
+---
+
+**Pattern 1: Circuit Breaker (Netflix Hystrix, Resilience4j)**
+
+Problem: Service A calls Service B. Service B is slow/down. A's threads block waiting. A's thread pool exhausts. A goes down. This is **Cascading Failure** — one broken service takes down the entire system.
+
+Solution — Circuit Breaker (modeled after electrical circuits):
+- **CLOSED**: Everything normal. Requests flow through. Counts failures.
+- **OPEN**: Failure threshold exceeded. All requests fail IMMEDIATELY without calling B. (Fast failure, no thread blocking)
+- **HALF-OPEN**: After a timeout, let a TEST request through. If it succeeds → CLOSED. If it fails → OPEN again.
+\`\`\`
+// Resilience4j example
+CircuitBreaker cb = CircuitBreaker.ofDefaults("paymentService");
+Supplier<String> decorated = CircuitBreaker.decorateSupplier(cb, paymentService::charge);
+\`\`\`
+
+---
+
+**Pattern 2: Saga Pattern (Distributed Transactions)**
+
+Problem: "Book hotel + Book flight + Charge card" spans 3 microservices. If payment fails AFTER hotel is booked, you need to cancel (compensate) the hotel booking. ACID transactions don't work across service boundaries!
+
+Solution — **Saga**: A sequence of local transactions, each publishing an event that triggers the next step. On failure, compensating transactions undo completed steps.
+
+Two implementations:
+- **Choreography Saga**: Services react to events from other services (Kafka/EventBus). No central coordinator. More resilient but harder to debug.
+- **Orchestration Saga**: A Saga Orchestrator service sends commands to each participant and handles failures. Easier to understand but single point of control.
+
+---
+
+**Pattern 3: API Gateway**
+
+Problem: Mobile app needs to call 10 microservices. Each has different auth, SSL, rate limiting configs. Clients change when internal services change.
+
+Solution — **API Gateway** (Kong, AWS API Gateway, Netflix Zuul):
+- Single entry point for all client requests
+- Handles: Authentication, SSL termination, Rate limiting, Request routing, Response composition, Load balancing
+- Backend For Frontend (BFF): Separate gateways for mobile vs web vs 3rd party clients
+
+**Service Mesh (Istio, Linkerd)**:
+- Infrastructure layer for service-to-service communication
+- Injects a sidecar proxy (Envoy) next to every service instance
+- Handles: mTLS encryption, retries, circuit breaking, observability — WITHOUT changing application code`,
+      keyPoints: [
+        'Circuit Breaker prevents cascading failures — fail fast, recover automatically.',
+        'Saga pattern is the answer to distributed transactions without 2-phase commit.',
+        'API Gateway is the single entry point — handles cross-cutting concerns (auth, rate limiting).',
+        'Choreography Saga = event-driven (more resilient). Orchestration Saga = central coordinator (easier to trace).',
+        '"Design for failure" — in microservices, network calls WILL fail. Plan with retries, timeouts, and circuit breakers.'
+      ]
+    },
+    {
+      id: 'database-sharding',
+      title: 'Database Sharding & Replication',
+      icon: '🔀',
+      content: `**The Problem with a Single Database**: Your PostgreSQL instance handles 10,000 writes/second. One year later you have 100M users and 100,000 writes/second. A single machine can't keep up. What do you do?
+
+---
+
+**Replication (For Read Scalability & High Availability):**
+
+**Master-Replica (Primary-Replica)**: 
+- ONE Primary accepts all writes. Changes are asynchronously replicated to 1+ Read Replicas.
+- Read traffic (80-90% of most apps) routes to replicas. Only writes go to primary.
+- Problem: Replication lag — replicas may be milliseconds behind primary. Reading your own write may miss it!
+- Solution: Read-your-own-writes: route the same user's reads to primary for 1-2 seconds after they write.
+
+**Multi-Master**: Multiple masters, each accepts writes. Requires conflict resolution (last-write-wins, CRDTs). Used by Cassandra, DynamoDB.
+
+---
+
+**Sharding (For Write Scalability & Storage Scale):**
+
+Split data across MULTIPLE independent database instances (shards). Each shard owns a subset of the data.
+
+**Sharding Strategies:**
+
+**1. Range-Based Sharding**: 
+- Users A-M → Shard 1. Users N-Z → Shard 2.
+- Problem: Uneven distribution (more names start with A than X). "Hot shards" get overloaded.
+
+**2. Hash-Based Sharding**:
+- \`shard = hash(user_id) % num_shards\`
+- Even distribution. Simple to implement.
+- BIG PROBLEM: Adding a new shard requires remapping all existing keys → massive data migration!
+- Solution: **Consistent Hashing** (only remaps K/N keys when a shard is added).
+
+**3. Directory-Based Sharding (Lookup Table)**:
+- Maintain a mapping table: user_id → shard_number.
+- Flexible — easy to rebalance. But adds an extra lookup hop.
+
+**The Challenges of Sharding:**
+- **Cross-shard queries**: JOINs across shards are very expensive (must scatter-gather).
+- **Cross-shard transactions**: No ACID across shards without distributed transactions (expensive).
+- **Re-sharding**: When a shard gets too big, splitting it is complex and risky.
+
+**When to Shard?** Sharding is a LAST resort! Try: Read Replicas → Caching → Vertical Scaling → Denormalization → before sharding. Sharding adds enormous operational complexity.`,
+      keyPoints: [
+        'Replication = copies for read scale & HA. Sharding = partitions for write scale & storage.',
+        'Hash sharding distributes evenly. Range sharding allows efficient range queries.',
+        'Adding shards requires rehashing — use Consistent Hashing to minimize data movement.',
+        'Cross-shard JOINs are expensive — design your data model to avoid them.',
+        'Rule: Never shard until you absolutely must. Operational complexity is enormous.'
+      ]
     }
   ],
 

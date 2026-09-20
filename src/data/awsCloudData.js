@@ -325,6 +325,42 @@ export const awsCloudData = {
       correctService: "S3 Glacier Deep Archive",
       why: "S3 Glacier Deep Archive is AWS's lowest-cost storage tier ($0.00099 per GB/month). It is built for long-term data retention with retrieval times within 12 hours.",
       options: ["S3 Standard", "S3 Standard-IA", "S3 Glacier Deep Archive", "Amazon EBS Cold HDD"]
+    },
+    {
+      situation: "Your e-commerce application sends order confirmation emails, payment receipts, and shipping updates to millions of users. You need a fully managed service to reliably send transactional emails at scale.",
+      correctService: "Amazon SES (Simple Email Service)",
+      why: "Amazon SES is a cost-effective, cloud-based email sending service designed for sending transactional, marketing, and bulk emails. It provides high deliverability with built-in DKIM, SPF, and DMARC support.",
+      options: ["Amazon SNS", "Amazon SES", "Amazon Pinpoint", "Amazon Chime"]
+    },
+    {
+      situation: "A notification system needs to fan out a single order event to 5 different downstream services simultaneously: inventory, billing, shipping, analytics, and email — each processing independently.",
+      correctService: "Amazon SNS (Simple Notification Service)",
+      why: "Amazon SNS is a managed pub/sub messaging service. One publisher sends a message to an SNS Topic, which fan-outs the message to ALL 5 subscribed SQS queues, Lambda functions, or HTTP endpoints simultaneously — perfect for event fan-out.",
+      options: ["Amazon SQS", "Amazon SNS", "Amazon Kinesis", "Amazon EventBridge"]
+    },
+    {
+      situation: "You want to provision your entire AWS infrastructure (VPC, EC2, RDS, IAM Roles, Load Balancers) as a repeatable, version-controlled template that can be deployed identically in dev, staging, and production environments.",
+      correctService: "AWS CloudFormation",
+      why: "AWS CloudFormation lets you define your entire AWS infrastructure as code (YAML/JSON templates). Deploy the same stack to any region or environment with one command. Track changes in Git, roll back automatically on errors — this is Infrastructure as Code (IaC).",
+      options: ["AWS Systems Manager", "AWS CloudFormation", "AWS Elastic Beanstalk", "AWS CodeDeploy"]
+    },
+    {
+      situation: "Your application's RDS MySQL database is being hammered by 50,000 repetitive read queries per minute for the same product catalog data that rarely changes. Response times have degraded from 5ms to 800ms.",
+      correctService: "Amazon ElastiCache (Redis)",
+      why: "ElastiCache for Redis sits between your application and database as an in-memory cache. Frequently read data (product catalog) is served from RAM in 1-2ms instead of querying MySQL. This offloads 90%+ of repetitive reads from the database, reducing its load and restoring sub-10ms response times.",
+      options: ["Amazon RDS Read Replica", "Amazon ElastiCache (Redis)", "Amazon DynamoDB Accelerator (DAX)", "AWS Global Accelerator"]
+    },
+    {
+      situation: "Your Java microservice needs to securely access database passwords and API keys at runtime without hardcoding them in source code, environment variables, or configuration files. The secrets must be automatically rotated every 30 days.",
+      correctService: "AWS Secrets Manager",
+      why: "AWS Secrets Manager stores, rotates, and manages database credentials, API keys, and other secrets. Applications retrieve secrets at runtime via API call (no hardcoded passwords). Native integration with RDS for automatic 30-day rotation with zero downtime.",
+      options: ["AWS Systems Manager Parameter Store", "AWS Secrets Manager", "AWS KMS", "Amazon S3 Encrypted Object"]
+    },
+    {
+      situation: "Users in Australia report that your US-East-based website loads images and videos in 4-5 seconds. You want to reduce this to under 500ms globally without moving your origin infrastructure.",
+      correctService: "Amazon CloudFront",
+      why: "Amazon CloudFront is AWS's global CDN with 400+ Edge Locations worldwide. Static and dynamic content is cached at the Edge Location nearest to each user. Australian users get content from a Sydney Edge Location instead of routing all the way to Virginia — reducing latency from 4s to under 100ms.",
+      options: ["AWS Global Accelerator", "Amazon CloudFront", "Amazon Route 53 Latency Routing", "AWS Direct Connect"]
     }
   ],
 
@@ -524,6 +560,71 @@ export const awsCloudData = {
       ],
       correct: 1,
       explanation: "Amazon Route 53 is a highly available and scalable cloud DNS web service that provides reliable domain registration, DNS routing, and application health checks."
+    },
+    {
+      id: "clf-q16",
+      domain: "Domain 3: Cloud Technology & Services",
+      question: "A company wants to decouple a web application from a back-end processing service. Orders arrive in bursts during peak hours. The processing service should process orders at its own pace without losing any messages, even if it goes temporarily offline. Which service should they use?",
+      options: [
+        "Amazon SNS — Simple Notification Service",
+        "Amazon SQS — Simple Queue Service",
+        "Amazon Kinesis Data Streams",
+        "AWS EventBridge"
+      ],
+      correct: 1,
+      explanation: "Amazon SQS is a fully managed message queuing service that decouples producers from consumers. Messages persist in the queue until the consumer successfully processes and deletes them. If the processing service is offline, messages queue up (for up to 14 days by default). SNS is pub/sub for fan-out; SQS is the right choice for point-to-point decoupling with guaranteed delivery."
+    },
+    {
+      id: "clf-q17",
+      domain: "Domain 2: Security & Compliance",
+      question: "A security team wants to receive immediate alerts whenever a new IAM User is created, an S3 bucket's public access settings are changed, or an unauthorized API call is made. Which combination of services enables this?",
+      options: [
+        "AWS CloudTrail + Amazon EventBridge + Amazon SNS",
+        "Amazon CloudWatch + AWS Config + Amazon SES",
+        "AWS GuardDuty + Amazon Inspector + AWS Shield",
+        "AWS Trusted Advisor + AWS Budgets + Amazon Macie"
+      ],
+      correct: 0,
+      explanation: "CloudTrail captures all API calls (who changed what). EventBridge can create rules that trigger on specific CloudTrail events (e.g., 'CreateUser' API call). SNS sends the alert email/SMS. This trio is the standard AWS security alerting architecture. CloudWatch monitors metrics; Config tracks configuration history — neither sends event-based security alerts natively."
+    },
+    {
+      id: "clf-q18",
+      domain: "Domain 3: Cloud Technology & Services",
+      question: "Which statement CORRECTLY describes the difference between Amazon Aurora and Amazon RDS?",
+      options: [
+        "Aurora is a NoSQL database; RDS only supports SQL databases.",
+        "Aurora is AWS's cloud-native, high-performance relational database rewriting MySQL/PostgreSQL storage engines — 5x faster than MySQL, 6-copy replication, auto-scaling to 128TB. RDS is the managed service for running standard database engines (MySQL, PostgreSQL, Oracle, SQL Server) with less customization.",
+        "RDS supports automatic failover; Aurora does not.",
+        "Aurora stores data only in a single Availability Zone by default."
+      ],
+      correct: 1,
+      explanation: "Amazon Aurora is AWS's cloud-native relational database, compatible with MySQL and PostgreSQL, but with fundamentally redesigned storage: 6 copies across 3 AZs, auto-scaling to 128TB, 5x faster than MySQL. RDS is the managed service for running stock database engines (MySQL, PostgreSQL, Oracle, SQL Server, MariaDB) with AWS managing OS patching and backups. Aurora costs more but offers superior performance and HA."
+    },
+    {
+      id: "clf-q19",
+      domain: "Domain 3: Cloud Technology & Services",
+      question: "What is the key architectural difference between a Security Group and a Network ACL (NACL) in Amazon VPC?",
+      options: [
+        "Security Groups apply to subnets; NACLs apply to individual EC2 instances.",
+        "Security Groups are stateful (return traffic automatically allowed) and apply at the instance level with ALLOW rules only. NACLs are stateless (inbound and outbound rules evaluated independently) and apply at the subnet level with both ALLOW and DENY rules.",
+        "NACLs only work with IPv6 traffic; Security Groups work with IPv4.",
+        "Both Security Groups and NACLs are stateful — there is no difference in this regard."
+      ],
+      correct: 1,
+      explanation: "Security Groups = Instance-level firewall. Stateful: if you allow inbound port 80, the response traffic is automatically allowed back out. Supports ALLOW rules only. Evaluates ALL rules. NACLs = Subnet-level firewall. Stateless: you must explicitly add both inbound AND outbound rules. Supports both ALLOW and DENY rules. Evaluates rules in order by number (lowest first). Use NACLs for subnet-wide blocking (e.g., blocking a specific IP range)."
+    },
+    {
+      id: "clf-q20",
+      domain: "Domain 1: Cloud Concepts",
+      question: "A startup wants to define their entire AWS infrastructure (VPCs, subnets, EC2 instances, security groups, RDS databases) as code files stored in Git, enabling reproducible environment creation and rollback. Which AWS service provides this capability?",
+      options: [
+        "AWS Elastic Beanstalk — for application deployment",
+        "AWS CloudFormation — Infrastructure as Code using YAML/JSON templates",
+        "AWS CodeDeploy — for deploying application code to EC2",
+        "AWS Systems Manager — for managing EC2 instance configurations"
+      ],
+      correct: 1,
+      explanation: "AWS CloudFormation is the Infrastructure as Code (IaC) service that lets you define ALL AWS resources in YAML or JSON template files. Deploy the same stack identically to dev/staging/production with one command. Store templates in Git for version history and rollback. CloudFormation handles dependency ordering, rollback on failure, and drift detection. This is the foundation of DevOps on AWS."
     }
   ]
 };
